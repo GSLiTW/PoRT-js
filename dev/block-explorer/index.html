@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Block Explorer</title>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+
+<body >
+	<div class="container" >
+		<div class="row">
+			<div class="col-md-8 offset-md-2">
+				<h1 id="page-title">Block Explorer</h1>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 offset-md-3">
+
+					<div class="form-group">
+						<input type="text" class="form-control" id="searchValue">
+					</div>
+					<div class="form-group">
+						<select class="form-control" id="searchType">
+							<option value="block">Block Hash</option>
+							<option value="transaction">Transaction ID</option>
+							<option value="address">Address</option>
+						</select>
+					</div>
+					<button
+						onclick="search()"
+						class="btn btn-primary margin-auto btn-search">
+							Search
+					</button>
+					<p class="no-data-text" id="Msg">
+						No data found for search.
+					</p>
+
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-10 offset-md-1">
+
+				<!-- 'display block' table -->
+				<div id="Block">
+					<h3 class="table-title" >Block</h3>
+					<table class="table table-striped">
+						<tbody>
+							<tr>	
+								<td class="bold">Block Hash</td>
+								<td><p id="blockhash"> </p></td>
+							</tr>
+							<tr>	
+								<td class="bold">Index</td>
+								<td><p id="blockindex"></p></td>
+							</tr>
+							<tr>	
+								<td class="bold">Time Stamp</td>
+								<td><p id="blocktimestamp"></p></td>
+							</tr>
+							<tr>	
+								<td class="bold">Nonce</td>
+								<td><p id="blocknonce"></p></td>
+							</tr>
+							<tr>	
+								<td class="bold">Previous Hash</td>
+								<td><p id="blockpreviousBlockHash"></p></td>
+							</tr>
+							<tr>	
+								<td class="bold">Number Transactions</td>
+								<td><p id="TxLength"></p></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- end 'display block' table -->
+
+				<!-- 'display transaction' table -->
+				<div id="transaction">
+					<h3 class="table-title">Transaction</h3>
+					<table class="table table-striped" >
+						<tbody>
+							<tr>	
+								<td class="bold">Sender</td>
+								<td><p id="sender"></p></td>
+							</tr>
+							<tr>	
+								<td class="bold">Recipient</td>
+								<td><p id="recipient"></p></td>
+							</tr>
+							<tr>	
+								<td class="bold">Amount</td>
+								<td><p id="amount"></p></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- end 'display transaction' table -->
+
+				<!-- 'display address' table -->
+				<div id="addressData">
+					<h3 class="table-title" id="addressData">Address</h3>
+					<p id="balance-text" >(Balance: balance)</p>
+					<table class="table table-striped" >
+						<thead>
+							<tr>
+								<th scope="col">Sender</th>
+								<th scope="col">Recipient</th>
+								<th scope="col">Amount</th>
+							</tr>
+						</thead>
+						<tbody id="addressTransactions">
+	
+						</tbody>
+					</table>
+				</div>
+				<!-- end 'display address' table -->
+
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function PanelCtrl(pal){
+			$('#addressData').hide();
+			$('#transaction').hide();
+			$('#Block').hide();
+			$('#Msg').hide();
+			switch(pal)
+			{
+				case 'addressData':
+					$('#addressData').show();
+					break;
+				case 'transaction':
+					$('#transaction').show();
+					break;
+				case 'block':
+					$('#Block').show();
+					break;	
+				case 'msg':
+					$('#Msg').show();
+					break;
+			}
+		}
+
+		var transaction = null;
+		var block = null;
+		var addressData = null;
+
+		function fetchTransaction(transactionId) {
+			$.get("/transaction/" + transactionId)
+				.then(response => {
+					transaction = response.transaction;
+					block = null;
+					addressData = null;
+
+					if(transaction !=null)
+					{
+						PanelCtrl("transaction");
+						$("#sender").text(transaction.sender);
+						$("#recipient").text(transaction.recipient);
+						$("#amount").text(transaction.amount);
+					}
+					else
+						PanelCtrl("msg");
+				});			
+		}
+
+		function fetchBlock(blockHash) {
+			$.get("/block/" +blockHash)
+				.then(response => {
+					block = response.block;
+					transaction = null;
+					addressData = null;
+					if(block !=null){
+						console.log(JSON.stringify(block));
+						PanelCtrl("block");
+						$("#blockhash").text(block.hash);
+						$("#blockindex").text(block.index);
+						$("#blocktimestamp").text(block.timestamp);
+						$("#blocknonce").text(block.nonce);
+						$("#blockpreviousBlockHash").text(block.previousBlockHash);
+						$("#TxLength").text(block.transactions.length);
+					}
+					else
+						PanelCtrl("msg");
+				});	
+		}
+
+		function fetchAddressData(address) {
+			$.get("/address/" +address)
+				.then(response => {
+					addressData = response.addressData;
+					if (!addressData.addressTransactions.length) 
+						addressData = null;
+					block = null;
+					transaction = null;
+					if(addressData !=null){
+						PanelCtrl("addressData");
+						$("#balance-text").text("(Balance: "+ addressData.addressBalance + " )");
+						var content ="";
+						for(var i =0; i < addressData.addressTransactions.length; i++)
+						{
+							content +="<tr><td>" + addressData.addressTransactions[i].sender + 
+									"</td><td>" + addressData.addressTransactions[i].recipient + 
+									"</td><td>" + addressData.addressTransactions[i].amount + "</td></tr>"
+						}
+						$("#addressTransactions").html(content);
+						
+					}
+					else
+					{
+						PanelCtrl("msg");
+						$("#balance").text("");
+						$("#balance").html("");
+					}
+				});			
+		}
+
+		function search() {
+			var searchType = $('#searchType').val();
+			var searchValue = $('#searchValue').val();
+			if (searchType === 'block') {
+					fetchBlock(searchValue);
+				}
+				else if (searchType === 'transaction') {
+					fetchTransaction(searchValue);
+				}
+				else if (searchType === 'address') {
+					fetchAddressData(searchValue);
+				}
+		};
+
+		$(document).ready(function(){
+			PanelCtrl("");
+		});
+		
+	</script>
+
+	<style type="text/css">
+		html, body {
+			min-height: 100vh;
+			background-color: #e8e8e8;
+		}
+		.container {
+			padding-top: 50px;
+			padding-bottom: 50px;
+		}
+		#page-title {
+			text-align: center;
+			margin-bottom: 40px;
+		}
+		.table-title {
+			margin-bottom: 20px;
+			text-align: center;
+		}
+		.table {
+			background-color: #ffffff;
+			box-shadow: 2px 2px 15px -3px rgba(0,0,0,0.75);
+		}
+		#balance-text {
+			text-align: center;
+			margin-top: -20px;
+			margin-bottom: 30px;
+		}
+		.margin-auto {
+			margin: auto;
+			display: block;
+		}
+		.btn-search {
+			margin-bottom: 50px;
+		}
+		.bold {
+			font-weight: 700;
+		}
+		.no-data-text {
+			color: red;
+			text-align: center;
+		}
+	</style>
+
+
+</body>
+
+</html>
