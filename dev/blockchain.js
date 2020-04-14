@@ -1,6 +1,10 @@
-const sha256 = require("sha256");
+
 const uuid = require('uuid/v1');
 const currentNodeUrl = process.argv[3];
+
+// local modules
+const Block = require('./block.js')
+const ProofOfWork = require('./proof.js')
 
 function Blockchain(){
     this.chain = [];
@@ -9,25 +13,12 @@ function Blockchain(){
     this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
 
-    this.createNewBlock(100, "0", "0");     //create Genesis Block
+    var genesisBlock = new Block(0, [], "0");
+    this.chain.push(genesisBlock)   //create Genesis Block
 }
 
-/*class Blockchain = {
-    constructor(){
-        this.chain = [];
-        this.pendingTransactions = [];
-    }
-}*/
-
-Blockchain.prototype.createNewBlock = function(nonce, previousHash, hash){
-    const newBlock = {
-        index: this.chain.length +1,
-        timestamp: Date.now(),
-        transactions: this.pendingTransactions,
-        nonce: nonce,
-        hash: hash,
-        previousBlockHash: previousHash
-    };
+Blockchain.prototype.createNewBlock = function(previousHash){
+    var newBlock = new Block(this.chain.length+1, this.pendingTransactions, previousHash)
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);
@@ -53,24 +44,6 @@ Blockchain.prototype.createNewTransaction = function(amount, sender, recipient){
 Blockchain.prototype.addTransactionToPendingTransaction = function(transactionObj){
     this.pendingTransactions.push(transactionObj);
     return this.getLastBlock()["index"]+1;
-};
-
-Blockchain.prototype.hashBlock = function(previousBlockHash, currentBlockData, nonce){
-    const dataAsString = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
-    const hash = sha256(dataAsString);
-    return hash;
-};
-
-Blockchain.prototype.proofOfWork = function(previousBlockHash, currentBlockData){
-    let nonce = 0;
-    let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-    while(hash.substring(0, 2) !== "00"){
-        nonce++;
-        hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-        //console.log(hash);
-    }
-
-    return nonce;
 };
 
 Blockchain.prototype.chainIsValid = function(blockchain){

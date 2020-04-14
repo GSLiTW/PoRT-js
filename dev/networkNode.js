@@ -1,14 +1,17 @@
 var express = require('express');
 var app = express();
 const bodyParser = require("body-parser");
-const Blockchain = require("./blockchain");
 const uuid = require("uuid/v1");
 const port = process.argv[2];
 const rp = require("request-promise");
 
+// local modules
+const Blockchain = require("./blockchain");
+
 const nodeAddress = uuid().split("-").join("");
 
 const chain = new Blockchain();
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -48,15 +51,7 @@ app.get("/mine", function(req, res){
     const lastBlock = chain.getLastBlock();
     const previousBlockHash = lastBlock["hash"];
 
-    const currentBlockData = {
-        transactions: chain.pendingTransactions,
-        index: lastBlock["index"]+1
-    }
-
-    const nonce = chain.proofOfWork(previousBlockHash, currentBlockData);
-    const blockHash = chain.hashBlock(previousBlockHash, currentBlockData, nonce);
-    
-    const newBlock = chain.createNewBlock(nonce, previousBlockHash, blockHash);
+    const newBlock = chain.createNewBlock(previousBlockHash);
 
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
