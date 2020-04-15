@@ -30,20 +30,9 @@ Blockchain.prototype.getLastBlock = function(){
     return this.chain[this.chain.length-1];
 };
 
-Blockchain.prototype.createNewTransaction = function(amount, sender, recipient){
-    const newTransaction = {
-        amount: amount,
-        sender: sender,
-        recipient: recipient,
-        transactionId: uuid().split("-").join("")
-    };
-
-    return newTransaction;
-};
-
 Blockchain.prototype.addTransactionToPendingTransaction = function(transactionObj){
     this.pendingTransactions.push(transactionObj);
-    return this.getLastBlock()["index"]+1;
+    return this.getLastBlock()["height"]+1;
 };
 
 Blockchain.prototype.chainIsValid = function(blockchain){
@@ -53,7 +42,7 @@ Blockchain.prototype.chainIsValid = function(blockchain){
         const prevBlock = blockchain[i-1];
         const blockHash = this.hashBlock(prevBlock["hash"], {
             transactions: currentBlock["transactions"],
-            index: currentBlock["index"]
+            index: currentBlock["height"]
             },
             currentBlock["nonce"]
         );
@@ -105,6 +94,9 @@ Blockchain.prototype.getTransaction = function(transactionId){
     };
 };
 
+/*
+ *  This function (method) should be in wallet.js
+ */
 Blockchain.prototype.getAddressData = function(address){
     const addressTransactions = [];
     this.chain.forEach(block =>{

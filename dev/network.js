@@ -6,7 +6,8 @@ const port = process.argv[2];
 const rp = require("request-promise");
 
 // local modules
-const Blockchain = require("./blockchain");
+const Blockchain = require("./blockchain.js");
+const Transaction = require("./transaction.js")
 
 const nodeAddress = uuid().split("-").join("");
 
@@ -27,7 +28,7 @@ app.post("/transaction", function(req, res){
 });
 
 app.post("/transaction/broadcast", function(req, res){
-    const newTransaction = chain.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient)
+    const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
     chain.addTransactionToPendingTransaction(newTransaction);
 
     const requestPromises = [];
@@ -89,7 +90,7 @@ app.post("/receive-new-block", function(req, res){
     const newBlock = req.body.newBlock;
     const lastBlock = chain.getLastBlock();
     const correctHash = lastBlock.hash === newBlock.previousBlockHash;
-    const correctIndex = lastBlock["index"]+1 == newBlock["index"];
+    const correctIndex = lastBlock["height"]+1 == newBlock["height"];
 
     if(correctHash && correctIndex){
         chain.chain.push(newBlock);
