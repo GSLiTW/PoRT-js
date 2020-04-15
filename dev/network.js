@@ -1,14 +1,18 @@
 var express = require('express');
 var app = express();
 const bodyParser = require("body-parser");
-const Blockchain = require("./blockchain");
 const uuid = require("uuid/v1");
 const port = process.argv[2];
 const rp = require("request-promise");
 
+// local modules
+const Blockchain = require("./blockchain.js");
+const Transaction = require("./transaction.js")
+
 const nodeAddress = uuid().split("-").join("");
 
 const chain = new Blockchain();
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -24,7 +28,7 @@ app.post("/transaction", function(req, res){
 });
 
 app.post("/transaction/broadcast", function(req, res){
-    const newTransaction = chain.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient)
+    const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
     chain.addTransactionToPendingTransaction(newTransaction);
 
     const requestPromises = [];
@@ -48,15 +52,7 @@ app.get("/mine", function(req, res){
     const lastBlock = chain.getLastBlock();
     const previousBlockHash = lastBlock["hash"];
 
-    const currentBlockData = {
-        transactions: chain.pendingTransactions,
-        index: lastBlock["index"]+1
-    }
-
-    const nonce = chain.proofOfWork(previousBlockHash, currentBlockData);
-    const blockHash = chain.hashBlock(previousBlockHash, currentBlockData, nonce);
-    
-    const newBlock = chain.createNewBlock(nonce, previousBlockHash, blockHash);
+    const newBlock = chain.createNewBlock(previousBlockHash);
 
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
@@ -94,7 +90,7 @@ app.post("/receive-new-block", function(req, res){
     const newBlock = req.body.newBlock;
     const lastBlock = chain.getLastBlock();
     const correctHash = lastBlock.hash === newBlock.previousBlockHash;
-    const correctIndex = lastBlock["index"]+1 == newBlock["index"];
+    const correctIndex = lastBlock["height"]+1 == newBlock["height"];
 
     if(correctHash && correctIndex){
         chain.chain.push(newBlock);

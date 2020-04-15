@@ -1,6 +1,10 @@
-const sha256 = require("sha256");
+
 const uuid = require('uuid/v1');
 const currentNodeUrl = process.argv[3];
+
+// local modules
+const Block = require('./block.js')
+const ProofOfWork = require('./proof.js')
 
 function Blockchain(){
     this.chain = [];
@@ -9,25 +13,12 @@ function Blockchain(){
     this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
 
-    this.createNewBlock(100, "0", "0");     //create Genesis Block
+    var genesisBlock = new Block(0, [], "0");
+    this.chain.push(genesisBlock)   //create Genesis Block
 }
 
-/*class Blockchain = {
-    constructor(){
-        this.chain = [];
-        this.pendingTransactions = [];
-    }
-}*/
-
-Blockchain.prototype.createNewBlock = function(nonce, previousHash, hash){
-    const newBlock = {
-        index: this.chain.length +1,
-        timestamp: Date.now(),
-        transactions: this.pendingTransactions,
-        nonce: nonce,
-        hash: hash,
-        previousBlockHash: previousHash
-    };
+Blockchain.prototype.createNewBlock = function(previousHash){
+    var newBlock = new Block(this.chain.length+1, this.pendingTransactions, previousHash)
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);
@@ -39,38 +30,9 @@ Blockchain.prototype.getLastBlock = function(){
     return this.chain[this.chain.length-1];
 };
 
-Blockchain.prototype.createNewTransaction = function(amount, sender, recipient){
-    const newTransaction = {
-        amount: amount,
-        sender: sender,
-        recipient: recipient,
-        transactionId: uuid().split("-").join("")
-    };
-
-    return newTransaction;
-};
-
 Blockchain.prototype.addTransactionToPendingTransaction = function(transactionObj){
     this.pendingTransactions.push(transactionObj);
-    return this.getLastBlock()["index"]+1;
-};
-
-Blockchain.prototype.hashBlock = function(previousBlockHash, currentBlockData, nonce){
-    const dataAsString = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
-    const hash = sha256(dataAsString);
-    return hash;
-};
-
-Blockchain.prototype.proofOfWork = function(previousBlockHash, currentBlockData){
-    let nonce = 0;
-    let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-    while(hash.substring(0, 2) !== "00"){
-        nonce++;
-        hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-        //console.log(hash);
-    }
-
-    return nonce;
+    return this.getLastBlock()["height"]+1;
 };
 
 Blockchain.prototype.chainIsValid = function(blockchain){
@@ -80,7 +42,7 @@ Blockchain.prototype.chainIsValid = function(blockchain){
         const prevBlock = blockchain[i-1];
         const blockHash = this.hashBlock(prevBlock["hash"], {
             transactions: currentBlock["transactions"],
-            index: currentBlock["index"]
+            index: currentBlock["height"]
             },
             currentBlock["nonce"]
         );
@@ -132,6 +94,9 @@ Blockchain.prototype.getTransaction = function(transactionId){
     };
 };
 
+/*
+ *  This function (method) should be in wallet.js
+ */
 Blockchain.prototype.getAddressData = function(address){
     const addressTransactions = [];
     this.chain.forEach(block =>{
