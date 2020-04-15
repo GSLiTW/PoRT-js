@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]  
 *Feature(s) in development should be displayed here, with information of who is actively dealing with it.* 
 
-## 0.0.0 - 2020-04-01 - ytwang
+## 0.1.0 - 2020-04-16  
+### Changed
+- Code modularization completed
+  > Now ``dev/`` contains 7 modules handling different functionalities respectively
+
+## 0.0.0 - 2020-04-01
 ### Added
 - Set up this CHANGELOG file
 - Upload the sample Javascript blockchain implementation
