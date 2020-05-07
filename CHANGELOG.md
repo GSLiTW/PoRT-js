@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]  
 *Feature(s) in development should be displayed here, with information of who is actively dealing with it.* 
 - Wallet sign & verification  
-- Truely random generated wallet
+
+## 0.2.1 - 2020-05-07
+### Fixed  
+- Bug fixed in function *PublicKeyHash* in [wallet.js](./dev/wallet.js), now a different wallet is generated every time.
 
 ## 0.2.0 - 2020-05-07
 ### Added

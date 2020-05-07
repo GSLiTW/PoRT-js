@@ -16,11 +16,13 @@ Wallet.prototype.NewKeyPair = function(){
     const ecdsa = new elliptic.ec('secp256k1');
     const keys = ecdsa.keyFromPrivate(privateKey);
     publicKey = keys.getPublic('hex');
+    //cconsole.log("Private Key: ", privateKey);
+    // console.log("Public Key: ", publicKey);
 }
 
 Wallet.prototype.PublicKeyHash = function(){
-    let hash = sha256(Buffer.from(this.publicKey, 'hex'));
-    // console.log(hash)
+    let hash = sha256(Buffer.from(publicKey, 'hex'));
+    // console.log("Public Key:", publicKey)
     let publicKeyHash = new ripemd160().update(Buffer.from(hash, 'hex')).digest();
     // console.log(publicKeyHash.toString('hex'))
     return publicKeyHash.toString('hex');
@@ -47,6 +49,10 @@ Wallet.prototype.Address = function() {
     return base58.encode(Buffer.from(fullHash,'hex'));
 }
 
+Wallet.prototype.Sign = function(dataHash) {
+    return privateKey;
+}
+
 Wallet.prototype.ValidateAddress = function(){
 
 }
@@ -54,4 +60,4 @@ Wallet.prototype.ValidateAddress = function(){
 module.exports = Wallet;
 
 w = new Wallet();
-console.log(w.Address(), w.Address().length)
+console.log(w.Address(), base58.decode(w.Address()).toString('hex'));
