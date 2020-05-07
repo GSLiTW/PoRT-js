@@ -52,10 +52,8 @@ Wallet.prototype.Address = function() {
 }
 
 Wallet.prototype.Sign = function(dataHash) {
-    let msg = "Message for signing";
-    let msgHash = sha256(msg);
     const ecdsa = new elliptic.ec('secp256k1');
-    let signature = ec.sign(msgHash, privateKey, "hex", {canonical:true});
+    let signature = ecdsa.sign(dataHash, privateKey, "hex", {canonical:true});
     return signature;
 }
 
@@ -78,3 +76,4 @@ module.exports = Wallet;
 w = new Wallet();
 console.log(w.Address(), base58.decode(w.Address()).toString('hex'));
 console.log(w.ValidateAddress(w.Address()));
+console.log((w.Sign("123")),(w.Sign("123")));
