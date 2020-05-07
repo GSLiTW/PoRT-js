@@ -52,7 +52,11 @@ Wallet.prototype.Address = function() {
 }
 
 Wallet.prototype.Sign = function(dataHash) {
-    return privateKey;
+    let msg = "Message for signing";
+    let msgHash = sha256(msg);
+    const ecdsa = new elliptic.ec('secp256k1');
+    let signature = ec.sign(msgHash, privateKey, "hex", {canonical:true});
+    return signature;
 }
 
 Wallet.prototype.ValidateAddress = function(address){
