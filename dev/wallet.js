@@ -4,6 +4,8 @@ const elliptic = require('elliptic');
 const ripemd160 = require('ripemd160');
 const base58 = require('bs58');
 
+const CHECKSUM_LENGTH = 4; // 4 bytes
+
 function Wallet() {
     this.balance = 0,
     this.privateKey = '',
@@ -31,8 +33,8 @@ Wallet.prototype.PublicKeyHash = function(){
 Wallet.prototype.Checksum = function(versionedHash){
     var firstHash = sha256(Buffer.from(versionedHash, 'hex'));
     var secondHash = sha256(Buffer.from(firstHash, 'hex'));
-    
-    return secondHash.substring(0,8);
+    secondHash = Buffer.from(secondHash, 'hex');
+    return secondHash.subarray(0,CHECKSUM_LENGTH);
 
 }
 
@@ -43,7 +45,7 @@ Wallet.prototype.Address = function() {
     // console.log("VersionedHash: ", versionedHash)
     var checksum = this.Checksum(versionedHash);
     // console.log("CHecksum: ", checksum);
-    var fullHash = checksum + versionedHash;
+    var fullHash = versionedHash + checksum.toString('hex');
     // console.log("FUllHash: ", fullHash)
     
     return base58.encode(Buffer.from(fullHash,'hex'));
@@ -53,7 +55,17 @@ Wallet.prototype.Sign = function(dataHash) {
     return privateKey;
 }
 
-Wallet.prototype.ValidateAddress = function(){
+Wallet.prototype.ValidateAddress = function(address){
+    var pubHash = base58.decode(address);
+    // console.log("pubHash:", pubHash);
+    var actualChecksum = pubHash.subarray(pubHash.length - CHECKSUM_LENGTH);
+    // console.log("actualChecksum:", actualChecksum);
+    var version = pubHash.subarray(0,1);
+    var pubHash = pubHash.subarray(1,pubHash.length - CHECKSUM_LENGTH);
+    var targetChecksum = this.Checksum(Buffer.concat([version, pubHash]));
+    // console.log("targetChecksum:", targetChecksum)
+
+    return (actualChecksum.compare(targetChecksum) == 0)
 
 }
 
@@ -61,3 +73,4 @@ module.exports = Wallet;
 
 w = new Wallet();
 console.log(w.Address(), base58.decode(w.Address()).toString('hex'));
+console.log(w.ValidateAddress(w.Address()));

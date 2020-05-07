@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wallet sign & verification  
 
 ## 0.2.1 - 2020-05-07
+### Added  
+- Feature *ValidateAddress* added.  
+
 ### Fixed  
 - Bug fixed in function *PublicKeyHash* in [wallet.js](./dev/wallet.js), now a different wallet is generated every time.
+- Bug fixed in function *Address* in [wallet.js](./dev.wallet.js).
 
 ## 0.2.0 - 2020-05-07
 ### Added
