@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]  
 *Feature(s) in development should be displayed here, with information of who is actively dealing with it.* 
+- Wallet sign & verification  
+- Truely random generated wallet
+
+## 0.2.0 - 2020-05-07
+### Added
+- Wallet key & address features added in [wallet.js](./dev/wallet.js)  
 
 ## 0.1.0 - 2020-04-16  
 ### Changed

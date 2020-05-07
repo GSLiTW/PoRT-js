@@ -15,11 +15,15 @@
   "license": "ISC",
   "dependencies": {
     "body": "^5.1.0",
+    "bs58": "^4.0.1",
+    "elliptic": "^6.5.2",
     "express": "^4.17.1",
     "nodemon": "^2.0.2",
     "parser": "^0.1.4",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
+    "ripemd160": "^2.0.2",
+    "secure-random": "^1.1.2",
     "sha256": "^0.2.0",
     "uuid": "^3.4.0"
   }
