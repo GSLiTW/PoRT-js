@@ -1,10 +1,18 @@
-
 const uuid = require('uuid/v1');
 const currentNodeUrl = process.argv[3];
 
 // local modules
 const Block = require('./block.js')
 const ProofOfWork = require('./proof.js')
+const Account = require("./account");
+const Stake = require("./stake");
+
+const TRANSACTION_TYPE = {
+    transaction: "TRANSACTION",
+    stake: "STAKE",
+    validator_fee: "VALIDATOR_FEE"
+};
+
 
 function Blockchain(){
     this.chain = [];
@@ -12,6 +20,11 @@ function Blockchain(){
 
     this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
+  
+    this.accounts = new Account();
+    this.address = this.accounts.getAddress();
+    this.stakes = new Stake(this.address);
+    this.validators = new Validators();
 
     var genesisBlock = new Block(0, [], "0");
     this.chain.push(genesisBlock)   //create Genesis Block
@@ -119,6 +132,53 @@ Blockchain.prototype.getAddressData = function(address){
         addressBalance : balance
     }
 
+}
+
+Blockchain.prototype.getBalance = function(publicKey) {
+    return this.accounts.getBalance(publicKey);
+}
+
+Blockchain.prototype.getLeader = function() {
+    return this.stakes.getMax(this.validators.list);
+}
+
+Blockchain.prototype.initialize = function(address) {
+    this.accounts.initialize(address);
+    this.stakes.initialize(address);
+}
+
+Blockchain.prototype.executeTransactions = function(block) {
+    block.data.forEach(transaction => {
+        switch (transaction.type) {
+            case TRANSACTION_TYPE.transaction:
+                this.accounts.update(transaction);
+                this.accounts.transferFee(block, transaction);
+            break;
+            case TRANSACTION_TYPE.stake:
+            this.stakes.update(transaction);
+            this.accounts.decrement(
+                transaction.input.from,
+                transaction.output.amount
+            );
+            this.accounts.transferFee(block, transaction);
+            break;
+            case TRANSACTION_TYPE.validator_fee:
+            if (this.validators.update(transaction)) {
+                this.accounts.decrement(
+                transaction.input.from,
+                transaction.output.amount
+                );
+                this.accounts.transferFee(block, transaction);
+            }
+            break;
+        }
+    });
+}
+
+Blockchain.prototype.executeChain = function(chain) {
+    chain.forEach(block => {
+        this.executeTransactions(block);
+    });
 }
 
 module.exports = Blockchain;
