@@ -6,6 +6,7 @@ const Block = require('./block.js')
 const ProofOfWork = require('./proof.js')
 const Account = require("./account");
 const Stake = require("./stake");
+const Validators = require("./validators");
 
 const TRANSACTION_TYPE = {
     transaction: "TRANSACTION",
