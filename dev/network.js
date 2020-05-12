@@ -22,7 +22,8 @@ app.get("/blockchain", function(req, res){
 });
 
 app.post("/transaction", function(req, res){
-    const newTransaction = req.body;
+    var para = JSON.parse(req.body)
+    const newTransaction = Transaction(para['from'], para['to'], para['amount'], para['type']);
     const blockIndex = chain.addTransactionToPendingTransaction(newTransaction);
     res.json({note: `Transaction will be created in block ${blockIndex}.`});
 });

@@ -1,4 +1,3 @@
-
 const uuid = require('uuid/v1');
 const currentNodeUrl = process.argv[3];
 
@@ -14,17 +13,19 @@ const TRANSACTION_TYPE = {
     validator_fee: "VALIDATOR_FEE"
 };
 
+
 function Blockchain(){
     this.chain = [];
     this.pendingTransactions = [];
 
     this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
-
+  
     this.accounts = new Account();
     this.address = this.accounts.getAddress();
     this.stakes = new Stake(this.address);
     this.validators = new Validators();
+
     var genesisBlock = new Block(0, [], "0");
     this.chain.push(genesisBlock)   //create Genesis Block
 }
