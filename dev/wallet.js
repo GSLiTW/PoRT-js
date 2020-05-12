@@ -10,7 +10,7 @@ function Wallet() {
     this.balance = 0,
     this.privateKey = '',
     this.publicKey = '',
-    this.NewKeyPair();
+    this.NewKeyPair()
 };
 
 Wallet.prototype.NewKeyPair = function(){
@@ -73,7 +73,7 @@ Wallet.prototype.ValidateAddress = function(address){
 
 module.exports = Wallet;
 
-w = new Wallet();
-console.log(w.Address(), base58.decode(w.Address()).toString('hex'));
-console.log(w.ValidateAddress(w.Address()));
-console.log((w.Sign("123")),(w.Sign("123")));
+// w = new Wallet();
+// console.log(w.Address(), base58.decode(w.Address()).toString('hex'));
+// console.log(w.ValidateAddress(w.Address()));
+// console.log((w.Sign("123")),(w.Sign("123")));
