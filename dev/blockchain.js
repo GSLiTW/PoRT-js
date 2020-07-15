@@ -6,6 +6,7 @@ const Block = require('./block.js')
 const ProofOfWork = require('./proof.js')
 const Account = require("./account");
 const Stake = require("./stake");
+const Validators = require("./validators");
 
 const TRANSACTION_TYPE = {
     transaction: "TRANSACTION",
@@ -22,8 +23,7 @@ function Blockchain(){
     this.networkNodes = [];
   
     this.accounts = new Account();
-    this.address = this.accounts.getAddress();
-    this.stakes = new Stake(this.address);
+    this.stakes = new Stake();
     this.validators = new Validators();
 
     var genesisBlock = new Block(0, [], "0");
