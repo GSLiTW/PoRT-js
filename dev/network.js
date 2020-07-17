@@ -8,7 +8,6 @@ const rp = require("request-promise");
 // local modules
 const Blockchain = require("./blockchain.js");
 const Transaction = require("./transaction.js")
-const Wallet = require("./wallet.js")
 
 const nodeAddress = uuid().split("-").join("");
 
@@ -23,10 +22,8 @@ app.get("/blockchain", function(req, res){
 });
 
 app.post("/transaction", function(req, res){
-    console.log(typeof(req.body))
-    var wallet = new Wallet();
-    const newTransaction = new Transaction(wallet, req.body['to'], req.body['amount'], req.body['type']);
-    console.log(newTransaction);
+    var para = JSON.parse(req.body)
+    const newTransaction = Transaction(para['from'], para['to'], para['amount'], para['type']);
     const blockIndex = chain.addTransactionToPendingTransaction(newTransaction);
     res.json({note: `Transaction will be created in block ${blockIndex}.`});
 });

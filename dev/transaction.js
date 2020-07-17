@@ -2,7 +2,6 @@ const TRANSACTION_FEE = 1;
 const uuid = require('uuid/v1')
 const sha256 = require('sha256')
 const ec = require('elliptic')
-const wallet = require("./wallet.js")
 
 function Transaction(senderWallet, to, amount, type) {
     this.id = uuid(),
@@ -17,7 +16,7 @@ function Transaction(senderWallet, to, amount, type) {
     this.input = {
         timestamp: Date.now(),
         from: senderWallet.publicKey,
-        signature: senderWallet.Sign(sha256(JSON.stringify(this.output).toString()))
+        signature: senderWallet.sign(sha256(JSON.stringify(this.output).toString()))
     }
 
 }
