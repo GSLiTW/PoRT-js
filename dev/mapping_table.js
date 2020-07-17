@@ -51,3 +51,5 @@ Mapping_table.prototype.initialize = function() {
 
 var a = new Mapping_table();
 a.initialize();
+
+module.exports = a;
