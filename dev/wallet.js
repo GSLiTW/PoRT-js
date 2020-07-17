@@ -7,7 +7,7 @@ const base58 = require('bs58');
 const CHECKSUM_LENGTH = 4; // 4 bytes
 
 function Wallet() {
-    this.balance = 1000,
+    this.balance = 0,
     this.privateKey = '',
     this.publicKey = '',
     this.NewKeyPair()
