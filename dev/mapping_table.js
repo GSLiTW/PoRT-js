@@ -1,6 +1,8 @@
 const CSV_data = require("./CSV_data.js");
 const Transaction_MT = require("./transaction_for_mapping_table.js");
 const Account_MT = require("./account_for_mapping_table.js");
+const Transaction_Pool = require("./transaction_pool.js");
+const Pending_Transaction_Pool = require("./pending_transaction_pool.js");
 var sender_register = 1;
 var receiver_register = 1;
 
@@ -10,34 +12,36 @@ function Mapping_table() {
 };
 
 Mapping_table.prototype.initialize = function() {
-    data = new CSV_data();
-    var data_ = data.getData(1); //get data of block1
-    for(var i = 1; i < 44; ++i) {
-        var txn = new Transaction_MT(data_[i][0], data_[i][2], data_[i][3], data_[i][4]);
+    var pending_txn_pool = new Pending_Transaction_Pool(1);
+    var txn = pending_txn_pool.get_transaction();
+    console.log(txn[0].get_sender());
+    var txn_pool = new Transaction_Pool();
+    for(var i = 0; i < 43; ++i) {
+        txn_pool.create(txn[i]);
         for(var j = 0; j < this.numOfAddress; j++) {
-            if(this.account[j].getAddress() === data_[i][2]) {
+            if(this.account[j].getAddress() === txn[i].get_sender()) {
                 sender_register = 0;
-                this.account[j].transactions.push(txn);
+                this.account[j].transactions.push(txn[i]);
                 break;
             }
         }
         for(var j = 0; j < this.numOfAddress; j++) {
-            if(this.account[j].getAddress() === data_[i][3]) {
+            if(this.account[j].getAddress() === txn[i].get_receiver()) {
                 receiver_register = 0;
-                this.account[j].transactions.push(txn);
+                this.account[j].transactions.push(txn[i]);
                 break;
             }
         }
         if(sender_register) {
             this.account[this.numOfAddress] = new Account_MT();
-            this.account[this.numOfAddress].initialize(data_[i][2]);
-            this.account[this.numOfAddress].transactions.push(txn);
+            this.account[this.numOfAddress].initialize(txn[i].get_sender());
+            this.account[this.numOfAddress].transactions.push(txn[i]);
             this.numOfAddress++;
         }
         if(receiver_register) {
             this.account[this.numOfAddress] = new Account_MT();
-            this.account[this.numOfAddress].initialize(data_[i][3]);
-            this.account[this.numOfAddress].transactions.push(txn);
+            this.account[this.numOfAddress].initialize(txn[i].get_receiver());
+            this.account[this.numOfAddress].transactions.push(txn[i]);
             this.numOfAddress++;
         }
         sender_register = 1;
@@ -47,7 +51,10 @@ Mapping_table.prototype.initialize = function() {
         console.log(this.account[i]);
     }
     console.log(this.numOfAddress);
+    //txn_pool.show_txns();*/
 }
 
 var a = new Mapping_table();
 a.initialize();
+
+module.exports = Mapping_table;
