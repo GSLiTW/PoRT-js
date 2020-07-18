@@ -7,6 +7,8 @@ function Account_MT() {
     this.public_key = '';
     this.tax = '';
     this.address = null;
+    this.creator_bit = 0;
+    this.voter_bit = 0;
 };
 
 Account_MT.prototype.initialize = function(address) {
