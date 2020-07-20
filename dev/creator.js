@@ -52,7 +52,7 @@ Creator.prototype.CreatorCreate = function() {
     return this.newMappingTable;
 }
 
-Creator.prototype.CreatorTxCalculate = function() {
+Creator.prototype.CreatorCalculate = function() {
     this.isNewMappingTableVoted = 1;
 
     for(var i = 0; i < this.pendingTxs.length; i++){
