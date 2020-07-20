@@ -13,7 +13,7 @@ function Mapping_table() {
 
 Mapping_table.prototype.initialize = function() {
     var pending_txn_pool = new Pending_Transaction_Pool();
-    //pending_txn_pool.create(1);
+    pending_txn_pool.create(1);
     var txn = pending_txn_pool.get_transaction();
     var txn_pool = new Transaction_Pool();
     for(var i = 0; i < 43; ++i) {
@@ -129,6 +129,6 @@ Mapping_table.prototype.upload = function(num){
 }
 
 var a = new Mapping_table();
-a.initialize();
+//a.initialize();
 
 module.exports = Mapping_table;
