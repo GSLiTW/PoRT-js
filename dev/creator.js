@@ -83,7 +83,7 @@ Creator.prototype.CreatorCalculate = function() {
             if(i == 0){
                 if(this.nextCreatorIndex != index){
                     this.nextVotersIndex.push(index);
-                    this.nextVoters.push(GlobalMPT.account[index].address);
+                    this.nextVoters.push(this.newMappingTable.account[index].address);
                     this.newMappingTable.account[index].voter_bit = 1;
                     break;
                 }
@@ -91,7 +91,7 @@ Creator.prototype.CreatorCalculate = function() {
             else if(i == 1){
                 if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index){
                     this.nextVotersIndex.push(index);
-                    this.nextVoters.push(GlobalMPT.account[index].address);
+                    this.nextVoters.push(this.newMappingTable.account[index].address);
                     this.newMappingTable.account[index].voter_bit = 1;
                     break;
                 }
@@ -99,7 +99,7 @@ Creator.prototype.CreatorCalculate = function() {
             else if(i == 2){
                 if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index && this.nextVotersIndex[i-2] != index){
                     this.nextVotersIndex.push(index);
-                    this.nextVoters.push(GlobalMPT.account[index].address);
+                    this.nextVoters.push(this.newMappingTable.account[index].address);
                     this.newMappingTable.account[index].voter_bit = 1;
                     break;
                 }
