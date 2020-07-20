@@ -12,7 +12,8 @@ function Mapping_table() {
 };
 
 Mapping_table.prototype.initialize = function() {
-    var pending_txn_pool = new Pending_Transaction_Pool(1);
+    var pending_txn_pool = new Pending_Transaction_Pool();
+    pending_txn_pool.create(1);
     var txn = pending_txn_pool.get_transaction();
     console.log(txn[0].get_sender());
     var txn_pool = new Transaction_Pool();
