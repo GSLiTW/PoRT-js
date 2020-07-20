@@ -13,9 +13,8 @@ function Mapping_table() {
 
 Mapping_table.prototype.initialize = function() {
     var pending_txn_pool = new Pending_Transaction_Pool();
-    pending_txn_pool.create(1);
+    //pending_txn_pool.create(1);
     var txn = pending_txn_pool.get_transaction();
-    console.log(txn[0].get_sender());
     var txn_pool = new Transaction_Pool();
     for(var i = 0; i < 43; ++i) {
         txn_pool.create(txn[i]);
@@ -48,11 +47,85 @@ Mapping_table.prototype.initialize = function() {
         sender_register = 1;
         receiver_register = 1;
     }
-    for(var i = 0; i < this.numOfAddress; i++) {
+
+    // print all accounts
+
+    /*for(var i = 0; i < this.numOfAddress; i++) {
         console.log(this.account[i]);
     }
-    console.log(this.numOfAddress);
-    //txn_pool.show_txns();*/
+    console.log(this.numOfAddress);*/
+}
+
+Mapping_table.prototype.upload = function(num){
+    var pending_txn_pool = new Pending_Transaction_Pool();
+    var txn = pending_txn_pool.get_transaction();
+    var txn_pool = new Transaction_Pool();
+    if(num == 2) {
+        for(var i = 0; i < 43; ++i) {
+            txn_pool.create(txn[i]);
+            for(var j = 0; j < this.numOfAddress; j++) {
+                if(this.account[j].getAddress() === txn[i].get_sender()) {
+                    sender_register = 0;
+                    this.account[j].transactions.push(txn[i]);
+                    break;
+                }
+            }
+            for(var j = 0; j < this.numOfAddress; j++) {
+                if(this.account[j].getAddress() === txn[i].get_receiver()) {
+                    receiver_register = 0;
+                    this.account[j].transactions.push(txn[i]);
+                    break;
+                }
+            }
+            if(sender_register) {
+                this.account[this.numOfAddress] = new Account_MT();
+                this.account[this.numOfAddress].initialize(txn[i].get_sender());
+                this.account[this.numOfAddress].transactions.push(txn[i]);
+                this.numOfAddress++;
+            }
+            if(receiver_register) {
+                this.account[this.numOfAddress] = new Account_MT();
+                this.account[this.numOfAddress].initialize(txn[i].get_receiver());
+                this.account[this.numOfAddress].transactions.push(txn[i]);
+                this.numOfAddress++;
+            }
+            sender_register = 1;
+            receiver_register = 1;
+        }
+    }
+    else if(num == 3) {
+        for(var i = 0; i < 49; ++i) {
+            txn_pool.create(txn[i]);
+            for(var j = 0; j < this.numOfAddress; j++) {
+                if(this.account[j].getAddress() === txn[i].get_sender()) {
+                    sender_register = 0;
+                    this.account[j].transactions.push(txn[i]);
+                    break;
+                }
+            }
+            for(var j = 0; j < this.numOfAddress; j++) {
+                if(this.account[j].getAddress() === txn[i].get_receiver()) {
+                    receiver_register = 0;
+                    this.account[j].transactions.push(txn[i]);
+                    break;
+                }
+            }
+            if(sender_register) {
+                this.account[this.numOfAddress] = new Account_MT();
+                this.account[this.numOfAddress].initialize(txn[i].get_sender());
+                this.account[this.numOfAddress].transactions.push(txn[i]);
+                this.numOfAddress++;
+            }
+            if(receiver_register) {
+                this.account[this.numOfAddress] = new Account_MT();
+                this.account[this.numOfAddress].initialize(txn[i].get_receiver());
+                this.account[this.numOfAddress].transactions.push(txn[i]);
+                this.numOfAddress++;
+            }
+            sender_register = 1;
+            receiver_register = 1;
+        }
+    }
 }
 
 var a = new Mapping_table();
