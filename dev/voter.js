@@ -2,15 +2,13 @@
  * CAUTION: NOT YET DEBUGGED
  */
 
-function Voter(ID, mappingTable) {
 
-    this.MPT_from_creator = mappingTable;
+function Voter(ID, GlobalMPT, CreatorMPT, TxPool) {
+    this.CreatorMPT = CreatorMPT;
+    this.GlobalMPT = GlobalMPT;
+    this.TxPool = TxPool.get_transaction();
     this.ID = ID;
     this.Verify();
-}
-
-Voter.prototype.GetGlobalMPT = function(GlobalMPT) {
-    this.MPT_global = GlobalMPT;
 }
 
 Voter.prototype.Verify = function(GlobalMPT) {
@@ -42,14 +40,42 @@ Voter.prototype.Vote = function() {
         return false;
     }
 
-    if(this.MPT_from_creator.numOfAddress != this.MPT_global.numOfAddress) {
+    if(this.CreatorMPT.numOfAddress != this.GlobalMPT.numOfAddress) {
         return false;
     }
 
-    for(var i = 0; i < this.MPT_global.numOfAddress; i++) {
+    for(var i = 0; i < this.GlobalMPT.numOfAddress; i++) {
         if(this.MPT_global.account[i].balance != this.MPT_from_creator.account[i].balance) {
             return false;
         }
+    }
+
+    for(var i = 0; i < this.TxPool.length; i++){
+        for(var j = 0; j < this.CreatorMPT.numOfAddress; j++){
+            if(this.TxPool[i].sender == this.CreatorMPT.account[j].address){
+                var find = false;
+                for(var tx = 0; tx < this.CreatorMPT.account[j].transactions.length; tx++) {
+                    if(this.CreatorMPT.account[j].transactions[tx] == this.TxPool[i]) {
+                        find = true;
+                    }
+                }
+                if(find == false) {
+                    return false;
+                }
+            }
+            
+            if(this.TxPool[i].receiver == this.CreatorMPT.account[j].address){
+                var find = false;
+                for(var tx = 0; tx < this.CreatorMPT.account[j].transactions.length; tx++) {
+                    if(this.CreatorMPT.account[j].transactions[tx] == this.TxPool[i]) {
+                        find = true;
+                    }
+                }
+                if(find == false) {
+                    return false;
+                }
+            }
+        }        
     }
 
     return true;
