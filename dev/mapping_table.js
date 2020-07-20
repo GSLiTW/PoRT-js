@@ -1,3 +1,5 @@
+const json2csv = require('json2csv').parse;
+const fs = require('fs');
 const CSV_data = require("./CSV_data.js");
 const Transaction_MT = require("./transaction_for_mapping_table.js");
 const Account_MT = require("./account_for_mapping_table.js");
@@ -128,7 +130,44 @@ Mapping_table.prototype.upload = function(num){
     }
 }
 
-var a = new Mapping_table();
-//a.initialize();
+Mapping_table.prototype.get_account = function() {
+    return this.account;
+}
+
+Mapping_table.prototype.createJSONFile = function(num) {
+    var address_arr = [];
+    var balance_arr = [];
+    var creator_bit_arr = [];
+    var voter_bit_arr = [];
+    var transactions_arr = [];
+    if(num == 1 || num == 2) numOfAccount = 43;
+    else if(num == 3) numOfAccount = 49;
+    else return -1;
+    for(var i = 0; i < numOfAccount; i++) {
+        address_arr[i] = this.account[i].address;
+        balance_arr[i] = this.account[i].balance;
+        creator_bit_arr[i] = this.account[i].creator_bit;
+        voter_bit_arr[i] = this.account[i].voter_bit;
+        transactions_arr[i] = this.account[i].transactions;
+    }
+    const data = {
+        address: address_arr,
+        balance: balance_arr,
+        creator_bit: creator_bit_arr,
+        voter_bit: voter_bit_arr,
+        transactions: transactions_arr
+    };
+
+    const str = JSON.stringify(data,null,"\t")
+
+    fs.writeFile('block_status.json', str, (err) => {
+        if (err) throw err;
+        console.log('file saved');
+    });
+}
+
+// var a = new Mapping_table();
+// a.initialize();
+// a.createJSONFile(1);
 
 module.exports = Mapping_table;
