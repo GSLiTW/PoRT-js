@@ -1,7 +1,3 @@
-const vt = require("./voter.js");
-const mp = require("./mapping_table.js");
-const ptp = require("./pending_transaction_pool.js");
-
 function Creator(mappingTable, pendingTxPool){
     this.creator = -1;
     this.isCreatorVerified = -1;
@@ -112,13 +108,5 @@ Creator.prototype.CreatorCalculate = function() {
 
     return this.newMappingTable;
 }
-
-// var m = new mp();
-// m.initialize();
-// var p = new ptp(2);
-// var a = new Creator(1, m, p);
-// a.CreatorVerify(1, m);
-// a.CreatorCreate(1);
-// a.CreatorVoter(1, m);
 
 module.exports = Creator;
