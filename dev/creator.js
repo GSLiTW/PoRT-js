@@ -51,7 +51,7 @@ Creator.prototype.CreatorCreate = function() {
 Creator.prototype.CreatorCalculate = function() {
     this.isNewMappingTableVoted = 1;
 
-    for(var i = 0; i < this.pendingTxs.length; i++){
+    for(var i = this.pendingTxs.length - 1; i >= 0; i--){
         for(var j = 0; j < this.newMappingTable.numOfAddress; j++){
             if(this.pendingTxs[i].sender == this.newMappingTable.account[j].address){
                 this.newMappingTable.account[j].balance -= this.pendingTxs[i].value;
@@ -81,24 +81,24 @@ Creator.prototype.CreatorCalculate = function() {
             var index = Math.floor(Math.random() * Math.floor(this.newMappingTable.numOfAddress));
             if(i == 0){
                 if(this.nextCreatorIndex != index){
-                    this.nextVotersIndex[i] = index;
-                    this.nextVoters[i] = this.newMappingTable.account[index].address;
+                    this.nextVotersIndex.push(index);
+                    this.nextVoters.push(this.newMappingTable.account[index].address);
                     this.newMappingTable.account[index].voter_bit = 1;
                     break;
                 }
             }
             else if(i == 1){
                 if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index){
-                    this.nextVotersIndex[i] = index;
-                    this.nextVoters[i] = this.newMappingTable.account[index].address;
+                    this.nextVotersIndex.push(index);
+                    this.nextVoters.push(this.newMappingTable.account[index].address);
                     this.newMappingTable.account[index].voter_bit = 1;
                     break;
                 }
             }
             else if(i == 2){
                 if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index && this.nextVotersIndex[i-2] != index){
-                    this.nextVotersIndex[i] = index;
-                    this.nextVoters[i] = this.newMappingTable.account[index].address;
+                    this.nextVotersIndex.push(index);
+                    this.nextVoters.push(this.newMappingTable.account[index].address);
                     this.newMappingTable.account[index].voter_bit = 1;
                     break;
                 }
