@@ -16,7 +16,7 @@ Voter.prototype.GetGlobalMPT = function(GlobalMPT) {
 Voter.prototype.Verify = function(GlobalMPT) {
     if(this.ID < GlobalMPT.numOfAddress) {
         for(var i = 0; i < GlobalMPT.numOfAddress; i++) {
-            if(GlobalMPT.account[i].ID == this.ID) {
+            if(GlobalMPT.account[i].address == this.ID) {
                 if(GlobalMPT.account[i].voter_bit = 1) {
                     this.IsVoter = 1;
                 } else {
