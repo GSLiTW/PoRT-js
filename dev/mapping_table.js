@@ -157,12 +157,13 @@ Mapping_table.prototype.createJSONFile = function(num) {
         voter_bit: voter_bit_arr,
         transactions: transactions_arr
     };
+    
 
     const str = JSON.stringify(data,null,"\t")
 
     fs.writeFile('block_status'+ num + '.json', str, (err) => {
         if (err) throw err;
-        console.log('file saved');
+        console.log('File: block_status'+ num + '.json saved.');
     });
 }
 
