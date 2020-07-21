@@ -6,6 +6,7 @@ const _Voter = require('./voter.js');
 
 GlobalMPT = new MPT();
 GlobalMPT.initialize();
+GlobalMPT.createJSONFile(1);
 PendingTxPool = new PendingTx();
 
 for(var blockidx = 2; blockidx <= 3; blockidx++) {
@@ -85,5 +86,6 @@ for(var blockidx = 2; blockidx <= 3; blockidx++) {
         GlobalMPT = Creator.CreatorCalculate();
     }
 
-    console.log("Finished :)\n");
+    //console.log("Finished :)\n");
+    GlobalMPT.createJSONFile(blockidx);
 }

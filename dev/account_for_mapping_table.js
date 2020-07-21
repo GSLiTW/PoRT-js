@@ -2,7 +2,7 @@ const sha256 = require("sha256");
 
 function Account_MT() {
     this.transactions = [];
-    this.balance = 0;
+    this.balance = 10;
     this.private_key = '';
     this.public_key = '';
     this.tax = '';

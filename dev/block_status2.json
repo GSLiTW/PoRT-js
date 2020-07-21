@@ -45,49 +45,49 @@
 		"0xa3e686fdf47cbff16425940dd7ec98c1dce274ef"
 	],
 	"balance": [
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0
+		10,
+		"10200",
+		10,
+		"1000000000",
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		9.909999999999997,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		2.869757370000001,
+		10,
+		10,
+		10,
+		10,
+		10
 	],
 	"creator_bit": [
 		0,
@@ -146,6 +146,7 @@
 		0,
 		0,
 		0,
+		1,
 		0,
 		0,
 		0,
@@ -174,8 +175,7 @@
 		0,
 		0,
 		0,
-		0,
-		0,
+		1,
 		0,
 		0
 	],
@@ -183,6 +183,12 @@
 		[
 			{
 				"id": "0x43a1a360188faaa2b227c1133d66e155c240816b33d6cba682e9ab27dbc77012",
+				"sender": "Oraclize",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "0"
+			},
+			{
+				"id": "0x7cbb210bc9296fd921621ac5245ae28b2d5b37f0f1039053b2e214099f8de6c1",
 				"sender": "Oraclize",
 				"receiver": "Etheroll: Old Contract 3",
 				"value": "0"
@@ -194,6 +200,18 @@
 				"sender": "Oraclize",
 				"receiver": "Etheroll: Old Contract 3",
 				"value": "0"
+			},
+			{
+				"id": "0x7cbb210bc9296fd921621ac5245ae28b2d5b37f0f1039053b2e214099f8de6c1",
+				"sender": "Oraclize",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "0"
+			},
+			{
+				"id": "0x32485ceee415717e4647c7e5883279223600737ff6701c618fdbed751321d4f3",
+				"sender": "0x5aad7fde1ea0e7c6cdc5d578f8ddaa2d9c608886",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "20"
 			}
 		],
 		[
@@ -268,6 +286,54 @@
 			{
 				"id": "0x9721acbdc5479f8afbf3c00edaa8ac3078de1fd2f4d21248d47ccbfdd0c41d0b",
 				"sender": "0x57593a4a379479a627ee073633c22907923a1a11",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xfeebdfa203685fa2d62ba0f6e5ed22ebac09e3840f18eebea66270b8fb43bbf2",
+				"sender": "0xce54cec8c72ad8ccaa92d7f790a812186bdb375e",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xc4a2dd3e2a46b584245b26f2640d630b873170169989f6449410196104ae51e7",
+				"sender": "0x58cf461f4c269d26de262da1ad65f4f689701763",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xbef8ed10904ff2eab1ba7377becde3ed77e6075db7c4b564e1201e6b15a098e9",
+				"sender": "0x700ecac7c8a7f6dbc5ffe183d5adf837da25e88f",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xb856f71393ad095735aab518d827dfb08d1ec59c905a72d893f34a4bf9f98b2c",
+				"sender": "0x28b1e719ea56aea8d1322892df03837ac69b2d28",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x9080eb22c8680b6086dc14c2bd16eb3f5e7f9d748a61fd6c4120404eb5fd8ecc",
+				"sender": "0xf5cf3d6453213bcfa3089028edd27a9b739dad40",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x89b729ff0995c56a9de755c7576d3c4035e13e4878389ba7c75bdca528b6b914",
+				"sender": "0x9d4174a3cbc4cedd3f8f35cc4fa1d15613837308",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x3045ff279bef2d589e4e0b601a700242f59177e81a7e3373cc7abcd451bf91e5",
+				"sender": "0x665d17b94f28a723f568dca62db3112a1b7d43a8",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x1a5c302ba31e405f1570b8c61ebd059b1cf03840ead731e16121e87e1c57e083",
+				"sender": "0xd86d871a8ae018b811916ba09d1e4c8fa5ab93d6",
 				"receiver": "MCAP",
 				"value": "0"
 			}
@@ -391,6 +457,36 @@
 				"id": "0x8995b3bb30c251e65a9c106b061f4cfec1aaadf51a70eb9571f6c12253edc88a",
 				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
 				"receiver": "0x03b72a1ef29275433d63b12aae16ce3dd322bcc8",
+				"value": "0.018"
+			},
+			{
+				"id": "0x6780fc06f2957760f4cf0d7646d7e8639d2e9ae7905db89903332fed9f2d0e45",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x06db293a7086f02425b3ae74bd2fa21d8d5187a2",
+				"value": "0.018"
+			},
+			{
+				"id": "0xc26da91f00aa3590e74cecd825bf3bce989dadc69a540b5a50a33c49044fa01b",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x7a7366fd8cb6f636b4fc928df013e35f4121669d",
+				"value": "0.018"
+			},
+			{
+				"id": "0x860333ddb390734d7a76bffa963da386bef6df769e37408477fd89447437ac08",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x5945b5f768fde86724344de5ac6d3abc719cd95d",
+				"value": "0.018"
+			},
+			{
+				"id": "0x0de1456b4726eec2321fbf87bf5c1a1ba5f5975ea050928176834f398a37b875",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x88cfa104e078f52bd4870303ee81c2887621f68f",
+				"value": "0.018"
+			},
+			{
+				"id": "0x91c3b5c7f176942f93efd72a0d94fcdcd71bf547b18d71ccc132286a8084713c",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x9f906d347a01c1afd895996d1f41782cb58d56f8",
 				"value": "0.018"
 			}
 		],
@@ -614,6 +710,54 @@
 				"sender": "Ethermine",
 				"receiver": "0xe7046439145e411468af25bc149ab2a6e311cb98",
 				"value": "0.049768839"
+			},
+			{
+				"id": "0xea1cb59b4146fce806b3de2570be174e44c83fe94ec5f1feb5cfb604260e6e8c",
+				"sender": "Ethermine",
+				"receiver": "0x5ded983b7ea265ff49950e890aaecee00add7757",
+				"value": "1.002170606"
+			},
+			{
+				"id": "0x60c8e5677a4566dc7b15209b08e07d7a91c722d2675940809585bb13105231d2",
+				"sender": "Ethermine",
+				"receiver": "0x3e529878a71787f405261da3cba5e0357d929aff",
+				"value": "1.011542146"
+			},
+			{
+				"id": "0xc671acd3ac33254b930cd1ca1c780a640bd82c621635d84ce6cce168207872d1",
+				"sender": "Ethermine",
+				"receiver": "0x3ca33a1f7b216a3379727553c9a0b1d051a37401",
+				"value": "1.001782353"
+			},
+			{
+				"id": "0x155d3ec8eb67b10c98166f96393d87285adaa70220b411d2e59f0183dd1d2aff",
+				"sender": "Ethermine",
+				"receiver": "0xad668989fd4a5a3becb329eafbdcad11cdcf3715",
+				"value": "1.000152545"
+			},
+			{
+				"id": "0x839410b3e75df9038aa10db79b3c7783a307ed19a718ecf6b19eee033d162d5c",
+				"sender": "Ethermine",
+				"receiver": "0x9511392b55df14c24a97fa06514c27672156e7ca",
+				"value": "1.000250759"
+			},
+			{
+				"id": "0x8912384fecd3aaa898b053556b72d3006fe700f27239778ab12f9f1eb6d67998",
+				"sender": "Ethermine",
+				"receiver": "0x47715ea0979af87d19e40965573c0f0e9d161fec",
+				"value": "1.000313394"
+			},
+			{
+				"id": "0x1dc466c5f81eafd108e23af2c8277f27b9c25221d72e235aebb2e2ec2af890af",
+				"sender": "Ethermine",
+				"receiver": "0x15ab6682826423948bdd5cc9ca7bd8dc76289ae6",
+				"value": "0.109295748"
+			},
+			{
+				"id": "0xfd2b4b47b4d5ecf51fd139e0cb3736ba373f9ab50dc2c7630edb28feb6e5bb3a",
+				"sender": "Ethermine",
+				"receiver": "0x107e317fede9f4b47da4ae9a0b43f4f0878848c9",
+				"value": "1.004735079"
 			}
 		],
 		[

@@ -160,7 +160,7 @@ Mapping_table.prototype.createJSONFile = function(num) {
 
     const str = JSON.stringify(data,null,"\t")
 
-    fs.writeFile('block_status.json', str, (err) => {
+    fs.writeFile('block_status'+ num + '.json', str, (err) => {
         if (err) throw err;
         console.log('file saved');
     });
