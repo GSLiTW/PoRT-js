@@ -39,10 +39,10 @@ MPT.prototype.Display() = function() {
         return;
     }
     else if(this.mode==branch){
-        console.log(">" + '\t' * level + "branch")
+        console.log(">" + '\t' * level + "branch");
         for(i = 0; i < len(self.branch); i++){
             if(i != None){
-                print(">" + '\t' * level + "      " + hex(j)[2:] + ":");
+                console.log(">" + '\t' * level + "      " + j.toString(16) + ":");
                 i.Display(level+1);
                 j += 1;
             }
@@ -51,6 +51,46 @@ MPT.prototype.Display() = function() {
     }
 };
 MPT.prototype.Insert() = function() {
+    if(this.mode!=none){
+        if(key==this.key){
+            console.log(">Weird request. User already exist");
+        }
+    }
+    if(this.mode==none){
+        this.mode = 'leaf';
+        this.key = key;
+        this.value = value;
+    }
+    else if(this.mode=='branch'){
+        if(key.length==0){
+            this.value = value;
+        }
+        else{
+            ch = 1;//
+            if(this.branch[ch] == none){
+                this.branch[ch] = MPT();
+            }
+            this.branch[ch].Insert(key.substring(1,1000),value);
+        }
+
+    }
+    else if(this.mode=='extension'){
+        i = 0;
+        while(key[i] == self.key[i]){
+            i += 1;
+            if(i == this.key.length)
+                break;
+        }
+        if(i == 0){
+            this.mode = 'branch';
+            if(this.key.length == 1){
+                this.branch
+            }
+        }
+    }
+    else if(this.mode=='leaf'){
+
+    }
 
 };
 MPT.prototype.Search() = function() {
