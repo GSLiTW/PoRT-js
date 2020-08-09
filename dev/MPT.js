@@ -16,13 +16,10 @@ function MPT(root=false){
 };
 
 MPT.prototype.Display = function(level) {
-
+    if(level == 0) console.log("**********START PRINTING TRIE**********");
     if(this.mode == null) {
         console.log("Empty Trie")
-        return;
-    }
-    
-    if(this.mode == 'leaf') {
+    } else if(this.mode == 'leaf') {
         if((this.key.length)%2==0){
             prefix = '20';
         }
@@ -30,7 +27,6 @@ MPT.prototype.Display = function(level) {
             prefix = '3';
         }
         console.log( ">" + '\t'.repeat(level) + "leaf: (" + prefix +")" + this.key + ", " + this.value);
-        return;
     } else if(this.mode == 'extension') {
         if((this.key.length)%2==0){
             prefix = '00';
@@ -40,9 +36,7 @@ MPT.prototype.Display = function(level) {
         }
         console.log(">" + '\t'.repeat(level) + "extension: (" + prefix +")" + this.key);
         this.next.Display(level+1);
-        return;
-    }
-    else if(this.mode == 'branch'){
+    } else if(this.mode == 'branch'){
         console.log(">" + '\t'.repeat(level) + "branch");
         var j = 0;
         for(var i in this.branch){
@@ -56,8 +50,8 @@ MPT.prototype.Display = function(level) {
             }
             j += 1;
         }
-        return;
     }
+    if(level == 0) console.log("**********FINiSH PRINTING TRIE**********");
 };
 
 MPT.prototype.Insert = function(key, value) {
@@ -158,10 +152,63 @@ MPT.prototype.Insert = function(key, value) {
 };
 
 MPT.prototype.Search = function(key, Update_flag=null, Update_value=null) {
-
+    if(this.mode == 'leaf') {
+        if(this.key == key) {
+            if(Update_flag == '-') {
+                if(this.value >= Update_value) {
+                    this.value -= Update_value;
+                    return this.value;
+                } else {
+                    return null;
+                }
+            } else if(Update_flag == '+') {
+                this.value += Update_value;
+                return this.value;
+            } else {
+                return this.value;
+            }
+        }
+    } else if(this.mode == 'extension') {
+        var i = 0;
+        while(key[i] == this.key[i]) {
+            i++;
+            if(i == this.key.length)
+                break;
+        }
+        if(i == this.key.length) {
+            return this.next.Search(key.substr(i),Update_flag,Update_value);
+        } else {
+            return null;
+        }
+    } else if(this.mode == 'branch') {
+        if(this.branch[parseInt(key[0], 16)] != null) {
+            return this.branch[parseInt(key[0],  16)].Search(key.substr(1), Update_flag, Update_value);
+        } else {
+            return null;
+        }
+    }
 };
-MPT.prototype.Update = function() {
 
+MPT.prototype.Update = function(from, to, value) {
+    if(value <= 0) {
+        console.log("> Weird request: Update value should be larger than 0.");
+        return;
+    }
+
+    var val1 = this.Search(from, '-', value);
+    if(val1 == null) {
+        console.log("> An error occurred when updating " + from + "'s value.");
+        return;
+    }
+
+    var val2 = this.Search(to, '+', value);
+    if(val2 == null) {
+        console.log("> An error occurred when updating " + to + "'s value.");
+        return;
+    }
+
+    console.log("> Update successfully.\nNow " + from + " has value " + val1 + ", " + to + " has value " + val2 + ".");
+    return;
 };
 MPT.prototype.Cal_back_nibble = function() {
 
@@ -173,12 +220,10 @@ MPT.prototype.Cal_hash = function(){
 module.exports = MPT;
 Tree = new MPT(true);
 Tree.Insert('a120',0);
-Tree.Display(0); console.log("*********");
-Tree.Insert('abd2',1);
-Tree.Display(0); console.log("*********");
-Tree.Insert('abcd',2);
-Tree.Display(0); console.log("*********");
-Tree.Insert('abce',3);
-Tree.Display(0); console.log("*********");
-Tree.Insert('f000',4);
-Tree.Display(0); console.log("*********");
+Tree.Insert('abd2',100);
+Tree.Insert('abcd',250.1);
+Tree.Insert('abce',313);
+Tree.Insert('f000',45.67);
+Tree.Display(0);
+Tree.Update('abd2','a120',50.5);
+Tree.Display(0);
