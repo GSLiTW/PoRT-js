@@ -7,6 +7,10 @@ Transaction_Pool.prototype.create = function(transaction) {
     this.transactions.push(transaction);
 }
 
+Transaction_Pool.prototype.clean = function() {
+    this.transactions = [];
+}
+
 Transaction_Pool.prototype.show_txns = function() {
     console.log(this.transactions);
 }

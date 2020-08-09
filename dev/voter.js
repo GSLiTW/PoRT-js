@@ -11,11 +11,14 @@ function Voter(ID, GlobalMPT, CreatorMPT, TxPool) {
     this.Verify();
 }
 
-Voter.prototype.Verify = function(GlobalMPT) {
-    if(this.ID < GlobalMPT.numOfAddress) {
-        for(var i = 0; i < GlobalMPT.numOfAddress; i++) {
-            if(GlobalMPT.account[i].address == this.ID) {
-                if(GlobalMPT.account[i].voter_bit = 1) {
+Voter.prototype.Verify = function() {
+    //console.log(this.GlobalMPT.numOfAddress);
+    if(1) {
+        for(var i = 0; i < this.GlobalMPT.numOfAddress; i++) {
+            
+            if(this.GlobalMPT.account[i].address == this.ID) {
+                
+                if(this.GlobalMPT.account[i].voter_bit = 1) {
                     this.IsVoter = 1;
                 } else {
                     this.IsVoter = 0;
@@ -24,7 +27,8 @@ Voter.prototype.Verify = function(GlobalMPT) {
             }
         }
     }
-    if(this.IsVoter == null) {
+    
+    if(this.IsVoter == undefined) {
         console.log("Error: ID does not match to MPT!\n");
     }
 }
@@ -45,7 +49,7 @@ Voter.prototype.Vote = function() {
     }
 
     for(var i = 0; i < this.GlobalMPT.numOfAddress; i++) {
-        if(this.MPT_global.account[i].balance != this.MPT_from_creator.account[i].balance) {
+        if(this.GlobalMPT.account[i].balance != this.CreatorMPT.account[i].balance) {
             return false;
         }
     }

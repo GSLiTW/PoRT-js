@@ -54,16 +54,17 @@ Creator.prototype.CreatorCalculate = function() {
     for(var i = this.pendingTxs.length - 1; i >= 0; i--){
         for(var j = 0; j < this.newMappingTable.numOfAddress; j++){
             if(this.pendingTxs[i].sender == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].balance -= this.pendingTxs[i].value;
+                this.newMappingTable.account[j].balance -= parseFloat(this.pendingTxs[i].value);
             }
             if(this.pendingTxs[i].receiver == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].balance += this.pendingTxs[i].value;
+                this.newMappingTable.account[j].balance += parseFloat(this.pendingTxs[i].value);
             }
         }
         this.pendingTxs.pop();
     }
 
     if(this.pendingTxs.length != 0){
+        //console.log(this.pendingTxs.length)
         console.log("Clearing pendingTxs failed!");
     }
 

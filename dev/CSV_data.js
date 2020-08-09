@@ -22,7 +22,7 @@ CSV_data.prototype.getData = function(num) {
         return this.data;
     }
     else if(num == 3) {
-        this.data = fs.readFileSync('block2.csv')
+        this.data = fs.readFileSync('block3.csv')
             .toString() // convert Buffer to string
             .split('\n') // split string to lines
             .map(e => e.trim()) // remove white spaces for each line

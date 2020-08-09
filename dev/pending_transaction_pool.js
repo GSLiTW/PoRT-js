@@ -2,8 +2,11 @@
 const CSV_data = require("./CSV_data.js");
 const Transaction_MT = require("./transaction_for_mapping_table.js");
 
-function Pending_Transaction_Pool(num) {
+function Pending_Transaction_Pool() {
     this.transactions = [];
+};
+
+Pending_Transaction_Pool.prototype.create = function(num) {
     var data = new CSV_data();
     var data_ = data.getData(num); //get data of block1
     if(num == 1) {
@@ -25,7 +28,11 @@ function Pending_Transaction_Pool(num) {
         }
     }
     else console.log("wrong block number.");
-};
+}
+
+Pending_Transaction_Pool.prototype.clean = function() {
+    this.transactions = [];
+}
 
 Pending_Transaction_Pool.prototype.get_transaction = function() {
     return this.transactions;
