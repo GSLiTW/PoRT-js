@@ -1,0 +1,1104 @@
+{
+	"address": [
+		"Oraclize",
+		"Etheroll: Old Contract 3",
+		"0xbb1f28e0f2b18c02c540903e5e4e30fcaa940578",
+		"MCAP",
+		"0x188ed5da756ab0c4fd2a0b7de157e256f6f93016",
+		"0xba0495e4ace004aae385a49b8b19020cbfa32e4e",
+		"0x7830b051f78fa364c4d7a9c0e911841d552deb83",
+		"0x214e6b62b61181f5a4a9931c36ada08115b6d734",
+		"0x0949b1b839b16f7fef08b1310673654ac370ad05",
+		"0x66c461ed5502a8e7d131b0cc974e2cb4f2e2d79c",
+		"0x304cc179719bc5b05418d6f7f6783abe45d83090",
+		"0x786775b2af02b7dc3e65aa09a141eaf422bfdf60",
+		"0x783306ef210dab06905f08ad3ff8955e4113368c",
+		"0xf1885c3894e896fcdbd6e4775a1f27ed4da97885",
+		"0x8cac691877b9b334d64e87b66fe990d304116cbd",
+		"0x6b05c54e7e93238273f0f7dd6ddeb86ea38f850a",
+		"0x763248b46c87bdaae87bdf78ed5583c07e9467ad",
+		"0x91959b10d2383ae24d55a634614436c77055257c",
+		"0x0dcfcda577514dc09e91f2e9525d5767e0c41db0",
+		"0xc1177f85711a49ea327874cd5b3c4eb523c47ca2",
+		"0xaa97288d8af06c1b05ce9417f6f94041a51fec3e",
+		"0xb7b84d75b2ba6dffae0ee0fee52ed671ebb65337",
+		"0x03b72a1ef29275433d63b12aae16ce3dd322bcc8",
+		"0x320a14ef6d1722b44aa17b8e2dfd1d1564287bbf",
+		"0x7a93f0d9f302c0818022f8dca6ee1eb0f1b50308",
+		"0x30ba4f5767be7215443d7fdf2d8edc2368acf30d",
+		"0xef7bfc0cf1050a12edce926b0102be6d1d1b075e",
+		"0xcb108245cc354a15e5b36903740ce6c209b45d36",
+		"Pluton Token",
+		"0xd811bc44561d34f14c916c5d461647f934691050",
+		"0x57593a4a379479a627ee073633c22907923a1a11",
+		"0xd585ebefe744b466080c990cd0dea3b6eadf0a08",
+		"0xa2ad51822a13308276cfff7de82f3bf0e393b56a",
+		"poolgpu",
+		"0x389076adddb34fc5d342184f2ef2424592ed9f58",
+		"0x830f2f85873d7966c33d2423e7a3a080c9549c82",
+		"0x472ff061b3620ed49eb6e407bec4a392f2115a22",
+		"Ethermine",
+		"0xf50e9826f70b184a5f03bd139cd959d6914e23ed",
+		"0xe7046439145e411468af25bc149ab2a6e311cb98",
+		"0x390da0a9c7068395ff3b9747ecc2a511e7a620df",
+		"0x3b76220654de39ef68c32d6f20e2f9c24530f439",
+		"0xa3e686fdf47cbff16425940dd7ec98c1dce274ef",
+		"ENS: Old Registrar",
+		"0x8bdd72abd90177d8ee279c749ff850e2aa5a1143",
+		"Nimiq Token",
+		"0x000d96ccc0824691af824cbf8d8a33923adf8ff1",
+		"0x00af742936f4bc47a23fd1d5e2eda396e861ec01",
+		"Kraken 4"
+	],
+	"balance": [
+		10,
+		34.1,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		9.801999999999992,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		10,
+		9.880422389,
+		10,
+		10,
+		10,
+		1.1199126040000011,
+		10,
+		10,
+		10,
+		10,
+		10,
+		22.360000000000003,
+		10,
+		10,
+		10,
+		10,
+		10
+	],
+	"creator_bit": [
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	],
+	"voter_bit": [
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	],
+	"transactions": [
+		[
+			{
+				"id": "0x43a1a360188faaa2b227c1133d66e155c240816b33d6cba682e9ab27dbc77012",
+				"sender": "Oraclize",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "0"
+			},
+			{
+				"id": "0x7cbb210bc9296fd921621ac5245ae28b2d5b37f0f1039053b2e214099f8de6c1",
+				"sender": "Oraclize",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x43a1a360188faaa2b227c1133d66e155c240816b33d6cba682e9ab27dbc77012",
+				"sender": "Oraclize",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "0"
+			},
+			{
+				"id": "0x7cbb210bc9296fd921621ac5245ae28b2d5b37f0f1039053b2e214099f8de6c1",
+				"sender": "Oraclize",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "0"
+			},
+			{
+				"id": "0x32485ceee415717e4647c7e5883279223600737ff6701c618fdbed751321d4f3",
+				"sender": "0x5aad7fde1ea0e7c6cdc5d578f8ddaa2d9c608886",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "20"
+			},
+			{
+				"id": "0x1f090f1cdb764b3042abcbf80f8ba948b40f55ee63edc1af68bcdc849fc9d66c",
+				"sender": "0x5a92e4a4951b26540179b8b4033b8912cced73a6",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "4"
+			},
+			{
+				"id": "0xaa285b5346ac924573f16a644b585d0198b06e634e8256191e0336dcd1d03b9e",
+				"sender": "0xc1dca5aadd689162ee497027e316d7a374b7ecc3",
+				"receiver": "Etheroll: Old Contract 3",
+				"value": "0.1"
+			}
+		],
+		[
+			{
+				"id": "0x5d62904924aad8b9c0974ab6640dcc3e604a19b13af12a6885500536b4a94edc",
+				"sender": "0xbb1f28e0f2b18c02c540903e5e4e30fcaa940578",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x5d62904924aad8b9c0974ab6640dcc3e604a19b13af12a6885500536b4a94edc",
+				"sender": "0xbb1f28e0f2b18c02c540903e5e4e30fcaa940578",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xc38e066b34b821309eca352f37c2e41083fd18441ac6a1bc86061d0184b86bac",
+				"sender": "0x188ed5da756ab0c4fd2a0b7de157e256f6f93016",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x51d03a8053c8bd80ba45d1dc8b5182610d64417b7d87cb26be67b294a2ff4b47",
+				"sender": "0xba0495e4ace004aae385a49b8b19020cbfa32e4e",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x4e5632ac9ad741af0a82a86c02218d0a64dd9ed56eb4512fa11d975523203af9",
+				"sender": "0x7830b051f78fa364c4d7a9c0e911841d552deb83",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x3cdc7c72567a0a8a0f4f39a2d517446524ff0e3e0745ab21e14068dad94422dd",
+				"sender": "0x214e6b62b61181f5a4a9931c36ada08115b6d734",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x35c5270d5d4c1d08d925348fe232cde5c3490e86468ab7a5691078de52f28850",
+				"sender": "0x0949b1b839b16f7fef08b1310673654ac370ad05",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xb02e2ac7a44ba56ef8900751ec3d74a3403ff565ae6cf6ccca8827f26664b07f",
+				"sender": "0x66c461ed5502a8e7d131b0cc974e2cb4f2e2d79c",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x850fcf3fe29fe2be93eb03d7be4fb44c85a4370a0a9476941f1b88939497ac53",
+				"sender": "0x30ba4f5767be7215443d7fdf2d8edc2368acf30d",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x708177c9085543b5a39c87c0b8b754bb31222f8591ad6eeb8b2de39c5a912d05",
+				"sender": "0xef7bfc0cf1050a12edce926b0102be6d1d1b075e",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x632ac683fcdbcc15f3a087d2d73a4237e87b2563782dac8d8e65eefb3c453f1a",
+				"sender": "0xd811bc44561d34f14c916c5d461647f934691050",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x9721acbdc5479f8afbf3c00edaa8ac3078de1fd2f4d21248d47ccbfdd0c41d0b",
+				"sender": "0x57593a4a379479a627ee073633c22907923a1a11",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xfeebdfa203685fa2d62ba0f6e5ed22ebac09e3840f18eebea66270b8fb43bbf2",
+				"sender": "0xce54cec8c72ad8ccaa92d7f790a812186bdb375e",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xc4a2dd3e2a46b584245b26f2640d630b873170169989f6449410196104ae51e7",
+				"sender": "0x58cf461f4c269d26de262da1ad65f4f689701763",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xbef8ed10904ff2eab1ba7377becde3ed77e6075db7c4b564e1201e6b15a098e9",
+				"sender": "0x700ecac7c8a7f6dbc5ffe183d5adf837da25e88f",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xb856f71393ad095735aab518d827dfb08d1ec59c905a72d893f34a4bf9f98b2c",
+				"sender": "0x28b1e719ea56aea8d1322892df03837ac69b2d28",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x9080eb22c8680b6086dc14c2bd16eb3f5e7f9d748a61fd6c4120404eb5fd8ecc",
+				"sender": "0xf5cf3d6453213bcfa3089028edd27a9b739dad40",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x89b729ff0995c56a9de755c7576d3c4035e13e4878389ba7c75bdca528b6b914",
+				"sender": "0x9d4174a3cbc4cedd3f8f35cc4fa1d15613837308",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x3045ff279bef2d589e4e0b601a700242f59177e81a7e3373cc7abcd451bf91e5",
+				"sender": "0x665d17b94f28a723f568dca62db3112a1b7d43a8",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x1a5c302ba31e405f1570b8c61ebd059b1cf03840ead731e16121e87e1c57e083",
+				"sender": "0xd86d871a8ae018b811916ba09d1e4c8fa5ab93d6",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xc52e03ba0fd21645bb293bdafd30e98b27a3f296b44dfd371e0c1c602874077c",
+				"sender": "0x929a9c90d7a7683f7b48b763d56a66b8b81aab44",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0xb54713cad094b42927177168b1b0825102ebe53d2b3937d7e175dd206aa1a6bc",
+				"sender": "0x6d6a78b99ec57b218ffb0d95e9e0966dd2b72495",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x80bdc4e22d62e02bae269ca807c78411789e109b4838eef91520eb80b2c5cf3a",
+				"sender": "0xff514614dd855e379cb453ca32d742361d809d58",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x639de0a386b8a5a6c27115bd8c58ba9275a75fe3c6476a4bec11185a352e0ed4",
+				"sender": "0x74b7822c5897965db106e52b84da157a29a308d3",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x40ecd93659b97a529314df153d379358772b7b608041dfe867537a1a2ac8b054",
+				"sender": "0x88ca3e141f8b8636990efe57d7e64d84895ab025",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x2493816a48363f17a97bb52fcef4a4436906ee4b819214b2b7904f0faf761c3c",
+				"sender": "0x9e9cff47ee155003ce598041a5f008f2cca479ff",
+				"receiver": "MCAP",
+				"value": "0"
+			},
+			{
+				"id": "0x009894e8af11d851874c7ae97edebdcf6797a425e2e7209dac2da2cc560febbc",
+				"sender": "0xdf00f141c910180ca766e94801443bf08841adf1",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0xc38e066b34b821309eca352f37c2e41083fd18441ac6a1bc86061d0184b86bac",
+				"sender": "0x188ed5da756ab0c4fd2a0b7de157e256f6f93016",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x51d03a8053c8bd80ba45d1dc8b5182610d64417b7d87cb26be67b294a2ff4b47",
+				"sender": "0xba0495e4ace004aae385a49b8b19020cbfa32e4e",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x4e5632ac9ad741af0a82a86c02218d0a64dd9ed56eb4512fa11d975523203af9",
+				"sender": "0x7830b051f78fa364c4d7a9c0e911841d552deb83",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x3cdc7c72567a0a8a0f4f39a2d517446524ff0e3e0745ab21e14068dad94422dd",
+				"sender": "0x214e6b62b61181f5a4a9931c36ada08115b6d734",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x35c5270d5d4c1d08d925348fe232cde5c3490e86468ab7a5691078de52f28850",
+				"sender": "0x0949b1b839b16f7fef08b1310673654ac370ad05",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0xb02e2ac7a44ba56ef8900751ec3d74a3403ff565ae6cf6ccca8827f26664b07f",
+				"sender": "0x66c461ed5502a8e7d131b0cc974e2cb4f2e2d79c",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x64b950eff82374312ea6784b01a63695db863840c578f0c9cae7313aacc774f7",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x786775b2af02b7dc3e65aa09a141eaf422bfdf60",
+				"value": "0.018"
+			},
+			{
+				"id": "0xad79836b791da5b86de3c5a95e8a8d0cd947c873698612d0788f02e7c3bcd560",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x783306ef210dab06905f08ad3ff8955e4113368c",
+				"value": "0.018"
+			},
+			{
+				"id": "0x2262f057f5e292c366f664b7397554b16f03662fd6a198c9a02ac6a15e0880b6",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xf1885c3894e896fcdbd6e4775a1f27ed4da97885",
+				"value": "0.018"
+			},
+			{
+				"id": "0x2ae28acf25e8ce358272b852bbcb02eba95a23d39aa6f005f77418ebe52c8e27",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x8cac691877b9b334d64e87b66fe990d304116cbd",
+				"value": "0.018"
+			},
+			{
+				"id": "0x76984c0de697e0f6ce00767988806c9a59e8f44626ff9947a3b1242167552a23",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x6b05c54e7e93238273f0f7dd6ddeb86ea38f850a",
+				"value": "0.018"
+			},
+			{
+				"id": "0x49f363732cd86a7e0c30db88aad1f5980538e196eb5526de92645c78aa78607a",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x763248b46c87bdaae87bdf78ed5583c07e9467ad",
+				"value": "0.018"
+			},
+			{
+				"id": "0x85447d41cb0946e1059e5613286731e0bdccaa243e26c64bea4ec2001801f00e",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x91959b10d2383ae24d55a634614436c77055257c",
+				"value": "0.018"
+			},
+			{
+				"id": "0xf649cdb9b5345499991f0b46d2b47d3e71394008daf6ac02fcfbaccc578b0d24",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x0dcfcda577514dc09e91f2e9525d5767e0c41db0",
+				"value": "0.018"
+			},
+			{
+				"id": "0xd0e20a4539df03733e74f5318c3076fbc29d3e558f534eb383a2eef460171492",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xc1177f85711a49ea327874cd5b3c4eb523c47ca2",
+				"value": "0.018"
+			},
+			{
+				"id": "0xa46f77bbbc736d13d16f89da6f12041a5392c22da8cbd0ac82b8289a6a04a9d2",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xaa97288d8af06c1b05ce9417f6f94041a51fec3e",
+				"value": "0.018"
+			},
+			{
+				"id": "0xd6404a41dfc92d66fb67675ac542ce6cf21876332a31df78deabc4d13dbb8de2",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xb7b84d75b2ba6dffae0ee0fee52ed671ebb65337",
+				"value": "0.018"
+			},
+			{
+				"id": "0x8995b3bb30c251e65a9c106b061f4cfec1aaadf51a70eb9571f6c12253edc88a",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x03b72a1ef29275433d63b12aae16ce3dd322bcc8",
+				"value": "0.018"
+			},
+			{
+				"id": "0x6780fc06f2957760f4cf0d7646d7e8639d2e9ae7905db89903332fed9f2d0e45",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x06db293a7086f02425b3ae74bd2fa21d8d5187a2",
+				"value": "0.018"
+			},
+			{
+				"id": "0xc26da91f00aa3590e74cecd825bf3bce989dadc69a540b5a50a33c49044fa01b",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x7a7366fd8cb6f636b4fc928df013e35f4121669d",
+				"value": "0.018"
+			},
+			{
+				"id": "0x860333ddb390734d7a76bffa963da386bef6df769e37408477fd89447437ac08",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x5945b5f768fde86724344de5ac6d3abc719cd95d",
+				"value": "0.018"
+			},
+			{
+				"id": "0x0de1456b4726eec2321fbf87bf5c1a1ba5f5975ea050928176834f398a37b875",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x88cfa104e078f52bd4870303ee81c2887621f68f",
+				"value": "0.018"
+			},
+			{
+				"id": "0x91c3b5c7f176942f93efd72a0d94fcdcd71bf547b18d71ccc132286a8084713c",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x9f906d347a01c1afd895996d1f41782cb58d56f8",
+				"value": "0.018"
+			},
+			{
+				"id": "0x19e0b2a552a58659391456d98218915e111c10e9a5578ef8ed7f1e961fa2fc07",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x8e36f8d5aa6fd10c784e1e5b5b56723f97f3ffac",
+				"value": "0.018"
+			},
+			{
+				"id": "0x02b0797cc0e45b250ed56225b43e61d6ad09afb9dcd6e94df5f0af1e5f2e8ee5",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x5c3f22a608b104ef9f04260290a78532c469be80",
+				"value": "0.018"
+			},
+			{
+				"id": "0x244daa97794f9b19368ecf17fc51508e38fe8e5c34c58581d3288f9aa1b3c6f3",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xaf7dc4731f2963144659e4fa1b487746fdd5dfb1",
+				"value": "0.018"
+			},
+			{
+				"id": "0x63316779239e3424f41db9a8dc3443ce78de00138b994670f69180bcacaa8fdc",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xf7bafb3edd21c32c4dea8dcc410243b35fd9882b",
+				"value": "0.018"
+			},
+			{
+				"id": "0x63bf0fb37bf601dee4ef50c50de1a280ba5af3ec49ebf5328b896ae553f361ee",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x2ccc1799e60c78fa23f1c14df36b7b71b0101cc1",
+				"value": "0.018"
+			},
+			{
+				"id": "0x1d0a64d2f2e9645a4cfa4ecce97e2b2fd861a5a72b74ad009dd2e58761c7e981",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x496b9710fc7989ee3031f82cb9b4a2deda9f4ff7",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x64b950eff82374312ea6784b01a63695db863840c578f0c9cae7313aacc774f7",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x786775b2af02b7dc3e65aa09a141eaf422bfdf60",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0xad79836b791da5b86de3c5a95e8a8d0cd947c873698612d0788f02e7c3bcd560",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x783306ef210dab06905f08ad3ff8955e4113368c",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x2262f057f5e292c366f664b7397554b16f03662fd6a198c9a02ac6a15e0880b6",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xf1885c3894e896fcdbd6e4775a1f27ed4da97885",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x2ae28acf25e8ce358272b852bbcb02eba95a23d39aa6f005f77418ebe52c8e27",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x8cac691877b9b334d64e87b66fe990d304116cbd",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x76984c0de697e0f6ce00767988806c9a59e8f44626ff9947a3b1242167552a23",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x6b05c54e7e93238273f0f7dd6ddeb86ea38f850a",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x49f363732cd86a7e0c30db88aad1f5980538e196eb5526de92645c78aa78607a",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x763248b46c87bdaae87bdf78ed5583c07e9467ad",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x85447d41cb0946e1059e5613286731e0bdccaa243e26c64bea4ec2001801f00e",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x91959b10d2383ae24d55a634614436c77055257c",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0xf649cdb9b5345499991f0b46d2b47d3e71394008daf6ac02fcfbaccc578b0d24",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x0dcfcda577514dc09e91f2e9525d5767e0c41db0",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0xd0e20a4539df03733e74f5318c3076fbc29d3e558f534eb383a2eef460171492",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xc1177f85711a49ea327874cd5b3c4eb523c47ca2",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0xa46f77bbbc736d13d16f89da6f12041a5392c22da8cbd0ac82b8289a6a04a9d2",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xaa97288d8af06c1b05ce9417f6f94041a51fec3e",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0xd6404a41dfc92d66fb67675ac542ce6cf21876332a31df78deabc4d13dbb8de2",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0xb7b84d75b2ba6dffae0ee0fee52ed671ebb65337",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x8995b3bb30c251e65a9c106b061f4cfec1aaadf51a70eb9571f6c12253edc88a",
+				"sender": "0x304cc179719bc5b05418d6f7f6783abe45d83090",
+				"receiver": "0x03b72a1ef29275433d63b12aae16ce3dd322bcc8",
+				"value": "0.018"
+			}
+		],
+		[
+			{
+				"id": "0x2badf120b75a3fda1ff373ea32389cd8ab6972949ea82a23c24464e6faebef8b",
+				"sender": "0x320a14ef6d1722b44aa17b8e2dfd1d1564287bbf",
+				"receiver": "0x7a93f0d9f302c0818022f8dca6ee1eb0f1b50308",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x2badf120b75a3fda1ff373ea32389cd8ab6972949ea82a23c24464e6faebef8b",
+				"sender": "0x320a14ef6d1722b44aa17b8e2dfd1d1564287bbf",
+				"receiver": "0x7a93f0d9f302c0818022f8dca6ee1eb0f1b50308",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x850fcf3fe29fe2be93eb03d7be4fb44c85a4370a0a9476941f1b88939497ac53",
+				"sender": "0x30ba4f5767be7215443d7fdf2d8edc2368acf30d",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x708177c9085543b5a39c87c0b8b754bb31222f8591ad6eeb8b2de39c5a912d05",
+				"sender": "0xef7bfc0cf1050a12edce926b0102be6d1d1b075e",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0xa85c3d65bee2b39f1ed088ad04583b99c803cae5692ce11c49f1d654abf5fdaa",
+				"sender": "0xcb108245cc354a15e5b36903740ce6c209b45d36",
+				"receiver": "Pluton Token",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0xa85c3d65bee2b39f1ed088ad04583b99c803cae5692ce11c49f1d654abf5fdaa",
+				"sender": "0xcb108245cc354a15e5b36903740ce6c209b45d36",
+				"receiver": "Pluton Token",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x632ac683fcdbcc15f3a087d2d73a4237e87b2563782dac8d8e65eefb3c453f1a",
+				"sender": "0xd811bc44561d34f14c916c5d461647f934691050",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x9721acbdc5479f8afbf3c00edaa8ac3078de1fd2f4d21248d47ccbfdd0c41d0b",
+				"sender": "0x57593a4a379479a627ee073633c22907923a1a11",
+				"receiver": "MCAP",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x9e08293f1d20b5e0c45423d87b6eccdd35f417c07949917fa68deb46479e7663",
+				"sender": "0xd585ebefe744b466080c990cd0dea3b6eadf0a08",
+				"receiver": "0xa2ad51822a13308276cfff7de82f3bf0e393b56a",
+				"value": "0.001"
+			}
+		],
+		[
+			{
+				"id": "0x9e08293f1d20b5e0c45423d87b6eccdd35f417c07949917fa68deb46479e7663",
+				"sender": "0xd585ebefe744b466080c990cd0dea3b6eadf0a08",
+				"receiver": "0xa2ad51822a13308276cfff7de82f3bf0e393b56a",
+				"value": "0.001"
+			}
+		],
+		[
+			{
+				"id": "0x986cb8ed3ac9404feab1bcbb27be230506de898e025935233f78ced3958699b1",
+				"sender": "poolgpu",
+				"receiver": "0x389076adddb34fc5d342184f2ef2424592ed9f58",
+				"value": "0.176482607"
+			},
+			{
+				"id": "0xfa41865cc90980df4c8e5af27fa4da6f8c6e048a81a631819f0c4766f026e482",
+				"sender": "poolgpu",
+				"receiver": "0x94bc7f7f38e3fdd45577b6b5f9d32f2bb31a504e",
+				"value": "0.119577611"
+			}
+		],
+		[
+			{
+				"id": "0x986cb8ed3ac9404feab1bcbb27be230506de898e025935233f78ced3958699b1",
+				"sender": "poolgpu",
+				"receiver": "0x389076adddb34fc5d342184f2ef2424592ed9f58",
+				"value": "0.176482607"
+			}
+		],
+		[
+			{
+				"id": "0x939c882337e5741cf7647def9811b0a2b19102387df22d683c2c1c93816827ec",
+				"sender": "0x830f2f85873d7966c33d2423e7a3a080c9549c82",
+				"receiver": "0x472ff061b3620ed49eb6e407bec4a392f2115a22",
+				"value": "5.37"
+			}
+		],
+		[
+			{
+				"id": "0x939c882337e5741cf7647def9811b0a2b19102387df22d683c2c1c93816827ec",
+				"sender": "0x830f2f85873d7966c33d2423e7a3a080c9549c82",
+				"receiver": "0x472ff061b3620ed49eb6e407bec4a392f2115a22",
+				"value": "5.37"
+			}
+		],
+		[
+			{
+				"id": "0xda0ff2ee0c65cb9cdd2d191e5304cfcbfa2170799748e02be0c0549c05825a1f",
+				"sender": "Ethermine",
+				"receiver": "0xf50e9826f70b184a5f03bd139cd959d6914e23ed",
+				"value": "0.049306426"
+			},
+			{
+				"id": "0xbc781513265ff7d4f760f8f0fb19b2034ea5809a1207ce21f78761d2e4bac550",
+				"sender": "Ethermine",
+				"receiver": "0xe7046439145e411468af25bc149ab2a6e311cb98",
+				"value": "0.049768839"
+			},
+			{
+				"id": "0xea1cb59b4146fce806b3de2570be174e44c83fe94ec5f1feb5cfb604260e6e8c",
+				"sender": "Ethermine",
+				"receiver": "0x5ded983b7ea265ff49950e890aaecee00add7757",
+				"value": "1.002170606"
+			},
+			{
+				"id": "0x60c8e5677a4566dc7b15209b08e07d7a91c722d2675940809585bb13105231d2",
+				"sender": "Ethermine",
+				"receiver": "0x3e529878a71787f405261da3cba5e0357d929aff",
+				"value": "1.011542146"
+			},
+			{
+				"id": "0xc671acd3ac33254b930cd1ca1c780a640bd82c621635d84ce6cce168207872d1",
+				"sender": "Ethermine",
+				"receiver": "0x3ca33a1f7b216a3379727553c9a0b1d051a37401",
+				"value": "1.001782353"
+			},
+			{
+				"id": "0x155d3ec8eb67b10c98166f96393d87285adaa70220b411d2e59f0183dd1d2aff",
+				"sender": "Ethermine",
+				"receiver": "0xad668989fd4a5a3becb329eafbdcad11cdcf3715",
+				"value": "1.000152545"
+			},
+			{
+				"id": "0x839410b3e75df9038aa10db79b3c7783a307ed19a718ecf6b19eee033d162d5c",
+				"sender": "Ethermine",
+				"receiver": "0x9511392b55df14c24a97fa06514c27672156e7ca",
+				"value": "1.000250759"
+			},
+			{
+				"id": "0x8912384fecd3aaa898b053556b72d3006fe700f27239778ab12f9f1eb6d67998",
+				"sender": "Ethermine",
+				"receiver": "0x47715ea0979af87d19e40965573c0f0e9d161fec",
+				"value": "1.000313394"
+			},
+			{
+				"id": "0x1dc466c5f81eafd108e23af2c8277f27b9c25221d72e235aebb2e2ec2af890af",
+				"sender": "Ethermine",
+				"receiver": "0x15ab6682826423948bdd5cc9ca7bd8dc76289ae6",
+				"value": "0.109295748"
+			},
+			{
+				"id": "0xfd2b4b47b4d5ecf51fd139e0cb3736ba373f9ab50dc2c7630edb28feb6e5bb3a",
+				"sender": "Ethermine",
+				"receiver": "0x107e317fede9f4b47da4ae9a0b43f4f0878848c9",
+				"value": "1.004735079"
+			},
+			{
+				"id": "0xc93f36b7b62c2c4268c3f8b835752ba34749b9400fe220b746287666bda9567e",
+				"sender": "Ethermine",
+				"receiver": "0x55ebd8e87213302494f1c033db967326cea9a496",
+				"value": "0.049911226"
+			},
+			{
+				"id": "0xdee4e7e13bd4cf727cfdf50e92c6e79643813c17b3d9c5825ca075cd77f49b3b",
+				"sender": "Ethermine",
+				"receiver": "0x1be2ae640e82a6df2a757333cebf49b71a082d86",
+				"value": "0.099130808"
+			},
+			{
+				"id": "0x1c582e4dfc0476f16afd381f8d593612f5bbdb4c36124f7fdb67614b450c9937",
+				"sender": "Ethermine",
+				"receiver": "0xbb4a483f28404a2a4d744cfb27dc93bbd4a1a7b8",
+				"value": "0.499463894"
+			},
+			{
+				"id": "0xa2c1fc09fb55c2690ab21b0c0b077ad24a691e8ffc0b39aca33acf020481872e",
+				"sender": "Ethermine",
+				"receiver": "0x98cfb2e12c037ad319fb0e33a0db7687232d101d",
+				"value": "0.099283627"
+			},
+			{
+				"id": "0xa46a1ce78bd47ce2325853b8e71babe32f34ac8328e252c18fb94dfda1f964b4",
+				"sender": "Ethermine",
+				"receiver": "0x6cd62e1d5191267ac7da2743d6e4714e299fe0f2",
+				"value": "1.002055211"
+			}
+		],
+		[
+			{
+				"id": "0xda0ff2ee0c65cb9cdd2d191e5304cfcbfa2170799748e02be0c0549c05825a1f",
+				"sender": "Ethermine",
+				"receiver": "0xf50e9826f70b184a5f03bd139cd959d6914e23ed",
+				"value": "0.049306426"
+			}
+		],
+		[
+			{
+				"id": "0xbc781513265ff7d4f760f8f0fb19b2034ea5809a1207ce21f78761d2e4bac550",
+				"sender": "Ethermine",
+				"receiver": "0xe7046439145e411468af25bc149ab2a6e311cb98",
+				"value": "0.049768839"
+			}
+		],
+		[
+			{
+				"id": "0xde2f41e748f6b68f2bfda4e88b6726ebcb5a3a19943be71067138f7cf2968607",
+				"sender": "0x390da0a9c7068395ff3b9747ecc2a511e7a620df",
+				"receiver": "0x3b76220654de39ef68c32d6f20e2f9c24530f439",
+				"value": "6.051663762"
+			}
+		],
+		[
+			{
+				"id": "0xde2f41e748f6b68f2bfda4e88b6726ebcb5a3a19943be71067138f7cf2968607",
+				"sender": "0x390da0a9c7068395ff3b9747ecc2a511e7a620df",
+				"receiver": "0x3b76220654de39ef68c32d6f20e2f9c24530f439",
+				"value": "6.051663762"
+			}
+		],
+		[
+			{
+				"id": "0x86f78cf6fb52d529d13302e22cb6d1402767cf14bced8051a89c683f47338dfb",
+				"sender": "0xa3e686fdf47cbff16425940dd7ec98c1dce274ef",
+				"receiver": "ENS: Old Registrar",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x86f78cf6fb52d529d13302e22cb6d1402767cf14bced8051a89c683f47338dfb",
+				"sender": "0xa3e686fdf47cbff16425940dd7ec98c1dce274ef",
+				"receiver": "ENS: Old Registrar",
+				"value": "0"
+			},
+			{
+				"id": "0x378c2e191edd72f7d8b6beb4e184b1bf6c32bbf885166c6aaa86fcfc09a88762",
+				"sender": "0x64c539c97d89e65c715c47038cd1728074e1f047",
+				"receiver": "ENS: Old Registrar",
+				"value": "0"
+			},
+			{
+				"id": "0x049c4b768e946c8bd03a8cffada109ae680e9742c6a95df89eb1a8e26151276d",
+				"sender": "0x79828846a6562186e35961f7403198a5ee04efb9",
+				"receiver": "ENS: Old Registrar",
+				"value": "0"
+			},
+			{
+				"id": "0x57803cff23ea090930ae3e4650c80ad9a11618c95e351e7e9a3f7c91d6c02414",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x6edd16121a1b526161158e72b230ebd626d42c93279128ea615272fa08b94bb0",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x444e47e7b8586d807df8393a5234d8e31f076266c69a2cb7c88f5be08b6a5003",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x420768ae9d1bf0cdbdf079a04b483b6992cf197e264a2a3d59b6688ce850a9d2",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x34860ad3dbb5f9f9aeb9f8adc5034739d1890cb8a110dd53c13684fef900c1da",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0xcbb712be54301f0c1b9a70852ddbc5714dc8edce8dfcbe88ab91608e1b11f1a1",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0xae04b2f9d801dd126f713cff6220f659144635aeb06f36c8f7e2c8b52cad9826",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x6b6d129e740dc9ff6e93cdba273f7763c9e5161cef2aeffb7408da85878ec5e2",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0xf1ded729429ee2c8c06f91ebfd39cd6dd836a73d141b375ecc8cd1863af5998a",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x2c62f9d3350df8c8b716fd8f717f663c30e7d3281404d6e64dc3a1c1aabf2810",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x6ecb035b65093ca55ca4f60ba14079aeb12ade0f106444297158550704ea9fd2",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x23f63dae422f1e09858c7727d480dd63a46eeccec888fbf08dd659113f3b5635",
+				"sender": "0xa7f3659c53820346176f7e0e350780df304db179",
+				"receiver": "ENS: Old Registrar",
+				"value": "1.03"
+			},
+			{
+				"id": "0x6064fd06ef647d422afb8d80d7522b78a90e227d4ad6694c1e6b3d089e746711",
+				"sender": "0x045ea3b386e59457ac98567b9ac1f1ccdfca3d7f",
+				"receiver": "ENS: Old Registrar",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x6079a444001ac768372028a02c1019e6f36349b7dec5ee8d37e0d24543b286f9",
+				"sender": "0x8bdd72abd90177d8ee279c749ff850e2aa5a1143",
+				"receiver": "Nimiq Token",
+				"value": "0"
+			},
+			{
+				"id": "0xced6a120cf3d5af1879ba4196818b315430e8475aec4aaed066e5b505b9b8d7a",
+				"sender": "0x8bdd72abd90177d8ee279c749ff850e2aa5a1143",
+				"receiver": "Nimiq Token",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x6079a444001ac768372028a02c1019e6f36349b7dec5ee8d37e0d24543b286f9",
+				"sender": "0x8bdd72abd90177d8ee279c749ff850e2aa5a1143",
+				"receiver": "Nimiq Token",
+				"value": "0"
+			},
+			{
+				"id": "0xced6a120cf3d5af1879ba4196818b315430e8475aec4aaed066e5b505b9b8d7a",
+				"sender": "0x8bdd72abd90177d8ee279c749ff850e2aa5a1143",
+				"receiver": "Nimiq Token",
+				"value": "0"
+			}
+		],
+		[
+			{
+				"id": "0x336447f3a804d8e1c5c3f7743da512acc1d3e419984ffe1a6fe44819732e976b",
+				"sender": "0x000d96ccc0824691af824cbf8d8a33923adf8ff1",
+				"receiver": "0x00af742936f4bc47a23fd1d5e2eda396e861ec01",
+				"value": "0.051935601"
+			}
+		],
+		[
+			{
+				"id": "0x336447f3a804d8e1c5c3f7743da512acc1d3e419984ffe1a6fe44819732e976b",
+				"sender": "0x000d96ccc0824691af824cbf8d8a33923adf8ff1",
+				"receiver": "0x00af742936f4bc47a23fd1d5e2eda396e861ec01",
+				"value": "0.051935601"
+			}
+		],
+		[
+			{
+				"id": "0xa05db8e0c6f41f572a15c1e420b945bfeb93d2730f9f496699d432d9a38f4f5b",
+				"sender": "Kraken 4",
+				"receiver": "0xc94bfa6efeff044e4337ad2b6a03801fdd4b90ea",
+				"value": "1.095"
+			}
+		]
+	]
+}

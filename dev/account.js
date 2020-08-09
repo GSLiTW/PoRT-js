@@ -1,13 +1,8 @@
 const uuid = require("uuid/v1");
 
 function Account() {
-    this.addresses = [
-        "5aad9b5e21f63955e8840e8b954926c60e0e2d906fdbc0ce1e3afe249a67f614"
-      ];
-      this.balance = {
-        "5aad9b5e21f63955e8840e8b954926c60e0e2d906fdbc0ce1e3afe249a67f614": 1000
-      };
-    }
+    this.address = uuid().split("-").join("");
+    this.balance = 0;
 };
 
 Account.prototype.initialize = function(address) {

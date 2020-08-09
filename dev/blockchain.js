@@ -22,7 +22,8 @@ function Blockchain(){
     this.networkNodes = [];
   
     this.accounts = new Account();
-    this.stakes = new Stake();
+    this.address = this.accounts.getAddress();
+    this.stakes = new Stake(this.address);
     this.validators = new Validators();
 
     var genesisBlock = new Block(0, [], "0");
