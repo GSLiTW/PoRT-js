@@ -1,107 +1,184 @@
-const Web3 = require('web3');
-const web3 = new Web3('https://mainnet.infura.io/v3/YOUR_INFURA_API_KEY');
+// const Web3 = require('web3');
+// const web3 = new Web3('https://mainnet.infura.io/v3/YOUR_INFURA_API_KEY');
 
-function MPT(){
-    this.mode = none;
-    this.key  = none;
-    this.value = none;
-    this.next = none;
-    this.branch = [ None, None, None, None,
-        None, None, None, None,
-        None, None, None, None,
-        None, None, None, None ]
-    this.Update_flag = None
-    this.Update_value = None
+function MPT(root=false){
+    this.mode = null;
+    this.key  = null;
+    this.value = null;
+    this.next = null;
+    this.branch = [ null, null, null, null,
+        null, null, null, null,
+        null, null, null, null,
+        null, null, null, null ]
+    this.Update_flag = null
+    this.Update_value = null
     this.root = root
-}
+};
 
-MPT.prototype.Display() = function() {
+MPT.prototype.Display = function(level) {
 
-    if(this.mode==none)return;
-    else if(this.mode==leaf){
-        if(len(this.key)%2==0){
+    if(this.mode == null) {
+        console.log("Empty Trie")
+        return;
+    }
+    
+    if(this.mode == 'leaf') {
+        if((this.key.length)%2==0){
             prefix = '20';
         }
         else{
             prefix = '3';
         }
-        console.log(">"+"\t"* level + "leaf: (" + prefix +")" + this.key + ", " + this.value);
+        console.log( ">" + '\t'.repeat(level) + "leaf: (" + prefix +")" + this.key + ", " + this.value);
         return;
-    }
-    else if(this.mode==extension){
-        if(len(this.key)%2==0){
+    } else if(this.mode == 'extension') {
+        if((this.key.length)%2==0){
             prefix = '00';
         }
         else{
             prefix = '1';
         }
-        console.log(">"+"\t"* level + "extension: (" + prefix +")" + this.key);
+        console.log(">" + '\t'.repeat(level) + "extension: (" + prefix +")" + this.key);
+        this.next.Display(level+1);
         return;
     }
-    else if(this.mode==branch){
-        console.log(">" + '\t' * level + "branch");
-        for(i = 0; i < len(self.branch); i++){
-            if(i != None){
-                console.log(">" + '\t' * level + "      " + j.toString(16) + ":");
-                i.Display(level+1);
-                j += 1;
+    else if(this.mode == 'branch'){
+        console.log(">" + '\t'.repeat(level) + "branch");
+        var j = 0;
+        for(var i in this.branch){
+            if(this.branch[i] != null){
+                if(j == 16) {
+                    console.log(">" + '\t'.repeat(level) + "      value:");
+                } else {
+                    console.log(">" + '\t'.repeat(level) + "      " + j.toString(16) + ":");
+                }
+                this.branch[i].Display(level+1);
             }
+            j += 1;
         }
         return;
     }
 };
-MPT.prototype.Insert() = function() {
-    if(this.mode!=none){
-        if(key==this.key){
+
+MPT.prototype.Insert = function(key, value) {
+    if(this.mode != null){
+        if(key == this.key){
             console.log(">Weird request. User already exist");
+            return;
         }
     }
-    if(this.mode==none){
+    if(this.mode == null){
         this.mode = 'leaf';
         this.key = key;
         this.value = value;
-    }
-    else if(this.mode=='branch'){
-        if(key.length==0){
+    } else if(this.mode == 'branch'){
+        if(key.length == 0){
             this.value = value;
-        }
-        else{
-            ch = 1;//
-            if(this.branch[ch] == none){
-                this.branch[ch] = MPT();
+        } else {
+            ch = parseInt(key[0], 16);
+            if(this.branch[ch] == null){
+                this.branch[ch] = new MPT();
             }
-            this.branch[ch].Insert(key.substring(1,1000),value);
+            this.branch[ch].Insert(key.substr(1),value);
         }
 
-    }
-    else if(this.mode=='extension'){
-        i = 0;
-        while(key[i] == self.key[i]){
-            i += 1;
+    } else if(this.mode=='extension') {
+        var i = 0;
+        while(key[i] == this.key[i]){
+            i++;
             if(i == this.key.length)
                 break;
         }
         if(i == 0){
             this.mode = 'branch';
             if(this.key.length == 1){
-                this.branch
+                this.branch[parseInt(key[0],16)] = new MPT();
+                this.branch[parseInt(key[0],16)].Insert(key.substr(1),value);
+                this.branch[parseInt(this.key[0],16)] = this.next;
+            } else {
+                this.branch[parseInt(key[0],16)] = new MPT();
+                this.branch[parseInt(key[0],16)].Insert(key.substr(1),value);
+                var NewNode = new MPT()
+                NewNode.mode = 'extension';
+                NewNode.key = this.key.substr(1);
+                NewNode.next = this.next;
+                this.branch[parseInt(this.key[0],16)] = NewNode;
+            }
+        } else if(i == this.key.length) {
+            this.next.Insert(key.substr(i),value);
+        } else {
+            if(i == (this.key.length - 1)) {
+                var NewNode = new MPT();
+                NewNode.mode = 'branch';
+                NewNode.branch[parseInt(key[i], 16)] = new MPT();
+                NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i+1),value);
+                NewNode.branch[parseInt(this.key[i], 16)] = this.next;
+                this.key = key.substr(0,i);
+                this.next = NewNode;
+            } else {
+                var NewNode = new MPT();
+                NewNode.mode = 'branch';
+                NewNode.branch[parseInt(key[i], 16)] = new MPT();
+                NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i+1),value);
+                NewNode.branch[parseInt(this.key[i], 16)] = new MPT();
+                NewNode.branch[parseInt(this.key[i], 16)].mode = 'extension';
+                NewNode.branch[parseInt(this.key[i], 16)].key = this.key.substr(i+1);
+                NewNode.branch[parseInt(this.key[i], 16)].next = this.next;
+                this.key = key.substr(0,i);
+                this.next = NewNode;
             }
         }
     }
-    else if(this.mode=='leaf'){
+    else if(this.mode == 'leaf'){
+        var i = 0;
+        while(key[i] == this.key[i]) {
+            i++;
+            if(i == key.length) break;
+        }
+        if(i == 0) {
+            this.mode = 'branch';
+            this.branch[parseInt(key[0],16)] = new MPT();
+            this.branch[parseInt(key[0],16)].Insert(key.substr(1), value);
+            this.branch[parseInt(this.key[i], 16)] = new MPT();
+            this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.value);
 
+        } else {
+            this.mode = 'extension';
+            var NewNode = new MPT();
+            NewNode.mode = 'branch';
+            NewNode.branch[parseInt(key[i],16)] = new MPT();
+            NewNode.branch[parseInt(key[i],16)].Insert(key.substr(i+1),value);
+            NewNode.branch[parseInt(this.key[i],16)] = new MPT();
+            NewNode.branch[parseInt(this.key[i],16)].Insert(this.key.substr(i+1),this.value);
+            this.key = key.substr(0,i);
+            this.next = NewNode;
+        }
     }
 
 };
-MPT.prototype.Search() = function() {
+
+MPT.prototype.Search = function(key, Update_flag=null, Update_value=null) {
 
 };
-MPT.prototype.Update() = function() {
+MPT.prototype.Update = function() {
 
 };
-MPT.prototype.Cal_back_nibble() = function() {
+MPT.prototype.Cal_back_nibble = function() {
 
 };
-MPT.prototype.Cal_hash() = function(){
+MPT.prototype.Cal_hash = function(){
 
 };
+
+module.exports = MPT;
+Tree = new MPT(true);
+Tree.Insert('a120',0);
+Tree.Display(0); console.log("*********");
+Tree.Insert('abd2',1);
+Tree.Display(0); console.log("*********");
+Tree.Insert('abcd',2);
+Tree.Display(0); console.log("*********");
+Tree.Insert('abce',3);
+Tree.Display(0); console.log("*********");
+Tree.Insert('f000',4);
+Tree.Display(0); console.log("*********");
