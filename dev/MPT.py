@@ -197,12 +197,13 @@ class MPT:
         
         odd = len(self.key) % 2
         element |= odd
+        # print(element)
         
         if odd == 0 : # even
-            #print(bytes.fromhex(str(element) + "0" + self.key))
+            print(bytes.fromhex(str(element) + "0" + self.key).hex())
             return bytes.fromhex(str(element) + "0" + self.key)
         else :
-            #print(bytes.fromhex(str(element) + self.key))
+            print(bytes.fromhex(str(element) + self.key).hex())
             return bytes.fromhex(str(element) + self.key)
         
         
@@ -234,7 +235,7 @@ class MPT:
             
             Node.append(b'')
             
-        #print(self.root)
+        print(Node)
         if self.root == True :
             #print(Node)
             return sha3.keccak_256(rlp.encode(Node)).hexdigest()
@@ -245,71 +246,76 @@ class MPT:
             else :
                 return Node
 
+Tree = MPT(True)
+Tree.Insert('a711355','45')
+Tree.Insert('a77d337','1')
+Tree.Insert('a7f9365','2')
+Tree.Insert('a77d397','12')
+Tree.Display(0)
+print(Tree.Cal_hash())
 
 
-
-
-TreeList = {}
-Tree = None
-while(True):
-    Request = input("Create a Tree or Enter a Tree:")
-    Requests = Request.split()
-    if len(Requests) == 2 :
-        if Requests[0] == 'Create' :
-            if Requests[1] in TreeList :
-                print("Tree already exists.")
-            else :
-                TreeList[Requests[1]] = MPT(True)
-        elif Requests[0] == 'Enter' :
-            if Requests[1] not in TreeList :
-                 print("Tree not exist.")
-            else :
-                Tree = TreeList[Requests[1]]
-                while(True):
-                    op = input("(" + Requests[1] + ")>")
-                    Ops = op.split()
-                    if Ops[0] == 'display'  :
-                        if len(Ops) != 1 : print(">Weird requset. Arguments number is wrong.")
-                        else :
-                            Tree.Display(0)
-                    elif Ops[0] == 'search' :
-                        if len(Ops) != 2 : print(">Weird requset. Arguments number is wrong.")
-                        else :
-                            Val = Tree.Search(Ops[1])
-                            if Val == None :
-                                print(">Error. This ID does not exist.")
-                            else :
-                                print(">" + Ops[1] + "'s balance is " + Val)
-                    elif Ops[0] == 'insert' :
-                        if len(Ops) != 3 : print(">Weird requset. Arguments number is wrong.")
-                        else :
-                            Tree.Insert(Ops[1],Ops[2])
+# TreeList = {}
+# Tree = None
+# while(True):
+#     Request = input("Create a Tree or Enter a Tree:")
+#     Requests = Request.split()
+#     if len(Requests) == 2 :
+#         if Requests[0] == 'Create' :
+#             if Requests[1] in TreeList :
+#                 print("Tree already exists.")
+#             else :
+#                 TreeList[Requests[1]] = MPT(True)
+#         elif Requests[0] == 'Enter' :
+#             if Requests[1] not in TreeList :
+#                  print("Tree not exist.")
+#             else :
+#                 Tree = TreeList[Requests[1]]
+#                 while(True):
+#                     op = input("(" + Requests[1] + ")>")
+#                     Ops = op.split()
+#                     if Ops[0] == 'display'  :
+#                         if len(Ops) != 1 : print(">Weird requset. Arguments number is wrong.")
+#                         else :
+#                             Tree.Display(0)
+#                     elif Ops[0] == 'search' :
+#                         if len(Ops) != 2 : print(">Weird requset. Arguments number is wrong.")
+#                         else :
+#                             Val = Tree.Search(Ops[1])
+#                             if Val == None :
+#                                 print(">Error. This ID does not exist.")
+#                             else :
+#                                 print(">" + Ops[1] + "'s balance is " + Val)
+#                     elif Ops[0] == 'insert' :
+#                         if len(Ops) != 3 : print(">Weird requset. Arguments number is wrong.")
+#                         else :
+#                             Tree.Insert(Ops[1],Ops[2])
                             
-                    elif Ops[0] == 'update' :
-                        if len(Ops) != 4 : print(">Weird requset. Arguments number is wrong.")
-                        else :
-                            Tree.Update(Ops[1],Ops[2],Ops[3])
-                    elif Ops[0] == "root" :
-                        if len(Ops) != 1 : print(">Weird requset. Arguments number is wrong.")
-                        else :
-                            print(">hash root is " + Tree.Cal_hash())
-                    elif Ops[0] == 'leave' :
-                        if len(Ops) != 1 : print(">Weird requset. Arguments number is wrong.")
-                        else :
-                            TreeList[Requests[1]] = Tree
-                            break
-                    else :
-                            print(">There is no such operation.")
-        else :
-            print("Weird request.")
-    else :
-        print("Weird request.")
+#                     elif Ops[0] == 'update' :
+#                         if len(Ops) != 4 : print(">Weird requset. Arguments number is wrong.")
+#                         else :
+#                             Tree.Update(Ops[1],Ops[2],Ops[3])
+#                     elif Ops[0] == "root" :
+#                         if len(Ops) != 1 : print(">Weird requset. Arguments number is wrong.")
+#                         else :
+#                             print(">hash root is " + Tree.Cal_hash())
+#                     elif Ops[0] == 'leave' :
+#                         if len(Ops) != 1 : print(">Weird requset. Arguments number is wrong.")
+#                         else :
+#                             TreeList[Requests[1]] = Tree
+#                             break
+#                     else :
+#                             print(">There is no such operation.")
+#         else :
+#             print("Weird request.")
+#     else :
+#         print("Weird request.")
     
-    #print(Ops)
-    #print(Ops[0])
-    #print(len(Ops))
+#     #print(Ops)
+#     #print(Ops[0])
+#     #print(len(Ops))
 
                         
-    #'construct' 'display' 'search' 'insert'  'update' 
+#     #'construct' 'display' 'search' 'insert'  'update' 
 
 

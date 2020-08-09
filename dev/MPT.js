@@ -1,5 +1,22 @@
-// const Web3 = require('web3');
-// const web3 = new Web3('https://mainnet.infura.io/v3/YOUR_INFURA_API_KEY');
+const keccak256 = require('keccak256');
+const rlp = require('rlp');
+
+// Convert a hex string to a byte array
+function hexToBytes(hex) {
+    for (var bytes = [], c = 0; c < hex.length; c += 2)
+    bytes.push(parseInt(hex.substr(c, 2), 16));
+    return bytes;
+}
+
+// Convert a byte array to a hex string
+function bytesToHex(bytes) {
+    for (var hex = [], i = 0; i < bytes.length; i++) {
+        var current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i];
+        hex.push((current >>> 4).toString(16));
+        hex.push((current & 0xF).toString(16));
+    }
+    return hex.join("");
+}
 
 function MPT(root=false){
     this.mode = null;
@@ -182,7 +199,7 @@ MPT.prototype.Search = function(key, Update_flag=null, Update_value=null) {
         }
     } else if(this.mode == 'branch') {
         if(this.branch[parseInt(key[0], 16)] != null) {
-            return this.branch[parseInt(key[0],  16)].Search(key.substr(1), Update_flag, Update_value);
+            return this.branch[parseInt(key[0],16)].Search(key.substr(1), Update_flag, Update_value);
         } else {
             return null;
         }
@@ -210,20 +227,88 @@ MPT.prototype.Update = function(from, to, value) {
     console.log("> Update successfully.\nNow " + from + " has value " + val1 + ", " + to + " has value " + val2 + ".");
     return;
 };
-MPT.prototype.Cal_back_nibble = function() {
 
+MPT.prototype.Cal_pack_nibble = function() {
+    var element = null;
+    if(this.mode == 'leaf') {
+        element = 2;
+    } else if(this.mode == 'extension') {
+        element = 0;
+    } else {
+        return;
+    }
+
+    var odd = this.key.length % 2;
+    element |= odd;
+    ///console.log(element)
+
+    if(odd == 0) {
+        // console.log(Buffer.from(element.toString() + "0" + this.key, 'hex'))
+        return Buffer.from(element.toString() + "0" + this.key, 'hex');
+    } else {
+        // console.log(Buffer.from(element.toString() + this.key, 'hex'))
+        return Buffer.from(element.toString() + this.key, 'hex');
+    }
 };
-MPT.prototype.Cal_hash = function(){
 
+MPT.prototype.Cal_hash = function(){
+    var Node = [];
+    if(this.mode == null) {
+        return "Root Not Found Error: Trie is not built yet.";
+    } else if(this.mode == 'leaf') {
+        Node = [this.Cal_pack_nibble(), Buffer.from(this.value.toString())];
+    } else if(this.mode == 'extension') {
+        Node = [this.Cal_pack_nibble(), this.next.Cal_hash()];
+    } else if(this.mode == 'branch') {
+        Node = [];
+        for(var i in this.branch) {
+            if(this.branch[i] == null) {
+                Node.push(Buffer(''));
+            } else {
+                Node.push(this.branch[i].Cal_hash());
+            }
+        }
+        Node.push(Buffer(''));
+    }
+
+    // console.log(Node)
+    if(this.root == true) {
+        return keccak256(rlp.encode(Node)).toString('hex');
+    } else {
+        if(rlp.encode(Node).length >= 32) {
+            return keccak256(rlp.encode(Node));
+        } else {
+            return Node;
+        }
+    }
 };
 
 module.exports = MPT;
+
+// TestCase 1: 5838ad5578f346f40d3e6b71f9a82ae6e5198dd39c52e18deec63734da512055
 Tree = new MPT(true);
-Tree.Insert('a120',0);
-Tree.Insert('abd2',100);
-Tree.Insert('abcd',250.1);
-Tree.Insert('abce',313);
-Tree.Insert('f000',45.67);
+Tree.Insert('a711355',45);
+Tree.Insert('a77d337',1);
+Tree.Insert('a7f9365',2);
+Tree.Insert('a77d397',12);
 Tree.Display(0);
-Tree.Update('abd2','a120',50.5);
+console.log("State Root: " + Tree.Cal_hash());
+
+// TestCase 2: b3506d16d769a8aaf5e2fe2f4449a673b408472c04ba0e0837aba0bc9d5364cd
+Tree = new MPT(true);
+Tree.Insert('7c3002ad756d76a643cb09cd45409608abb642d9',10);
+Tree.Insert('7c303333756d555643cb09cd45409608abb642d9',20);
+Tree.Insert('7c303333756d777643cb09c999409608abb642d9',30);
+Tree.Insert('7c303333756d777643cb09caaa409608abb642d9',40);
+Tree.Insert('111102ad756d76a643cb09cd45409608abb642d9',50);
 Tree.Display(0);
+console.log("State Root: " + Tree.Cal_hash());
+
+// TestCase 3: eff402b46c2b81e230797cf224c5440aefde9335594271e19da8c75ecc476d08
+Tree.Update('7c3002ad756d76a643cb09cd45409608abb642d9',
+            '7c303333756d777643cb09caaa409608abb642d9',2);
+Tree.Insert('11113333756d76a643cb09cd45409608abb642d9',0);
+Tree.Update('7c303333756d777643cb09c999409608abb642d9',
+            '11113333756d76a643cb09cd45409608abb642d9',6);
+Tree.Display(0);
+console.log("State Root: " + Tree.Cal_hash());
