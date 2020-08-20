@@ -322,6 +322,12 @@ MPT.prototype.GenerateMappingTable = function() {
     //TODO
 };
 
+/*
+ * h := hash (from PoRT) 
+ * flag := indicate what taxcnt means
+ * taxcnt := (flag == 0) Ti (from PoRT)
+ *           (flag == 1) Selected Creator's address(key)
+ */ 
 MPT.prototype.Select = function(h,flag,taxcnt) {
     // console.log(this.key +" " + this.mode + " " + h + " " + flag + " " + taxcnt)
     if(this.mode == 'leaf') {
