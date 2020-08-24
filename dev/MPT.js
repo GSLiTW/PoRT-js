@@ -57,7 +57,7 @@ MPT.prototype.Display = function(level) {
 
 MPT.prototype.Insert = function(key, value, tax=0, dbit=0) {
     /* FOR DEBUGGING: TAX = 0.1 * VALUE */
-    tax = 0.1 * value;
+    // tax = 0.1 * value;
     /* FOR DEBUGGING*/
     
     if(this.type == 'account'){
@@ -332,7 +332,7 @@ MPT.prototype.Select = function(h,flag,taxcnt) {
     // console.log(this.key +" " + this.mode + " " + h + " " + flag + " " + taxcnt)
     if(this.mode == 'leaf') {
         if((h - taxcnt) < this.value[1]) {
-            return [1,this.key];
+            return [1, this.key];
         } else {
             return [0,(taxcnt + this.value[1])];
         }
@@ -355,7 +355,7 @@ MPT.prototype.Select = function(h,flag,taxcnt) {
             if(this.branch[i] != null){
                 [flag, t] = this.branch[i].Select(h,flag,taxcnt);
                 if(flag == 1) {
-                    taxcnt = i.toString(16) + t;
+                    taxcnt = parseInt(i).toString(16) + t;
                     break;
                 } else {
                     taxcnt = t;
@@ -391,27 +391,27 @@ MPT.prototype.TotalTax = function() {
 module.exports = MPT;
 
 // TestCase 1: 5838ad5578f346f40d3e6b71f9a82ae6e5198dd39c52e18deec63734da512055
-Tree = new MPT(true);
-Tree.Insert('a711355',45);
-Tree.Insert('a77d337',1);
-Tree.Insert('a7f9365',2);
-Tree.Insert('a77d397',12);
-Tree.Display(0);
-console.log("State Root: " + Tree.Cal_hash());
-console.log("Total Tax:" + Tree.TotalTax());
-console.log(Tree.Select(4.55,0,0));
+// Tree = new MPT(true);
+// Tree.Insert('a711355',45);
+// Tree.Insert('a77d337',1);
+// Tree.Insert('a7f9365',2);
+// Tree.Insert('a77d397',12);
+// Tree.Display(0);
+// console.log("State Root: " + Tree.Cal_hash());
+// console.log("Total Tax:" + Tree.TotalTax());
+// console.log(Tree.Select(4.55,0,0));
 
-// TestCase 2: b3506d16d769a8aaf5e2fe2f4449a673b408472c04ba0e0837aba0bc9d5364cd
-Tree = new MPT(true);
-Tree.Insert('7c3002ad756d76a643cb09cd45409608abb642d9',10);
-Tree.Insert('7c303333756d555643cb09cd45409608abb642d9',20);
-Tree.Insert('7c303333756d777643cb09c999409608abb642d9',30);
-Tree.Insert('7c303333756d777643cb09caaa409608abb642d9',40);
-Tree.Insert('111102ad756d76a643cb09cd45409608abb642d9',50);
-Tree.Display(0);
-console.log("State Root: " + Tree.Cal_hash());
-console.log("Total Tax:" + Tree.TotalTax());
-console.log(Tree.Select(4.5,0,0));
+// // TestCase 2: b3506d16d769a8aaf5e2fe2f4449a673b408472c04ba0e0837aba0bc9d5364cd
+// Tree = new MPT(true);
+// Tree.Insert('7c3002ad756d76a643cb09cd45409608abb642d9',10);
+// Tree.Insert('7c303333756d555643cb09cd45409608abb642d9',20);
+// Tree.Insert('7c303333756d777643cb09c999409608abb642d9',30);
+// Tree.Insert('7c303333756d777643cb09caaa409608abb642d9',40);
+// Tree.Insert('111102ad756d76a643cb09cd45409608abb642d9',50);
+// Tree.Display(0);
+// console.log("State Root: " + Tree.Cal_hash());
+// console.log("Total Tax:" + Tree.TotalTax());
+// console.log(Tree.Select(4.5,0,0));
 
 // // TestCase 3: eff402b46c2b81e230797cf224c5440aefde9335594271e19da8c75ecc476d08
 // Tree.UpdateValue('7c3002ad756d76a643cb09cd45409608abb642d9',
