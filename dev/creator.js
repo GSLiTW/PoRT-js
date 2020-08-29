@@ -110,4 +110,12 @@ Creator.prototype.CreatorCalculate = function() {
     return this.newMappingTable;
 }
 
+Creator.prototype.PoRT = function() {
+    var T = 1234;
+    T = T.toString();
+    var tmp = sha256(T + this.account[6].address);
+    var h = parseInt(tmp, 16) % T;
+    console.log(h);
+}
+
 module.exports = Creator;

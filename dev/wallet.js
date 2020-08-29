@@ -14,12 +14,12 @@ function Wallet() {
 };
 
 Wallet.prototype.NewKeyPair = function(){
-    privateKey = secureRandom.randomBuffer(32);
+    this.privateKey = secureRandom.randomBuffer(32);
     const ecdsa = new elliptic.ec('secp256k1');
-    const keys = ecdsa.keyFromPrivate(privateKey);
-    publicKey = keys.getPublic('hex');
-    //cconsole.log("Private Key: ", privateKey);
-    // console.log("Public Key: ", publicKey);
+    const keys = ecdsa.keyFromPrivate(this.privateKey);
+    this.publicKey = keys.getPublic('hex');
+    //console.log("Private Key: ", privateKey);
+    //console.log("Public Key: ", publicKey);
 }
 
 Wallet.prototype.PublicKeyHash = function(){
