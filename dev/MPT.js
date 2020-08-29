@@ -259,6 +259,36 @@ MPT.prototype.UpdateTax = function(key, Update_value) {
     }
 }
 
+MPT.prototype.UpdateDbit = function(key, dbit=0) {
+    if(dbit != 0 && dbit != 1 && dbit != 2) {
+        console.error("Error: dbit should be 0, 1 or 2.");
+        return;
+    }
+    if(this.mode == 'leaf') {
+        if(this.key == key) {
+            this.value[2] = dbit;
+        }
+    } else if(this.mode == 'extension') {
+        var i = 0;
+        while(key[i] == this.key[i]) {
+            i++;
+            if(i == this.key.length)
+                break;
+        }
+        if(i == this.key.length) {
+            return this.next.UpdateTax(key.substr(i),dbit);
+        } else {
+            return null;
+        }
+    } else if(this.mode == 'branch') {
+        if(this.branch[parseInt(key[0], 16)] != null) {
+            return this.branch[parseInt(key[0],16)].UpdateTax(key.substr(1), dbit);
+        } else {
+            return null;
+        }
+    }
+}
+
 MPT.prototype.Cal_pack_nibble = function() {
     var element = null;
     if(this.mode == 'leaf') {
