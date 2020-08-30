@@ -10,7 +10,9 @@ function Wallet(prik='', pubk='', bal=0) {
     this.balance = bal,
     this.privateKey = prik,
     this.publicKey = pubk,
-    this.NewKeyPair()
+    if(prik == '' || pubk == ''){
+        this.NewKeyPair();
+    }
 };
 
 Wallet.prototype.NewKeyPair = function(){
