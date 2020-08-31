@@ -38,6 +38,39 @@ pending_txn_pool.create(1);
 
 var block = new Block(0, pending_txn_pool.get_transaction(), 0);
 
+if(port == 3157) {
+    for(var p=3000; p<3157; p++) {
+        const newNodeUrl = "http://localhost:" + p;
+        if(chain.networkNodes.indexOf(newNodeUrl) == -1)
+            chain.networkNodes.push(newNodeUrl);
+        
+        const regNodesPromises = [];
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/register-node",
+                method: "POST",
+                body: {newNodeUrl: newNodeUrl},
+                json: true
+            };
+
+            regNodesPromises.push(rp(requestOptions));
+        });
+
+        Promise.all(regNodesPromises).then(data => {
+            //use the data
+            const bulkRegisterOptions = {
+                uri: newNodeUrl + "/register-nodes-bulk",
+                method: "POST",
+                body: {allNetworkNodes: [ ...chain.networkNodes, chain.currentNodeUrl]},
+                json: true
+            }
+
+            return rp(bulkRegisterOptions);
+        })
+    }
+}
+
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
  
@@ -45,19 +78,27 @@ app.get("/blockchain", function(req, res){
     res.send(chain);
 });
 
-app.post("/transaction", function(req, res){
-    var para = JSON.parse(req.body)
-    const newTransaction = Transaction(para['from'], para['to'], para['amount'], para['type']);
-    const blockIndex = chain.addTransactionToPendingTransaction(newTransaction);
-    res.json({note: `Transaction will be created in block ${blockIndex}.`});
+app.get("/MPT", function(req, res) {
+    res.send(Tree);
 });
 
-app.post("/transaction/second-block", function(req, res) {
+app.get("/transaction-pool", function(req, res) {
+    res.send(pending_txn_pool);
+});
+
+// app.post("/transaction", function(req, res){
+//     var para = JSON.parse(req.body)
+//     const newTransaction = Transaction(para['from'], para['to'], para['amount'], para['type']);
+//     const blockIndex = chain.addTransactionToPendingTransaction(newTransaction);
+//     res.json({note: `Transaction will be created in block ${blockIndex}.`});
+// });
+
+app.get("/transaction/second-block", function(req, res) {
     pending_txn_pool.create(2);
     res.json({note: `push transactions of the second etherscan into pending txn pool.`})
 })
 
-app.post("/transaction/third-block", function(req, res) {
+app.get("/transaction/third-block", function(req, res) {
     pending_txn_pool.create(3);
     res.json({note: `push transactions of the third etherscan into pending txn pool.`})
 })
@@ -83,43 +124,42 @@ app.post("/transaction/broadcast", function(req, res){
     });
 });
 
-app.get("/mine", function(req, res){
-    const lastBlock = chain.getLastBlock();
-    const previousBlockHash = lastBlock["hash"];
+// app.get("/mine", function(req, res){
+//     const lastBlock = chain.getLastBlock();
+//     const previousBlockHash = lastBlock["hash"];
 
-    const newBlock = chain.createNewBlock(previousBlockHash);
+//     const newBlock = chain.createNewBlock(previousBlockHash);
 
-    const requestPromises = [];
-    chain.networkNodes.forEach(networkNodeUrl => {
-        const requestOptions = {
-            uri: networkNodeUrl + "/receive-new-block",
-            method: "POST",
-            body: {newBlock: newBlock},
-            json: true
-        };
-        requestPromises.push(rp(requestOptions));
-    });
+//     const requestPromises = [];
+//     chain.networkNodes.forEach(networkNodeUrl => {
+//         const requestOptions = {
+//             uri: networkNodeUrl + "/receive-new-block",
+//             method: "POST",
+//             body: {newBlock: newBlock},
+//             json: true
+//         };
+//         requestPromises.push(rp(requestOptions));
+//     });
 
-    Promise.all(requestPromises).then(data => {
-        const requestOptions = {
-            uri: chain.currentNodeUrl + "/transaction/broadcast",
-            method: "POST",
-            body:{
-                amount: 12.5,
-                sender: "00",
-                recipient: nodeAddress
-            },
-            json: true
-        };
-
-        return rp(requestOptions);
-    }).then(data =>{
-        res.json({
-            note: "New block mined successfully",
-            block: newBlock
-        });
-    });
-});
+//     Promise.all(requestPromises).then(data => {
+//         const requestOptions = {
+//             uri: chain.currentNodeUrl + "/transaction/broadcast",
+//             method: "POST",
+//             body:{
+//                 amount: 12.5,
+//                 sender: "00",
+//                 recipient: nodeAddress
+//             },
+//             json: true
+//         };
+//         return rp(requestOptions);
+//     }).then(data =>{
+//         res.json({
+//             note: "New block mined successfully",
+//             block: newBlock
+//         });
+//     });
+// });
 
 app.post("/receive-new-block", function(req, res){
     const newBlock = req.body.newBlock;
@@ -144,8 +184,8 @@ app.post("/receive-new-block", function(req, res){
 });
 
 //register a new node and broadcast it to network nodes
-app.post("/register-and-broadcast-node", function(req, res){
-    const newNodeUrl = req.body.newNodeUrl;
+app.get("/register-and-broadcast-node", function(req, res){
+    const newNodeUrl = "http://localhost:" + port;
     if(chain.networkNodes.indexOf(newNodeUrl) == -1)
         chain.networkNodes.push(newNodeUrl);
     
@@ -276,10 +316,6 @@ app.get('/address/:address', function(req, res){
 
 app.get("/block-explorer", function(req, res){
     res.sendFile("./block-explorer/index.html", {root: __dirname});
-});
-
-app.get("/MPT", function(req, res) {
-    res.send(Tree);
 });
 
 app.listen(port, function(){
