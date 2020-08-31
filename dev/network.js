@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const uuid = require("uuid/v1");
 const port = process.argv[2];
 const rp = require("request-promise");
+const fs = require("fs");
 
 // local modules
 const Blockchain = require("./blockchain.js");
@@ -16,7 +17,7 @@ const nodeAddress = uuid().split("-").join("");
 const chain = new Blockchain();
 
 // preprocess
-var data = fs.readFileSync('node_address_mapping_table.csv')
+var data = fs.readFileSync('./node_address_mapping_table.csv')
             .toString() // convert Buffer to string
             .split('\n') // split string to lines
             .map(e => e.trim()) // remove white spaces for each line
@@ -34,7 +35,7 @@ for(var i = 0; i < 43; i++) {
 var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(1);
 
-var block = new Block(0, this.pending_txn_pool.get_transaction(), 0);
+var block = new Block(0, pending_txn_pool.get_transaction(), 0);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -49,6 +50,16 @@ app.post("/transaction", function(req, res){
     const blockIndex = chain.addTransactionToPendingTransaction(newTransaction);
     res.json({note: `Transaction will be created in block ${blockIndex}.`});
 });
+
+app.post("/transaction/second-block", function(req, res) {
+    pending_txn_pool.create(2);
+    res.json({note: `push transactions of the second etherscan into pending txn pool.`})
+})
+
+app.post("/transaction/third-block", function(req, res) {
+    pending_txn_pool.create(3);
+    res.json({note: `push transactions of the third etherscan into pending txn pool.`})
+})
 
 app.post("/transaction/broadcast", function(req, res){
     const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
