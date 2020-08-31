@@ -22,6 +22,7 @@ var data = fs.readFileSync('node_address_mapping_table.csv')
             .map(e => e.trim()) // remove white spaces for each line
             .map(e => e.split(',').map(e => e.trim())); // split each line to array
 //console.log(data[0][1]);
+
 var Tree = new MPT(true);
 for(var i = 0; i < 43; i++) {
     if(i == 4) Tree.Insert(data[i][1], 10, 10 * 0.0001, 1); // dbit == 1 means creator
@@ -264,6 +265,10 @@ app.get('/address/:address', function(req, res){
 
 app.get("/block-explorer", function(req, res){
     res.sendFile("./block-explorer/index.html", {root: __dirname});
+});
+
+app.get("/MPT", function(req, res) {
+    res.send(Tree);
 });
 
 app.listen(port, function(){
