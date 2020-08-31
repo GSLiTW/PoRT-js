@@ -107,7 +107,7 @@ MPT.prototype.Insert = function(key, value, tax=0, dbit=0) {
                     this.branch[parseInt(this.key[0],16)] = NewNode;
                 }
             } else if(i == this.key.length) {
-                this.next.Insert(key.substr(i),value,tax);
+                this.next.Insert(key.substr(i),value,tax,dbit);
             } else {
                 if(i == (this.key.length - 1)) {
                     var NewNode = new MPT();
@@ -140,7 +140,7 @@ MPT.prototype.Insert = function(key, value, tax=0, dbit=0) {
             if(i == 0) {
                 this.mode = 'branch';
                 this.branch[parseInt(key[0],16)] = new MPT();
-                this.branch[parseInt(key[0],16)].Insert(key.substr(1), value);
+                this.branch[parseInt(key[0],16)].Insert(key.substr(1), value, tax, dbit);
                 this.branch[parseInt(this.key[i], 16)] = new MPT();
                 this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.value[0], this.value[1], this.value[2]);
 
@@ -157,9 +157,103 @@ MPT.prototype.Insert = function(key, value, tax=0, dbit=0) {
             }
         }
     } else if(this.type == 'tx') {
-        //
+        // Omitted
     } else if(this.type == 'receipt') {
-        //
+        if(this.mode != null){
+            if(key == this.key){
+                console.log(">Weird request. User already exist");
+                return;
+            }
+        }
+        if(this.mode == null){
+            this.mode = 'leaf';
+            this.key = key;
+            this.value = value;
+        } else if(this.mode == 'branch'){
+            if(key.length == 0){
+                this.value = value;
+            } else {
+                this.value = null;
+                ch = parseInt(key[0], 16);
+                if(this.branch[ch] == null){
+                    this.branch[ch] = new MPT();
+                }
+                this.branch[ch].Insert(key.substr(1),value);
+            }
+
+        } else if(this.mode=='extension') {
+            var i = 0;
+            while(key[i] == this.key[i]){
+                i++;
+                if(i == this.key.length)
+                    break;
+            }
+            if(i == 0){
+                this.mode = 'branch';
+                this.value = null;
+                if(this.key.length == 1){
+                    this.branch[parseInt(key[0],16)] = new MPT();
+                    this.branch[parseInt(key[0],16)].Insert(key.substr(1),value);
+                    this.branch[parseInt(this.key[0],16)] = this.next;
+                } else {
+                    this.branch[parseInt(key[0],16)] = new MPT();
+                    this.branch[parseInt(key[0],16)].Insert(key.substr(1),value);
+                    var NewNode = new MPT()
+                    NewNode.mode = 'extension';
+                    NewNode.key = this.key.substr(1);
+                    NewNode.next = this.next;
+                    this.branch[parseInt(this.key[0],16)] = NewNode;
+                }
+            } else if(i == this.key.length) {
+                this.next.Insert(key.substr(i),value,tax);
+            } else {
+                if(i == (this.key.length - 1)) {
+                    var NewNode = new MPT();
+                    NewNode.mode = 'branch';
+                    NewNode.branch[parseInt(key[i], 16)] = new MPT();
+                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i+1),value);
+                    NewNode.branch[parseInt(this.key[i], 16)] = this.next;
+                    this.key = key.substr(0,i);
+                    this.next = NewNode;
+                } else {
+                    var NewNode = new MPT();
+                    NewNode.mode = 'branch';
+                    NewNode.branch[parseInt(key[i], 16)] = new MPT();
+                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i+1),value);
+                    NewNode.branch[parseInt(this.key[i], 16)] = new MPT();
+                    NewNode.branch[parseInt(this.key[i], 16)].mode = 'extension';
+                    NewNode.branch[parseInt(this.key[i], 16)].key = this.key.substr(i+1);
+                    NewNode.branch[parseInt(this.key[i], 16)].next = this.next;
+                    this.key = key.substr(0,i);
+                    this.next = NewNode;
+                }
+            }
+        }
+        else if(this.mode == 'leaf'){
+            var i = 0;
+            while(key[i] == this.key[i]) {
+                i++;
+                if(i == key.length) break;
+            }
+            if(i == 0) {
+                this.mode = 'branch';
+                this.branch[parseInt(key[0],16)] = new MPT();
+                this.branch[parseInt(key[0],16)].Insert(key.substr(1), value);
+                this.branch[parseInt(this.key[i], 16)] = new MPT();
+                this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.value);
+
+            } else {
+                this.mode = 'extension';
+                var NewNode = new MPT();
+                NewNode.mode = 'branch';
+                NewNode.branch[parseInt(key[i],16)] = new MPT();
+                NewNode.branch[parseInt(key[i],16)].Insert(key.substr(i+1),value);
+                NewNode.branch[parseInt(this.key[i],16)] = new MPT();
+                NewNode.branch[parseInt(this.key[i],16)].Insert(this.key.substr(i+1),this.value);
+                this.key = key.substr(0,i);
+                this.next = NewNode;
+            }
+        }
     } else {
         console.log("Error: MPT Type Error");
         return;
@@ -168,64 +262,73 @@ MPT.prototype.Insert = function(key, value, tax=0, dbit=0) {
 };
 
 MPT.prototype.Search = function(key, Update_flag=null, Update_value=null) {
-    if(this.mode == 'leaf') {
-        if(this.key == key) {
-            if(Update_flag == '-') {
-                if(this.value[0] >= Update_value) {
-                    this.value[0] -= Update_value;
+    if(this.type == 'account') {
+        if(this.mode == 'leaf') {
+            if(this.key == key) {
+                if(Update_flag == '-') {
+                    if(this.value[0] >= Update_value) {
+                        this.value[0] -= Update_value;
+                        return this.value[0];
+                    } else {
+                        return null;
+                    }
+                } else if(Update_flag == '+') {
+                    this.value[0] += Update_value;
                     return this.value[0];
                 } else {
-                    return null;
+                    return this.value[0];
                 }
-            } else if(Update_flag == '+') {
-                this.value[0] += Update_value;
-                return this.value[0];
+            }
+        } else if(this.mode == 'extension') {
+            var i = 0;
+            while(key[i] == this.key[i]) {
+                i++;
+                if(i == this.key.length)
+                    break;
+            }
+            if(i == this.key.length) {
+                return this.next.Search(key.substr(i),Update_flag,Update_value);
             } else {
-                return this.value[0];
+                return null;
+            }
+        } else if(this.mode == 'branch') {
+            if(this.branch[parseInt(key[0], 16)] != null) {
+                return this.branch[parseInt(key[0],16)].Search(key.substr(1), Update_flag, Update_value);
+            } else {
+                return null;
             }
         }
-    } else if(this.mode == 'extension') {
-        var i = 0;
-        while(key[i] == this.key[i]) {
-            i++;
-            if(i == this.key.length)
-                break;
-        }
-        if(i == this.key.length) {
-            return this.next.Search(key.substr(i),Update_flag,Update_value);
-        } else {
-            return null;
-        }
-    } else if(this.mode == 'branch') {
-        if(this.branch[parseInt(key[0], 16)] != null) {
-            return this.branch[parseInt(key[0],16)].Search(key.substr(1), Update_flag, Update_value);
-        } else {
-            return null;
-        }
+    } else if(this.type == 'receipt') {
+        return null;
     }
 };
 
-MPT.prototype.UpdateValue = function(from, to, value) {
-    if(value <= 0) {
-        console.log("> Weird request: Update value should be larger than 0.");
-        return;
-    }
+MPT.prototype.UpdateValue = function(from, to, value=0) {
+    if(this.type == 'account') {
+        if(value <= 0) {
+            console.log("> Weird request: Update value should be larger than 0.");
+            return;
+        }
 
-    var val1 = this.Search(from, '-', value);
-    if(val1 == null) {
-        console.log("> An error occurred when updating " + from + "'s value.");
-        return;
-    }
+        var val1 = this.Search(from, '-', value);
+        if(val1 == null) {
+            console.log("> An error occurred when updating " + from + "'s value.");
+            return;
+        }
 
-    var val2 = this.Search(to, '+', value);
-    if(val2 == null) {
-        console.log("> An error occurred when updating " + to + "'s value.");
-        return;
-    }
+        var val2 = this.Search(to, '+', value);
+        if(val2 == null) {
+            console.log("> An error occurred when updating " + to + "'s value.");
+            return;
+        }
 
-    console.log("> Update successfully.\nNow " + from + " has value " + val1 + ", " + to + " has value " + val2 + ".");
-    return;
+        console.log("> Update successfully.\nNow " + from + " has value " + val1 + ", " + to + " has value " + val2 + ".");
+        return;
+    } else if(this.type == 'receipt') {
+        console.log("Error: A node in receipt tree should not be updated once inserted.");
+    }
 };
+
 
 MPT.prototype.UpdateTax = function(key, Update_value) {
     if(this.mode == 'leaf') {
@@ -253,6 +356,36 @@ MPT.prototype.UpdateTax = function(key, Update_value) {
     } else if(this.mode == 'branch') {
         if(this.branch[parseInt(key[0], 16)] != null) {
             return this.branch[parseInt(key[0],16)].UpdateTax(key.substr(1), Update_value);
+        } else {
+            return null;
+        }
+    }
+}
+
+MPT.prototype.UpdateDbit = function(key, dbit=0) {
+    if(dbit != 0 && dbit != 1 && dbit != 2) {
+        console.error("Error: dbit should be 0, 1 or 2.");
+        return;
+    }
+    if(this.mode == 'leaf') {
+        if(this.key == key) {
+            this.value[2] = dbit;
+        }
+    } else if(this.mode == 'extension') {
+        var i = 0;
+        while(key[i] == this.key[i]) {
+            i++;
+            if(i == this.key.length)
+                break;
+        }
+        if(i == this.key.length) {
+            return this.next.UpdateTax(key.substr(i),dbit);
+        } else {
+            return null;
+        }
+    } else if(this.mode == 'branch') {
+        if(this.branch[parseInt(key[0], 16)] != null) {
+            return this.branch[parseInt(key[0],16)].UpdateTax(key.substr(1), dbit);
         } else {
             return null;
         }

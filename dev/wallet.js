@@ -6,11 +6,13 @@ const base58 = require('bs58');
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
 
-function Wallet() {
-    this.balance = 0,
-    this.privateKey = '',
-    this.publicKey = '',
-    this.NewKeyPair()
+function Wallet(prik='', pubk='', bal=0) {
+    this.balance = bal,
+    this.privateKey = prik,
+    this.publicKey = pubk,
+    if(prik == '' || pubk == ''){
+        this.NewKeyPair();
+    }
 };
 
 Wallet.prototype.NewKeyPair = function(){
