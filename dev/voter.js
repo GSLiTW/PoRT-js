@@ -2,6 +2,7 @@
  * CAUTION: NOT YET DEBUGGED
  */
 
+const sha256 = require("sha256");
 
 function Voter(ID, GlobalMPT, CreatorMPT, TxPool) {
     this.CreatorMPT = CreatorMPT;
@@ -83,6 +84,14 @@ Voter.prototype.Vote = function() {
     }
 
     return true;
+}
+
+Voter.prototype.PoRT = function() {
+    var T = 1234;
+    T = T.toString();
+    var tmp = sha256(T + this.account[6].address);
+    var h = parseInt(tmp, 16) % T;
+    console.log(h);
 }
 
 module.exports = Voter;
