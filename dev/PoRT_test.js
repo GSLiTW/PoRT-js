@@ -35,17 +35,7 @@ for(var i = 0; i < num_of_txns; i++) {
 }
 
 var T = Tree.TotalTax().toString();
-//console.log(T);
 var tmp = sha256(T + mapping_table.account[14].address);
-//console.log(tmp);
-//console.log(mapping_table.account[18].address);
 var h = parseInt(tmp, 16) % T;
-//console.log(h);
-//console.log(Tree.Select(h, 0, 0));
 var next_maintainer = Tree.Select(h, 0, 0);
 console.log(next_maintainer);
-//console.log(Tree.Search(next_maintainer, null, null));
-//var next_maintainer_index = mapping_table.check_exist(next_maintainer);
-//console.log(next_maintainer_index);
-//mapping_table.account[next_maintainer_index].creator_bit = 1;
-//console.log(mapping_table.account[next_maintainer_index].creator_bit);
