@@ -17,22 +17,20 @@ const TRANSACTION_TYPE = {
 
 function Blockchain(){
     this.chain = [];
-    this.pendingTransactions = [];
+    // this.pendingTransactions = [];
 
     this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
   
-    this.accounts = new Account();
-    this.address = this.accounts.getAddress();
-    this.stakes = new Stake(this.address);
-    this.validators = new Validators();
+    // this.accounts = new Account();
+    // this.address = this.accounts.getAddress();
 
-    var genesisBlock = new Block(0, [], "0");
-    this.chain.push(genesisBlock)   //create Genesis Block
+    // var genesisBlock = new Block(0, [], "0");
+    // this.chain.push(genesisBlock)   //create Genesis Block
 }
 
 Blockchain.prototype.createNewBlock = function(previousHash){
-    var newBlock = new Block(this.chain.length+1, this.pendingTransactions, previousHash)
+    var newBlock = new Block(this.chain.length+1, previousHash)
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);
