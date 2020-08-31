@@ -5,7 +5,8 @@ const Block = require('./block');
 
 function Preprocess() {
     this.chain,
-    this.tree
+    this.tree,
+    this.pending_txn_pool
 }
 
 Preprocess.prototype.initialize = function() {
@@ -25,13 +26,13 @@ Preprocess.prototype.initialize = function() {
     }
     this.tree = Tree;
 
-    var pending_txn_pool = new Pending_Txn_Pool();
-    pending_txn_pool.create(1);
+    this.pending_txn_pool = new Pending_Txn_Pool();
+    this.pending_txn_pool.create(1);
 
-    var block = new Block(0, pending_txn_pool.get_transaction(), 0);
+    var block = new Block(0, this.pending_txn_pool.get_transaction(), 0);
 }
 
 module.exports = Preprocess;
 
-var p = new Preprocess();
-p.initialize();
+// var p = new Preprocess();
+// p.initialize();
