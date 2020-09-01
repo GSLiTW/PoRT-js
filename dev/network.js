@@ -33,10 +33,7 @@ for(var i = 0; i < 43; i++) {
     else Tree.Insert(data[i][1], 10, 10 * 0.0001, 0);
 }
 
-var pending_txn_pool = new Pending_Txn_Pool();
-pending_txn_pool.create(1);
-
-var block = new Block(0, pending_txn_pool.get_transaction(), 0);
+var blockchain = new Blockchain();
 
 if(port == 3157) {
     for(var p=3000; p<3157; p++) {
