@@ -12,6 +12,7 @@ const Transaction = require("./transaction.js")
 const MPT = require('./MPT');
 const Pending_Txn_Pool = require('./pending_transaction_pool');
 const Block = require('./block');
+const Wallet = require('./wallet');
 const nodeAddress = uuid().split("-").join("");
 
 const chain = new Blockchain();
@@ -24,7 +25,16 @@ var data = fs.readFileSync('./node_address_mapping_table.csv')
             .map(e => e.split(',').map(e => e.trim())); // split each line to array
 //console.log(data[0][1]);
 
-var Tree = new MPT(true);
+var w = fs.readFileSync('./private_public_key.csv')
+            .toString() // convert Buffer to string
+            .split('\n') // split string to lines
+            .map(e => e.trim()) // remove white spaces for each line
+            .map(e => e.split(',').map(e => e.trim())); // split each line to array
+const wallet = new Wallet(w[port-3000][1], w[port-3000][2], 10);
+w = undefined;
+
+
+const Tree = new MPT(true);
 for(var i = 0; i < 43; i++) {
     if(i == 4) Tree.Insert(data[i][1], 10, 10 * 0.0001, 1); // dbit == 1 means creator
     else if(i == 15) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
@@ -36,10 +46,9 @@ for(var i = 0; i < 43; i++) {
 var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(1);
 
-var block = new Block(0, pending_txn_pool.get_transaction(), 0);
-
-if(port == 3157) {
-    for(var p=3000; p<3157; p++) {
+// 3004 for debugging, should be 3157
+if(port == 3004) {
+    for(var p=3000; p<3004; p++) {
         const newNodeUrl = "http://localhost:" + p;
         if(chain.networkNodes.indexOf(newNodeUrl) == -1)
             chain.networkNodes.push(newNodeUrl);
@@ -73,10 +82,14 @@ if(port == 3157) {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
- 
+
 app.get("/blockchain", function(req, res){
     res.send(chain);
 });
+
+app.get("/wallet", function(req, res) {
+    res.send(wallet);
+})
 
 app.get("/MPT", function(req, res) {
     res.send(Tree);
@@ -317,6 +330,7 @@ app.get('/address/:address', function(req, res){
 app.get("/block-explorer", function(req, res){
     res.sendFile("./block-explorer/index.html", {root: __dirname});
 });
+
 
 app.listen(port, function(){
     console.log(`Listening on port ${port} ...`);
