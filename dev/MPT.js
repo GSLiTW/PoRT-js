@@ -12,8 +12,6 @@ function MPT(root=false, type='account'){
         null, null, null, null,
         null, null, null, null,
         null, null, null, null ];
-    this.Update_flag = null;
-    this.Update_value = null;
     this.root = root;
 };
 
