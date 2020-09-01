@@ -35,7 +35,7 @@ w = undefined;
 
 
 const Tree = new MPT(true);
-for(var i = 0; i < 43; i++) {
+for(var i = 0; i < 157; i++) {
     if(i == 4) Tree.Insert(data[i][1], 10, 10 * 0.0001, 1); // dbit == 1 means creator
     else if(i == 15) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
     else if(i == 23) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
@@ -114,7 +114,7 @@ app.get("/MPT/Search/:key", function(req,res) {
 app.post("/MPT/UpdateValues", function(req, res) {
     const UpdateList = req.body.UpdateList;
     for(var i=0; i<UpdateList.length; i++) {
-        Tree.UpdateValue(UpdateList[i].from, UpdateList[i].to, UpdateList[i].value);
+        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, UpdateList[i].value);
     }
 
     const requestPromises = [];
@@ -138,7 +138,69 @@ app.post("/MPT/UpdateValues", function(req, res) {
 app.post("/MPT/ReceiveUpdateValues", function(req, res) {
     const UpdateList = req.body.UpdateList;
     for(var i=0; i<UpdateList.length; i++) {
-        Tree.UpdateValue(UpdateList[i].from, UpdateList[i].to, UpdateList[i].value);
+        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, UpdateList[i].value);
+    }
+});
+
+app.post("/MPT/UpdateTax", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateTax(UpdateList[i].taxpayer, UpdateList[i].value);
+    }
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/MPT/ReceiveUpdateTax",
+            method: "POST",
+            body: {UpdateList: UpdateList},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+    res.json({
+        note: "Update Successfully."
+    })
+
+})
+
+
+app.post("/MPT/ReceiveUpdateTax", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateTax(UpdateList[i].taxpayer, UpdateList[i].value);
+    }
+});
+
+app.post("/MPT/UpdateDbit", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateDbit(UpdateList[i].maintainer, UpdateList[i].dbit);
+    }
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/MPT/ReceiveUpdateDbit",
+            method: "POST",
+            body: {UpdateList: UpdateList},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+    res.json({
+        note: "Update Successfully."
+    })
+
+})
+
+
+app.post("/MPT/ReceiveUpdateDbit", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateDbit(UpdateList[i].maintainer, UpdateList[i].dbit);
     }
 });
 

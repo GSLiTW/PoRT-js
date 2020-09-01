@@ -413,13 +413,13 @@ MPT.prototype.UpdateDbit = function(key, dbit=0) {
                 break;
         }
         if(i == this.key.length) {
-            return this.next.UpdateTax(key.substr(i),dbit);
+            return this.next.UpdateDbit(key.substr(i),dbit);
         } else {
             return null;
         }
     } else if(this.mode == 'branch') {
         if(this.branch[parseInt(key[0], 16)] != null) {
-            return this.branch[parseInt(key[0],16)].UpdateTax(key.substr(1), dbit);
+            return this.branch[parseInt(key[0],16)].UpdateDbit(key.substr(1), dbit);
         } else {
             return null;
         }
