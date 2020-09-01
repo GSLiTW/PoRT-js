@@ -24,9 +24,8 @@ function PoRT(address, MPT, pending_txn_pool, dbit) {
     var T = Tree.TotalTax().toString();
     var tmp = sha256(T + this.address);
     var h = parseInt(tmp, 16) % T;
-    var next_maintainer = Tree.Select(h, 0, 0);
+    this.next_maintainer = Tree.Select(h, 0, 0);
     //console.log(next_maintainer);
-    this.Tree.UpdateDbit(next_maintainer, this.dbit);
-
+    this.Tree.UpdateDbit(this.next_maintainer, this.dbit);
 }
 module.exports = PoRT;
