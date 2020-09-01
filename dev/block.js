@@ -3,8 +3,9 @@ const sha256 = require("sha256");
 function Block(height, pendingTransactions, previousHash) {
     //fixed area
     this.previousBlockHash = previousHash,
-    this.merkleRoot = "",
-    this.timestamp = Date.now(),
+    this.merkleRoot = "";
+    if(previousHash == 0) this.timestamp = 0;
+    else this.timestamp = Date.now();
     this.height = height,
     this.transactions = pendingTransactions,
     this.nextCreator = NaN,
