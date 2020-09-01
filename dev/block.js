@@ -1,7 +1,12 @@
 const ProofOfWork = require('./proof.js')
 
 function Block(height, previousHash) {
-    this.timestamp = Date.now(),
+    if(previousHash == 0) {
+        this.timestamp = 0;
+    }
+    else {
+        this.timestamp = Date.now();
+    }
     this.previousBlockHash = previousHash,
     this.height = height
 

@@ -34,6 +34,8 @@ for(var i = 0; i < 43; i++) {
 }
 
 var blockchain = new Blockchain();
+var pending_txn_pool = new Pending_Txn_Pool();
+pending_txn_pool.create(2);
 
 if(port == 3157) {
     for(var p=3000; p<3157; p++) {
