@@ -363,7 +363,6 @@ MPT.prototype.UpdateValue = function(from, to, value=0) {
     }
 };
 
-
 MPT.prototype.UpdateTax = function(key, Update_value) {
     if(this.mode == 'leaf') {
         if(this.key == key) {
@@ -481,14 +480,6 @@ MPT.prototype.Cal_hash = function(){
     }
 };
 
-MPT.prototype.UpdateFromMappingTable = function(MappingTable) {
-    //TODO
-};
-
-MPT.prototype.GenerateMappingTable = function() {
-    //TODO
-};
-
 /*
  * h := hash (from PoRT) 
  * flag := indicate what taxcnt means
@@ -558,36 +549,36 @@ MPT.prototype.TotalTax = function() {
 module.exports = MPT;
 
 // TestCase 1: 5838ad5578f346f40d3e6b71f9a82ae6e5198dd39c52e18deec63734da512055
-// Tree = new MPT(true);
-// Tree.Insert('a711355',45);
-// Tree.Insert('a77d337',1);
-// Tree.Insert('a7f9365',2);
-// Tree.Insert('a77d397',12);
-// Tree.Display(0);
-// console.log("State Root: " + Tree.Cal_hash());
-// console.log("Total Tax:" + Tree.TotalTax());
-// console.log(Tree.Select(4.55,0,0));
+Tree = new MPT(true);
+Tree.Insert('a711355',45,4.5);
+Tree.Insert('a77d337',1,0.1);
+Tree.Insert('a7f9365',2,0.2);
+Tree.Insert('a77d397',12,1.2);
+Tree.Display(0);
+console.log("State Root: " + Tree.Cal_hash());
+console.log("Total Tax:" + Tree.TotalTax());
+console.log(Tree.Select(4.55,0,0));
 
-// // TestCase 2: b3506d16d769a8aaf5e2fe2f4449a673b408472c04ba0e0837aba0bc9d5364cd
-// Tree = new MPT(true);
-// Tree.Insert('7c3002ad756d76a643cb09cd45409608abb642d9',10);
-// Tree.Insert('7c303333756d555643cb09cd45409608abb642d9',20);
-// Tree.Insert('7c303333756d777643cb09c999409608abb642d9',30);
-// Tree.Insert('7c303333756d777643cb09caaa409608abb642d9',40);
-// Tree.Insert('111102ad756d76a643cb09cd45409608abb642d9',50);
-// Tree.Display(0);
-// console.log("State Root: " + Tree.Cal_hash());
-// console.log("Total Tax:" + Tree.TotalTax());
-// console.log(Tree.Select(4.5,0,0));
+// TestCase 2: b3506d16d769a8aaf5e2fe2f4449a673b408472c04ba0e0837aba0bc9d5364cd
+Tree = new MPT(true);
+Tree.Insert('7c3002ad756d76a643cb09cd45409608abb642d9',10,1);
+Tree.Insert('7c303333756d555643cb09cd45409608abb642d9',20,2);
+Tree.Insert('7c303333756d777643cb09c999409608abb642d9',30,3);
+Tree.Insert('7c303333756d777643cb09caaa409608abb642d9',40,4);
+Tree.Insert('111102ad756d76a643cb09cd45409608abb642d9',50,5);
+Tree.Display(0);
+console.log("State Root: " + Tree.Cal_hash());
+console.log("Total Tax:" + Tree.TotalTax());
+console.log(Tree.Select(4.5,0,0));
 
-// // TestCase 3: eff402b46c2b81e230797cf224c5440aefde9335594271e19da8c75ecc476d08
-// Tree.UpdateValue('7c3002ad756d76a643cb09cd45409608abb642d9',
-//             '7c303333756d777643cb09caaa409608abb642d9',2);
-// Tree.UpdateTax('7c3002ad756d76a643cb09cd45409608abb642d9', 0.2);
-// Tree.Insert('11113333756d76a643cb09cd45409608abb642d9',0);
-// Tree.UpdateValue('7c303333756d777643cb09c999409608abb642d9',
-//             '11113333756d76a643cb09cd45409608abb642d9',6);
-// Tree.UpdateTax('7c303333756d777643cb09c999409608abb642d9', 0.6);
-// Tree.Display(0);
-// console.log("State Root: " + Tree.Cal_hash());
-// console.log("Total Tax:" + Tree.TotalTax());
+// TestCase 3: eff402b46c2b81e230797cf224c5440aefde9335594271e19da8c75ecc476d08
+Tree.UpdateValue('7c3002ad756d76a643cb09cd45409608abb642d9',
+            '7c303333756d777643cb09caaa409608abb642d9',2);
+Tree.UpdateTax('7c3002ad756d76a643cb09cd45409608abb642d9', 0.2);
+Tree.Insert('11113333756d76a643cb09cd45409608abb642d9',0);
+Tree.UpdateValue('7c303333756d777643cb09c999409608abb642d9',
+            '11113333756d76a643cb09cd45409608abb642d9',6);
+Tree.UpdateTax('7c303333756d777643cb09c999409608abb642d9', 0.6);
+Tree.Display(0);
+console.log("State Root: " + Tree.Cal_hash());
+console.log("Total Tax:" + Tree.TotalTax());

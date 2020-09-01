@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 const bodyParser = require("body-parser");
-const uuid = require("uuid/v1");
 const port = process.argv[2];
 const rp = require("request-promise");
 const fs = require("fs");
@@ -11,9 +10,7 @@ const Blockchain = require("./blockchain.js");
 const Transaction = require("./transaction.js")
 const MPT = require('./MPT');
 const Pending_Txn_Pool = require('./pending_transaction_pool');
-const Block = require('./block');
 const Wallet = require('./wallet');
-const nodeAddress = uuid().split("-").join("");
 
 const chain = new Blockchain();
 
@@ -36,12 +33,17 @@ w = undefined;
 
 const Tree = new MPT(true);
 for(var i = 0; i < 157; i++) {
-    if(i == 4) Tree.Insert(data[i][1], 10, 10 * 0.0001, 1); // dbit == 1 means creator
-    else if(i == 15) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 23) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 36) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else Tree.Insert(data[i][1], 10, 10 * 0.0001, 0);
+    if(i == 4) Tree.Insert(data[i][2], 10, 10 * 0.0001, 1); // dbit == 1 means creator
+    else if(i == 15) Tree.Insert(data[i][2], 10, 10 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 23) Tree.Insert(data[i][2], 10, 10 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 36) Tree.Insert(data[i][2], 10, 10 * 0.0001, 2); // dbit == 2 means voter
+    else Tree.Insert(data[i][2], 10, 10 * 0.0001, 0);
 }
+
+for(var i=0, UpdateList=chain.chain[0].transactions; i<UpdateList.length; i++) {
+    Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+}
+
 
 var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
