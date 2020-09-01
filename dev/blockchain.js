@@ -25,7 +25,7 @@ function Blockchain(){
   
     // this.accounts = new Account();
     // this.address = this.accounts.getAddress();
-    this.txn_pool = new Pending_Txn_Pool();
+    this.txn_pool = new Txn_Pool();
     this.txn_pool.create(1);
     var genesisBlock = new Block(0, 0);
     this.chain.push(genesisBlock)   //create Genesis Block
