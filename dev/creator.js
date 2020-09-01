@@ -1,4 +1,5 @@
-const _block = require("./block.js");
+const Block = require("./block.js");
+const PoRT = require("./PoRT.js");
 const randomBytes = require('random-bytes');
 const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
 const BigInteger = require("bigi");
@@ -6,21 +7,17 @@ const schnorr = require('bip-schnorr');
 const convert = schnorr.convert;
 const muSig = schnorr.muSig;
 
-function Creator(mappingTable, pendingTxPool){
-    this.creator = -1;
-    this.isCreatorVerified = -1;
-    this.newMappingTable = mappingTable;
+function Creator(mpt, pendingTxPool){
+    this.MPT = mpt;
     this.pendingTxs = pendingTxPool.get_transaction();
     this.isNewMappingTableVoted = -1;
-    this.nextCreatorIndex = -1;
     this.nextCreator = -1;
-    this.nextVotersIndex = [];
     this.nextVoters = [];
     this.block = null;
     this.publicData = null;
 }
 
-Creator.prototype.CreatorVerify = function(ID, mappingTable) {
+/*Creator.prototype.CreatorVerify = function(ID, mappingTable) {
     this.creator = -1;
     this.isCreatorVerified = -1;
 
@@ -39,34 +36,27 @@ Creator.prototype.CreatorVerify = function(ID, mappingTable) {
 
     console.log("Creator error!");
     return -1;
-}
+}*/
 
-Creator.prototype.CreatorCreate = function(height, previousHash) {
+Creator.prototype.Create = function(height, previousHash) {
     this.isNewMappingTableVoted = -1;
 
-    //call PoRT to get fixed area data (next C and V)
-    //[to do] call PoRT function
-    this.block = new _block(height, this.pendingTxs, previousHash);
+    /*const creatorPoRT = new PoRT(address, this.MPT, this.pendingTxs, 1);
+    this.nextCreator = creatorPoRT;
+    this.nextVoters = nextVoters;*/
 
-    //尚未改成改成MPT版本
+    this.block = new Block(height, this.pendingTxs, previousHash, this.MPT);
+
     for(var i = 0; i < this.pendingTxs.length; i++){
-        for(var j = 0; j < this.newMappingTable.numOfAddress; j++){
-            if(this.pendingTxs[i].sender == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].transactions.push(this.pendingTxs[i]);
-            }
-            if(this.pendingTxs[i].receiver == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].transactions.push(this.pendingTxs[i]);
-            }
-        }
+        this.MPT(this.pendingTxs[i].sender, this.pendingTxs[i].receiver, this.pendingTxs[i].value);
     }
 
-    //return this.newMappingTable;
     return this.block;
 }
 
 //尚未改成MPT
 //還要計算vote完回傳的block之variable area
-Creator.prototype.CreatorCalculate = function() {
+Creator.prototype.Calculate = function() {
     this.isNewMappingTableVoted = 1;
 
     for(var i = this.pendingTxs.length - 1; i >= 0; i--){
@@ -231,12 +221,6 @@ Creator.prototype.Cosig_verifySignature = function() {
     // signature (s, R) over the message m and public key P.
     // -----------------------------------------------------------------------
     schnorr.verify(this.publicData.pubKeyCombined, this.publicData.message, this.publicData.signature);
-Creator.prototype.PoRT = function() {
-    var T = 1234;
-    T = T.toString();
-    var tmp = sha256(T + this.account[6].address);
-    var h = parseInt(tmp, 16) % T;
-    console.log(h);
 }
 
 module.exports = Creator;

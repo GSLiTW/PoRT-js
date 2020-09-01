@@ -1,19 +1,19 @@
 const sha256 = require("sha256");
 
-function Block(height, pendingTransactions, previousHash) {
+function Block(height, pendingTransactions, previousHash, MPT) {
     //fixed area
     this.previousBlockHash = previousHash,
-    this.merkleRoot = "",
+    this.merkleRoot = MPT.Cal_hash(),
     this.timestamp = Date.now(),
     this.height = height,
     this.transactions = pendingTransactions,
-    this.nextCreator = NaN,
-    this.nextVoters = [],
     
     //variable area
     this.receiptTree = null,
     this.coSignature = NaN,
     this.hash = NaN     //this.hashBlock(previousHash, {index: this.index, transactions: this.transactions})
+    this.nextCreator = NaN,
+    this.nextVoters = [],
 };
 
 Block.prototype.hashBlock = function(previousBlockHash, currentBlockData){

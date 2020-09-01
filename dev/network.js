@@ -13,6 +13,8 @@ const MPT = require('./MPT');
 const Pending_Txn_Pool = require('./pending_transaction_pool');
 const Block = require('./block');
 const Wallet = require('./wallet');
+const Creator = require('./creator');
+const Voter = require('./voter');
 const nodeAddress = uuid().split("-").join("");
 
 const chain = new Blockchain();
@@ -79,6 +81,12 @@ if(port == 3004) {
     }
 }
 
+var currentVoters = [];
+var nextVoters = [];
+publicKeys = [];
+commitments = [];
+nonces = [];
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -137,62 +145,29 @@ app.post("/transaction/broadcast", function(req, res){
     });
 });
 
-// app.get("/mine", function(req, res){
-//     const lastBlock = chain.getLastBlock();
-//     const previousBlockHash = lastBlock["hash"];
+app.post("/voter", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
 
-//     const newBlock = chain.createNewBlock(previousBlockHash);
-
-//     const requestPromises = [];
-//     chain.networkNodes.forEach(networkNodeUrl => {
-//         const requestOptions = {
-//             uri: networkNodeUrl + "/receive-new-block",
-//             method: "POST",
-//             body: {newBlock: newBlock},
-//             json: true
-//         };
-//         requestPromises.push(rp(requestOptions));
-//     });
-
-//     Promise.all(requestPromises).then(data => {
-//         const requestOptions = {
-//             uri: chain.currentNodeUrl + "/transaction/broadcast",
-//             method: "POST",
-//             body:{
-//                 amount: 12.5,
-//                 sender: "00",
-//                 recipient: nodeAddress
-//             },
-//             json: true
-//         };
-//         return rp(requestOptions);
-//     }).then(data =>{
-//         res.json({
-//             note: "New block mined successfully",
-//             block: newBlock
-//         });
-//     });
-// });
-
-app.post("/receive-new-block", function(req, res){
-    const newBlock = req.body.newBlock;
-    const lastBlock = chain.getLastBlock();
-    const correctHash = lastBlock.hash === newBlock.previousBlockHash;
-    const correctIndex = lastBlock["height"]+1 == newBlock["height"];
-
-    if(correctHash && correctIndex){
-        chain.chain.push(newBlock);
-		chain.pendingTransactions = [];
-		res.json({
-			note: 'New block received and accepted.',
-			newBlock: newBlock
-		});
-    }
-    else{
-        res.json({
-			note: 'New block rejected.',
-			newBlock: newBlock
-		});
+    if(isVoter == 2){
+        const newBlock = req.body.newBlock;
+        const lastBlock = chain.getLastBlock();
+        const correctHash = lastBlock.hash === newBlock.previousBlockHash;
+        const correctIndex = lastBlock["height"]+1 == newBlock["height"];
+    
+        if(correctHash && correctIndex){
+            const voter = new Voter(Tree, newBlock, pending_txn_pool);
+            chain.pendingTransactions = [];
+            res.json({
+                note: 'New block received and accepted.',
+                newBlock: newBlock
+            });
+        }
+        else{
+            res.json({
+                note: 'New block rejected.',
+                newBlock: newBlock
+            });
+        }
     }
 });
 
@@ -329,6 +304,178 @@ app.get('/address/:address', function(req, res){
 
 app.get("/block-explorer", function(req, res){
     res.sendFile("./block-explorer/index.html", {root: __dirname});
+});
+
+app.post("/voter/sendPublicKey", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
+    if(isVoter == 2){
+        const creatorUrl = req.body.creatorUrl;
+        const requestOptions = {
+            uri : creatorUrl + "/creator/createPublicData",
+            method: "POST",
+            body: {voterUrl: chain.currentNodeUrl,
+                   publicKey: wallet.publicKey
+            },
+            json: true
+        };
+        rp(requestOptions);
+    }
+});
+
+app.post("/voter/vote", function(req, res){
+    const voter = new Voter(Tree, pending_txn_pool);
+    wallet.signerPrivateData = voter.Cosig_setSignerPrivateData(wallet.signerPrivateData, port);
+    const commitment = voter.Cosig_commitment(wallet.signerPrivateData);
+    const nonce = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
+    wallet.signerPrivateData = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
+    wallet.signerPrivateData = voter.Cosig_Cosig_combineNonces_check(wallet.signerPrivateData, wallet.signerPrivateData.session);
+    
+    const creatorUrl = req.body.creatorUrl;
+    const requestOptions = {
+        uri : creatorUrl + "/creator/updatePublicData",
+        method: "POST",
+        body: {voterUrl: chain.currentNodeUrl,
+               commitment: commitment,
+               nonce: nonce
+        },
+        json: true
+    };
+    rp(requestOptions);
+});
+
+app.post("/voter/partialSign", function(req, res){
+    const voter = new Voter(Tree, pending_txn_pool);
+    const publicData = req.body.publicData;
+    wallet.signerPrivateData = voter.Cosig_generatePartialSignature(wallet.signerPrivateData, publicData);
+
+    const creatorUrl = req.body.creatorUrl;
+    const requestOptions = {
+        uri : creatorUrl + "/creator/updatePublicData",
+        method: "POST",
+        body: {voterUrl: chain.currentNodeUrl,
+               partialSignature: wallet.signerPrivateData.session.partialSignature
+        },
+        json: true
+    };
+    rp(requestOptions);
+});
+
+app.post("/creator/createPublicData", function(req, res){
+    publicKeys.push(req.body.publicKey);
+    
+    const isCreator = Tree.Verify(wallet.publicKey);
+    if(publicKeys.length == 3 && isCreator == 1){
+        const lastBlock = chain.getLastBlock();
+        const previousBlockHash = lastBlock["hash"];
+
+        const creator = new Creator(Tree, pending_txn_pool);
+        const newBlock = creator.Create(lastBlock["height"]+1, previousBlockHash);
+
+        /*const requestPromises = [];
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/voter",
+                method: "POST",
+                body: {newBlock: newBlock},
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });*/
+
+        creator.Cosig_createAndCombinePublicData(publicKeys[0], publicKeys[1], publicKeys[2], newBlock);
+        
+    }
+
+    const creatorUrl = req.body.creatorUrl;
+    const requestOptions = {
+        uri : creatorUrl + "/creator/updatePublicData",
+        method: "POST",
+        body: {voterUrl: chain.currentNodeUrl,
+               partialSignature: wallet.signerPrivateData.session.partialSignature
+        },
+        json: true
+    };
+    rp(requestOptions);
+});
+
+app.get("/creator/sendPoRT", function(req, res){
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/PoRT",
+            method: "POST",
+            creatorUrl: chain.currentNodeUrl,
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+});
+
+app.post("/PoRT", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
+    if(isVoter == 2){
+        const requestPromises = [];
+        const requestOptions = {
+            uri: req.creatorUrl + "/creator/nextVoter",
+            method: "POST",
+            voterUrl: chain.currentNodeUrl,
+            nextVoterUrl:,
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    }
+});
+
+app.post("/creator/nextVoter", function(req, res){
+    nextVoters.push(req.voterID);
+    res.json({
+        note: "VoterID: " + req.voterID + " has been pushed into nextVoters[] !"
+    });
+});
+
+app.get("/creator", function(req, res){
+    const lastBlock = chain.getLastBlock();
+    const previousBlockHash = lastBlock["hash"];
+
+    const isCreator = Tree.Verify(wallet.publicKey);
+    if(isCreator == 1){
+        const creator = new Creator(Tree, pending_txn_pool);
+        const newBlock = creator.Create(lastBlock["height"]+1, previousBlockHash);
+
+        const requestPromises = [];
+        /*chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/nextVoter",
+                method: "POST",
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });*/
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/voter",
+                method: "POST",
+                body: {newBlock: newBlock},
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });
+        /*Promise.all(requestPromises).then(data => {
+            const newBlock = creator.Create(nextVoters, lastBlock["height"]+1, previousBlockHash);
+            const requestOptions = {
+                uri: chain.currentNodeUrl + "/transaction/broadcast",
+                method: "POST",
+                body: {newBlock: newBlock},
+                json: true
+            };
+            return rp(requestOptions);
+        });*/
+    }
+    else{
+        res.json({
+            note: "ERROR: Creator is invalid !"
+        });
+    }
 });
 
 

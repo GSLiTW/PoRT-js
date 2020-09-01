@@ -4,6 +4,8 @@
 var crypto = require("crypto");
 var eol = require('os').EOL;
 
+const PoRT = require("./PoRT.js");
+
 const randomBytes = require('random-bytes');
 const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
 const BigInteger = require("bigi");
@@ -39,15 +41,13 @@ var privateKey = '-----BEGIN PRIVATE KEY-----' + eol + p + eol + '-----END PRIVA
 
 const sha256 = require("sha256");
 
-function Voter(ID, GlobalMPT, CreatorMPT, TxPool) {
-    this.CreatorMPT = CreatorMPT;
-    this.GlobalMPT = GlobalMPT;
+function Voter(mpt, /*newBlock,*/ TxPool) {
+    this.MPT = mpt;
+    /*this.newBlock = newBlock;*/
     this.TxPool = TxPool.get_transaction();
-    this.ID = ID;
-    this.Verify();
 }
 
-Voter.prototype.Verify = function() {
+/*Voter.prototype.Verify = function() {
     //console.log(this.GlobalMPT.numOfAddress);
     if(1) {
         for(var i = 0; i < this.GlobalMPT.numOfAddress; i++) {
@@ -67,7 +67,7 @@ Voter.prototype.Verify = function() {
     if(this.IsVoter == undefined) {
         console.log("Error: ID does not match to MPT!\n");
     }
-}
+}*/
 
 
 Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNumber) {
@@ -199,11 +199,8 @@ Voter.prototype.Vote = function() {
 }
 
 Voter.prototype.PoRT = function() {
-    var T = 1234;
-    T = T.toString();
-    var tmp = sha256(T + this.account[6].address);
-    var h = parseInt(tmp, 16) % T;
-    console.log(h);
+    const voterPoRT = new PoRT(address, this.MPT, this.pendingTxs, 1);
+    this.nextVoter = voterPoRT;
 }
 
 module.exports = Voter;
