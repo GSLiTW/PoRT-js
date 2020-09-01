@@ -1,20 +1,25 @@
-const ProofOfWork = require('./proof.js')
+const sha256 = require("sha256");
 
-function Block(height, previousHash) {
-    if(previousHash == 0) {
-        this.timestamp = 0;
-    }
-    else {
-        this.timestamp = Date.now();
-    }
+function Block(height, pendingTransactions, previousHash) {
+    //fixed area
     this.previousBlockHash = previousHash,
-    this.height = height
+    this.merkleRoot = "",
+    this.timestamp = Date.now(),
+    this.height = height,
+    this.transactions = pendingTransactions,
+    this.nextCreator = NaN,
+    this.nextVoters = [],
+    
+    //variable area
+    this.receiptTree = null,
+    this.coSignature = NaN,
+    this.hash = NaN     //this.hashBlock(previousHash, {index: this.index, transactions: this.transactions})
+};
 
-    // PoW = new ProofOfWork({index: this.index, transactions: this.transactions}, 12)
-    // this.nonce = PoW.proof(previousHash, 
-    //     {index: this.index, transactions: this.transactions} ),
-    // this.hash = PoW.hashBlock(previousHash, 
-    //     {index: this.index, transactions: this.transactions}, this.nonce )
+Block.prototype.hashBlock = function(previousBlockHash, currentBlockData){
+    const dataAsString = previousBlockHash + JSON.stringify(currentBlockData);
+    const hash = sha256(dataAsString);
+    return hash;
 };
 
 module.exports = Block;
