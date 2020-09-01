@@ -231,6 +231,12 @@ Creator.prototype.Cosig_verifySignature = function() {
     // signature (s, R) over the message m and public key P.
     // -----------------------------------------------------------------------
     schnorr.verify(this.publicData.pubKeyCombined, this.publicData.message, this.publicData.signature);
+Creator.prototype.PoRT = function() {
+    var T = 1234;
+    T = T.toString();
+    var tmp = sha256(T + this.account[6].address);
+    var h = parseInt(tmp, 16) % T;
+    console.log(h);
 }
 
 module.exports = Creator;

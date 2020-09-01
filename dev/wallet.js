@@ -7,10 +7,11 @@ const BigInteger = require("bigi");
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
 
-function Wallet() {
-    this.balance = 0;
-    this.privateKey = '';
-    this.publicKey = '';
+function Wallet(prik='', pubk='', bal=0) {
+    this.balance = bal;
+    this.privateKey = prik;
+    this.publicKey = pubk;
+    
     
     // data only known by the individual party, these values are never shared
     // between the signers!
@@ -20,7 +21,9 @@ function Wallet() {
     };
     this.signerSession = null;
 
-    this.NewKeyPair();
+    if(prik == '' || pubk == ''){
+        this.NewKeyPair();
+    }
 };
 
 Wallet.prototype.NewKeyPair = function(){

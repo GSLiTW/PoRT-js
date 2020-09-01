@@ -22,9 +22,4 @@ Block.prototype.hashBlock = function(previousBlockHash, currentBlockData){
     return hash;
 };
 
-// dummy for now
-Block.prototype.Genesis = function() {
-    return Block(0, [], "0")
-}
-
 module.exports = Block;

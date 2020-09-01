@@ -6,6 +6,8 @@ const Block = require('./block.js')
 const ProofOfWork = require('./proof.js')
 const Account = require("./account");
 const Stake = require("./stake");
+const Validators = require('./validators.js');
+const Pending_Txn_Pool = require('./pending_transaction_pool');
 
 const TRANSACTION_TYPE = {
     transaction: "TRANSACTION",
@@ -16,22 +18,22 @@ const TRANSACTION_TYPE = {
 
 function Blockchain(){
     this.chain = [];
-    this.pendingTransactions = [];
+    // this.pendingTransactions = [];
 
     this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
   
-    this.accounts = new Account();
-    this.address = this.accounts.getAddress();
-    this.stakes = new Stake(this.address);
-    this.validators = new Validators();
-
-    var genesisBlock = new Block(0, [], "0");
+    // this.accounts = new Account();
+    // this.address = this.accounts.getAddress();
+    this.pending_txn_pool = new Pending_Txn_Pool();
+    this.pending_txn_pool.create(1);
+    var genesisBlock = new Block(0, this.pending_txn_pool.get_transaction(), 0);
     this.chain.push(genesisBlock)   //create Genesis Block
 }
 
+
 Blockchain.prototype.createNewBlock = function(previousHash){
-    var newBlock = new Block(this.chain.length+1, this.pendingTransactions, previousHash)
+    var newBlock = new Block(this.chain.length+1, previousHash)
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);
