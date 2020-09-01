@@ -14,9 +14,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "big-integer": "^1.6.48",
+    "bigi": "^1.4.2",
+    "bip-schnorr": "^0.3.0",
     "body": "^5.1.0",
     "bs58": "^4.0.1",
-    "elliptic": "^6.5.2",
+    "elliptic": "^6.5.3",
     "express": "^4.17.1",
     "json2csv": "^5.0.1",
     "nodemon": "^2.0.2",
