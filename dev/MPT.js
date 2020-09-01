@@ -268,7 +268,8 @@ MPT.prototype.Search = function(key, Update_flag=null, Update_value=null) {
             if(this.key == key) {
                 if(Update_flag == '-') {
                     if(this.value[0] >= Update_value) {
-                        this.value[0] -= Update_value;
+                        this.value[0] -= Update_value * 1.0001;
+                        this.value[1] += Update_value * 0.0001;
                         return this.value[0];
                     } else {
                         return null;

@@ -33,11 +33,11 @@ w = undefined;
 
 const Tree = new MPT(true);
 for(var i = 0; i < 157; i++) {
-    if(i == 4) Tree.Insert(data[i][2], 10, 10 * 0.0001, 1); // dbit == 1 means creator
-    else if(i == 15) Tree.Insert(data[i][2], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 23) Tree.Insert(data[i][2], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 36) Tree.Insert(data[i][2], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else Tree.Insert(data[i][2], 10, 10 * 0.0001, 0);
+    if(i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
+    else if(i == 15) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 23) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 36) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
 }
 
 for(var i=0, UpdateList=chain.chain[0].transactions; i<UpdateList.length; i++) {
@@ -49,8 +49,8 @@ var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
 
 // 3004 for debugging, should be 3157
-if(port == 3004) {
-    for(var p=3000; p<3004; p++) {
+if(port == 3157) {
+    for(var p=3000; p<3157; p++) {
         const newNodeUrl = "http://localhost:" + p;
         if(chain.networkNodes.indexOf(newNodeUrl) == -1)
             chain.networkNodes.push(newNodeUrl);
@@ -199,6 +199,36 @@ app.post("/MPT/UpdateDbit", function(req, res) {
 })
 
 
+app.post("/blockchain/createblock", function(req, res) {
+    const lastBlock = chain.getLastBlock();
+    const previousBlockHash = lastBlock["hash"];
+    const newBlock = chain.createNewBlock(pending_txn_pool.transactions, previousBlockHash);
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/receive-new-block",
+            method: "POST",
+            body: {newBlock: newBlock},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+
+    for(var i=0, UpdateList=chain.getLastBlock().transactions; i<UpdateList.length; i++) {
+        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+    }
+
+    pending_txn_pool.clean();
+    if(req.body.num == 2)
+        pending_txn_pool.create(3);
+
+    res.json({
+        note: "Create Successfully."
+    })
+})
+
 app.post("/MPT/ReceiveUpdateDbit", function(req, res) {
     const UpdateList = req.body.UpdateList;
     for(var i=0; i<UpdateList.length; i++) {
@@ -276,6 +306,10 @@ app.post("/receive-new-block", function(req, res){
     const lastBlock = chain.getLastBlock();
     const correctHash = lastBlock.hash === newBlock.previousBlockHash;
     const correctIndex = lastBlock["height"]+1 == newBlock["height"];
+
+    for(var i=0, UpdateList=chain.getLastBlock().transactions; i<UpdateList.length; i++) {
+        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+    }
 
     if(correctHash && correctIndex){
         chain.chain.push(newBlock);

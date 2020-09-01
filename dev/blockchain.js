@@ -28,8 +28,8 @@ function Blockchain(){
 }
 
 
-Blockchain.prototype.createNewBlock = function(previousHash){
-    var newBlock = new Block(this.chain.length+1, previousHash)
+Blockchain.prototype.createNewBlock = function(pendingTransactions, previousHash){
+    var newBlock = new Block(this.getLastBlock().height+1, pendingTransactions, previousHash)
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);
