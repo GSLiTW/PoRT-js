@@ -43,7 +43,6 @@ for(var i = 0; i < 43; i++) {
     else Tree.Insert(data[i][1], 10, 10 * 0.0001, 0);
 }
 
-var blockchain = new Blockchain();
 var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
 
@@ -107,10 +106,41 @@ app.get("/transaction-pool", function(req, res) {
 //     res.json({note: `Transaction will be created in block ${blockIndex}.`});
 // });
 
-app.get("/transaction/second-block", function(req, res) {
-    pending_txn_pool.create(2);
-    res.json({note: `push transactions of the second etherscan into pending txn pool.`})
+app.get("/MPT/Search/:key", function(req,res) {
+    const key = req.params.key;
+    res.json({key: key, balance: Tree.Search(key)});
+});
+
+app.post("/MPT/UpdateValues", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateValue(UpdateList[i].from, UpdateList[i].to, UpdateList[i].value);
+    }
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/MPT/ReceiveUpdateValues",
+            method: "POST",
+            body: {UpdateList: UpdateList},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+    res.json({
+        note: "Update Successfully."
+    })
+
 })
+
+
+app.post("/MPT/ReceiveUpdateValues", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateValue(UpdateList[i].from, UpdateList[i].to, UpdateList[i].value);
+    }
+});
 
 app.get("/transaction/third-block", function(req, res) {
     pending_txn_pool.create(3);
@@ -174,6 +204,8 @@ app.post("/transaction/broadcast", function(req, res){
 //         });
 //     });
 // });
+
+
 
 app.post("/receive-new-block", function(req, res){
     const newBlock = req.body.newBlock;
@@ -254,54 +286,54 @@ app.post("/register-nodes-bulk", function(req, res){
     res.json({note: "Bulk registeration successful."});
 });
 
-app.get('/consensus', function(req, res){
+// app.get('/consensus', function(req, res){
   
-    const requestPromises = [];
-    chain.networkNodes.forEach(networkNodeUrl =>{
-        const requestOptions = {
-            uri : networkNodeUrl + "/blockchain",
-            method: "GET",
-            json: true
-        };
+//     const requestPromises = [];
+//     chain.networkNodes.forEach(networkNodeUrl =>{
+//         const requestOptions = {
+//             uri : networkNodeUrl + "/blockchain",
+//             method: "GET",
+//             json: true
+//         };
 
-        requestPromises.push(rp(requestOptions));
-    });
+//         requestPromises.push(rp(requestOptions));
+//     });
 
-    Promise.all(requestPromises)
-    .then(blockchains =>{
-        const currentChainLength = chain.chain.length;
-        let maxChainLength = currentChainLength;
-        let newLongestChain = null;
-        let newPendingTransactions = null;
+//     Promise.all(requestPromises)
+//     .then(blockchains =>{
+//         const currentChainLength = chain.chain.length;
+//         let maxChainLength = currentChainLength;
+//         let newLongestChain = null;
+//         let newPendingTransactions = null;
 
-        blockchains.forEach(blockchain =>{
-            if(blockchain.chain.length > maxChainLength)
-            {
-                maxChainLength = blockchain.chain.length;
-                newLongestChain = blockchain.chain;
-                newPendingTransactions = blockchain.pendingTransactions;
-            };
-        });
+//         blockchains.forEach(blockchain =>{
+//             if(blockchain.chain.length > maxChainLength)
+//             {
+//                 maxChainLength = blockchain.chain.length;
+//                 newLongestChain = blockchain.chain;
+//                 newPendingTransactions = blockchain.pendingTransactions;
+//             };
+//         });
 
-        if(!newLongestChain || (newLongestChain && !chain.chainIsValid(newLongestChain)))
-        {
-            res.json({
-                note: "Current chain has not been replaced.",
-                chain: chain.chain
-            });
-        }
-        else if(newLongestChain&& chain.chainIsValid(newLongestChain))
-        {
-            chain.chain = newLongestChain;
-            chain.pendingTransactions = newPendingTransactions;
-            res.json({
-                note: "This chain has been replaced.",
-                chain: chain.chain
-            });
+//         if(!newLongestChain || (newLongestChain && !chain.chainIsValid(newLongestChain)))
+//         {
+//             res.json({
+//                 note: "Current chain has not been replaced.",
+//                 chain: chain.chain
+//             });
+//         }
+//         else if(newLongestChain&& chain.chainIsValid(newLongestChain))
+//         {
+//             chain.chain = newLongestChain;
+//             chain.pendingTransactions = newPendingTransactions;
+//             res.json({
+//                 note: "This chain has been replaced.",
+//                 chain: chain.chain
+//             });
 
-        }
-    });
-});
+//         }
+//     });
+// });
 
 app.get('/block/:blockHash', function(req, res){
     const blockHash = req.params.blockHash;

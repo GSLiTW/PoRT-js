@@ -279,7 +279,7 @@ MPT.prototype.Search = function(key, Update_flag=null, Update_value=null) {
                     this.value[0] += Update_value;
                     return this.value[0];
                 } else {
-                    return this.value[0];
+                    return this.value;
                 }
             }
         } else if(this.mode == 'extension') {
@@ -303,6 +303,37 @@ MPT.prototype.Search = function(key, Update_flag=null, Update_value=null) {
         }
     } else if(this.type == 'receipt') {
         return null;
+    }
+};
+
+MPT.prototype.Verify = function(key) {
+    if(this.type == 'account') {
+        if(this.mode == 'leaf') {
+            if(this.key == key) {
+                return this.value[2];
+            }
+        } else if(this.mode == 'extension') {
+            var i = 0;
+            while(key[i] == this.key[i]) {
+                i++;
+                if(i == this.key.length)
+                    break;
+            }
+            if(i == this.key.length) {
+                return this.next.Search(key.substr(i));
+            } else {
+                return -1;
+            }
+        } else if(this.mode == 'branch') {
+            if(this.branch[parseInt(key[0], 16)] != null) {
+                return this.branch[parseInt(key[0],16)].Search(key.substr(1));
+            } else {
+                return -1;
+            }
+        }
+    } else if(this.type == 'receipt') {
+        console.log("TypeError: No Verify function in receipt tree!")
+        return -2;
     }
 };
 
