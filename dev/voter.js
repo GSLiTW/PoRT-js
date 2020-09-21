@@ -86,7 +86,6 @@ Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNum
             publicData.pubKeyCombined,
             publicData.pubKeyHash,
             idx
-        );
     );
     //const signerSession = signerPrivateData.session;      //network: if(idx == 0) do this!
 
@@ -198,9 +197,9 @@ Voter.prototype.Vote = function() {
     return true;
 }
 
-Voter.prototype.PoRT = function() {
+/*Voter.prototype.PoRT = function() {
     const voterPoRT = new PoRT(address, this.MPT, this.pendingTxs, 1);
     this.nextVoter = voterPoRT;
-}
+}*/
 
 module.exports = Voter;

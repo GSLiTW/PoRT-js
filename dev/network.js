@@ -431,7 +431,7 @@ app.post("/creator/coSig", function(req, res){
     creator.Cosig_verifySignature();
 });
 
-app.get("/creator/sendPoRT", function(req, res){
+/*app.get("/creator/sendPoRT", function(req, res){
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
         const requestOptions = {
@@ -464,7 +464,7 @@ app.post("/creator/nextVoter", function(req, res){
     res.json({
         note: "VoterID: " + req.voterID + " has been pushed into nextVoters[] !"
     });
-});
+});*/
 
 app.get("/creator", function(req, res){
     const lastBlock = chain.getLastBlock();
