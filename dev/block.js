@@ -13,7 +13,7 @@ function Block(height, pendingTransactions, previousHash, MPT) {
     this.coSignature = NaN,
     this.hash = NaN     //this.hashBlock(previousHash, {index: this.index, transactions: this.transactions})
     this.nextCreator = NaN,
-    this.nextVoters = [],
+    this.nextVoters = []
 };
 
 Block.prototype.hashBlock = function(previousBlockHash, currentBlockData){

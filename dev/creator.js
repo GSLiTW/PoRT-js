@@ -14,7 +14,7 @@ function Creator(mpt, pendingTxPool){
     this.nextCreator = -1;
     this.nextVoters = [];
     this.block = null;
-    this.publicData = null;
+    this.publicData;
 }
 
 /*Creator.prototype.CreatorVerify = function(ID, mappingTable) {

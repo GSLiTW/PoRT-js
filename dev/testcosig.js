@@ -137,7 +137,7 @@ for (let i = 0; i < publicData.pubKeys.length; i++) {
 // (s, R) that can be verified against combined public key P.
 // -----------------------------------------------------------------------
 publicData.signature = muSig.partialSigCombine(publicData.nonceCombined, publicData.partialSignatures);
-//console.log("publicData.signature", publicData.signature);
+console.log("publicData.signature", publicData.signature);
  
 // -----------------------------------------------------------------------
 // Step 10: Verify signature

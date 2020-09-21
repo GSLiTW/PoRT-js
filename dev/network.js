@@ -86,6 +86,7 @@ var nextVoters = [];
 publicKeys = [];
 commitments = [];
 nonces = [];
+creator = new Creator(Tree, pending_txn_pool);
 
 
 app.use(bodyParser.json());
@@ -327,7 +328,7 @@ app.post("/voter/vote", function(req, res){
     wallet.signerPrivateData = voter.Cosig_setSignerPrivateData(wallet.signerPrivateData, port);
     const commitment = voter.Cosig_commitment(wallet.signerPrivateData);
     const nonce = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
-    wallet.signerPrivateData = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
+    //wallet.signerPrivateData = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
     wallet.signerPrivateData = voter.Cosig_Cosig_combineNonces_check(wallet.signerPrivateData, wallet.signerPrivateData.session);
     
     const creatorUrl = req.body.creatorUrl;
@@ -335,8 +336,10 @@ app.post("/voter/vote", function(req, res){
         uri : creatorUrl + "/creator/updatePublicData",
         method: "POST",
         body: {voterUrl: chain.currentNodeUrl,
+               publicKey: wallet.publicKey,
                commitment: commitment,
-               nonce: nonce
+               nonce: nonce,
+               session: wallet.signerPrivateData.session
         },
         json: true
     };
@@ -350,10 +353,12 @@ app.post("/voter/partialSign", function(req, res){
 
     const creatorUrl = req.body.creatorUrl;
     const requestOptions = {
-        uri : creatorUrl + "/creator/updatePublicData",
+        uri : creatorUrl + "/creator/coSig",
         method: "POST",
         body: {voterUrl: chain.currentNodeUrl,
-               partialSignature: wallet.signerPrivateData.session.partialSignature
+               partialSignature: wallet.signerPrivateData.session.partialSignature,
+               publicKey: wallet.publicKey,
+               session: wallet.signerPrivateData.session
         },
         json: true
     };
@@ -368,7 +373,7 @@ app.post("/creator/createPublicData", function(req, res){
         const lastBlock = chain.getLastBlock();
         const previousBlockHash = lastBlock["hash"];
 
-        const creator = new Creator(Tree, pending_txn_pool);
+        //const creator = new Creator(Tree, pending_txn_pool);
         const newBlock = creator.Create(lastBlock["height"]+1, previousBlockHash);
 
         /*const requestPromises = [];
@@ -386,7 +391,7 @@ app.post("/creator/createPublicData", function(req, res){
         
     }
 
-    const creatorUrl = req.body.creatorUrl;
+    /*const creatorUrl = req.body.creatorUrl;
     const requestOptions = {
         uri : creatorUrl + "/creator/updatePublicData",
         method: "POST",
@@ -395,7 +400,35 @@ app.post("/creator/createPublicData", function(req, res){
         },
         json: true
     };
+    rp(requestOptions);*/
+});
+
+app.post("/creator/updatePublicData", function(req, res){
+    const index = publicKeys.indexOf(req.body.publicKey);
+    commitments[index] = req.body.commitment;
+    nonces[index] = req.body.nonce;
+    creator.Cosig_commitments(index, req.body.commitment);
+    creator.Cosig_nonces(index, req.body.nonce);
+    creator.Cosig_combineNonces_combine(req.body.session);
+
+    const creatorUrl = req.body.creatorUrl;
+    const requestOptions = {
+        uri : creatorUrl + "/voter/partialSign",
+        method: "POST",
+        body: {voterUrl: chain.currentNodeUrl,
+               publicData: creator.publicData
+        },
+        json: true
+    };
     rp(requestOptions);
+});
+
+app.post("/creator/coSig", function(req, res){
+    const index = publicKeys.indexOf(req.body.publicKey);
+    creator.Cosig_exchangePartialSignature(index, req.body.publicKey);
+    creator.Cosig_verifyIndividualPartialSignatures(req.body.session);
+    creator.Cosig_combinePartialSignatures();
+    creator.Cosig_verifySignature();
 });
 
 app.get("/creator/sendPoRT", function(req, res){
@@ -419,7 +452,7 @@ app.post("/PoRT", function(req, res){
             uri: req.creatorUrl + "/creator/nextVoter",
             method: "POST",
             voterUrl: chain.currentNodeUrl,
-            nextVoterUrl:,
+            //nextVoterUrl:,
             json: true
         };
         requestPromises.push(rp(requestOptions));
