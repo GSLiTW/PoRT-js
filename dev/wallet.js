@@ -6,20 +6,22 @@ const base58 = require('bs58');
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
 
-function Wallet() {
-    this.balance = 0,
-    this.privateKey = '',
-    this.publicKey = '',
-    this.NewKeyPair()
+function Wallet(prik='', pubk='', bal=0) {
+    this.balance = bal;
+    this.privateKey = prik;
+    this.publicKey = pubk;
+    if(prik == '' || pubk == ''){
+        this.NewKeyPair();
+    }
 };
 
 Wallet.prototype.NewKeyPair = function(){
-    privateKey = secureRandom.randomBuffer(32);
+    this.privateKey = secureRandom.randomBuffer(32);
     const ecdsa = new elliptic.ec('secp256k1');
-    const keys = ecdsa.keyFromPrivate(privateKey);
-    publicKey = keys.getPublic('hex');
-    //cconsole.log("Private Key: ", privateKey);
-    // console.log("Public Key: ", publicKey);
+    const keys = ecdsa.keyFromPrivate(this.privateKey);
+    this.publicKey = keys.getPublic('hex');
+    //console.log("Private Key: ", privateKey);
+    //console.log("Public Key: ", publicKey);
 }
 
 Wallet.prototype.PublicKeyHash = function(){

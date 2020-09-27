@@ -38,4 +38,8 @@ Pending_Transaction_Pool.prototype.get_transaction = function() {
     return this.transactions;
 }
 
+Pending_Transaction_Pool.prototype.get_num_of_transaction = function() {
+    return this.transactions.length;
+}
+
 module.exports = Pending_Transaction_Pool;

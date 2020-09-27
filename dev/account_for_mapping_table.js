@@ -12,6 +12,7 @@ function Account_MT() {
 };
 
 Account_MT.prototype.initialize = function(address) {
+    this.tax = this.balance * 0.0001;
     this.address = address;
     this.private_key = sha256(this.address);
 }
