@@ -1,0 +1,5 @@
+# vscode config
+.vscode/
+
+# testing files
+*out

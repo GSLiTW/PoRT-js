@@ -7,6 +7,7 @@ const Transaction_Pool = require("./transaction_pool.js");
 const Pending_Transaction_Pool = require("./pending_transaction_pool.js");
 var sender_register = 1;
 var receiver_register = 1;
+const sha256 = require("sha256");
 
 function Mapping_table() {
     this.account = [];
@@ -134,6 +135,19 @@ Mapping_table.prototype.get_account = function() {
     return this.account;
 }
 
+Mapping_table.prototype.get_num_of_account = function() {
+    return this.account.length;
+}
+
+Mapping_table.prototype.check_exist = function(address) {
+    for(var i = 0; i < this.account.length; i++) {
+        if(address == this.account[i].address) {
+            return i;
+        }
+    }
+    return false;
+}
+
 Mapping_table.prototype.createJSONFile = function(num) {
     var address_arr = [];
     var balance_arr = [];
@@ -167,8 +181,17 @@ Mapping_table.prototype.createJSONFile = function(num) {
     });
 }
 
+// test for PoRT in creator and voter
+// Mapping_table.prototype.test = function() {
+//     var T = 1234;
+//     T = T.toString();
+//     var tmp = sha256(T + this.account[6].address);
+//     var h = parseInt(tmp, 16) % T;
+//     console.log(h);
+// }
+
 // var a = new Mapping_table();
 // a.initialize();
-// a.createJSONFile(1);
+//a.test();
 
 module.exports = Mapping_table;
