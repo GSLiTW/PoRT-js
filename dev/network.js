@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 const bodyParser = require("body-parser");
 const port = process.argv[2];
-const rp = require("request-promise");
+const rp = require("promise-request-retry");
 const fs = require("fs");
 
 // local modules
@@ -20,7 +20,6 @@ var data = fs.readFileSync('./node_address_mapping_table.csv')
             .split('\n') // split string to lines
             .map(e => e.trim()) // remove white spaces for each line
             .map(e => e.split(',').map(e => e.trim())); // split each line to array
-//console.log(data[0][1]);
 
 var w = fs.readFileSync('./private_public_key.csv')
             .toString() // convert Buffer to string
@@ -49,8 +48,8 @@ var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
 
 // 3004 for debugging, should be 3157
-if(port == 3157) {
-    for(var p=3000; p<3157; p++) {
+if(port >= 3002) {
+    for(var p=port-2; p<port; p++) {
         const newNodeUrl = "http://localhost:" + p;
         if(chain.networkNodes.indexOf(newNodeUrl) == -1)
             chain.networkNodes.push(newNodeUrl);
@@ -61,7 +60,9 @@ if(port == 3157) {
                 uri: networkNodeUrl + "/register-node",
                 method: "POST",
                 body: {newNodeUrl: newNodeUrl},
-                json: true
+                json: true,
+                retry: 10,
+                delay: 1000
             };
 
             regNodesPromises.push(rp(requestOptions));
@@ -73,7 +74,9 @@ if(port == 3157) {
                 uri: newNodeUrl + "/register-nodes-bulk",
                 method: "POST",
                 body: {allNetworkNodes: [ ...chain.networkNodes, chain.currentNodeUrl]},
-                json: true
+                json: true,
+                retry: 10,
+                delay: 1000
             }
 
             return rp(bulkRegisterOptions);
@@ -81,6 +84,8 @@ if(port == 3157) {
     }
 }
 
+
+seqList = [0];
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -118,13 +123,16 @@ app.post("/MPT/UpdateValues", function(req, res) {
     for(var i=0; i<UpdateList.length; i++) {
         Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, UpdateList[i].value);
     }
+    
+    var seq = seqList[seqList.length-1] + 1;
+    seqList.push(seq);
 
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
         const requestOptions = {
             uri: networkNodeUrl + "/MPT/ReceiveUpdateValues",
             method: "POST",
-            body: {UpdateList: UpdateList},
+            body: {SeqNum: seq, UpdateList: UpdateList},
             json: true
         };
         requestPromises.push(rp(requestOptions));
@@ -139,8 +147,25 @@ app.post("/MPT/UpdateValues", function(req, res) {
 
 app.post("/MPT/ReceiveUpdateValues", function(req, res) {
     const UpdateList = req.body.UpdateList;
-    for(var i=0; i<UpdateList.length; i++) {
-        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, UpdateList[i].value);
+    const seq = req.body.SeqNum;
+    
+    if(seqList.indexOf(seq) == -1) {
+        for(var i=0; i<UpdateList.length; i++) {
+            Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, UpdateList[i].value);
+        }
+	    seqList.push(seq);
+    
+    
+        const requestPromises = [];
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/MPT/ReceiveUpdateValues",
+                method: "POST",
+                body: {SeqNum: seq, UpdateList: UpdateList},
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });
     }
 });
 
@@ -150,12 +175,15 @@ app.post("/MPT/UpdateTax", function(req, res) {
         Tree.UpdateTax(UpdateList[i].taxpayer, UpdateList[i].value);
     }
 
+    var seq = seqList[seqList.length-1] + 1;
+    seqList.push(seq);
+
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
         const requestOptions = {
             uri: networkNodeUrl + "/MPT/ReceiveUpdateTax",
             method: "POST",
-            body: {UpdateList: UpdateList},
+            body: {SeqNum: seq, UpdateList: UpdateList},
             json: true
         };
         requestPromises.push(rp(requestOptions));
@@ -170,8 +198,25 @@ app.post("/MPT/UpdateTax", function(req, res) {
 
 app.post("/MPT/ReceiveUpdateTax", function(req, res) {
     const UpdateList = req.body.UpdateList;
-    for(var i=0; i<UpdateList.length; i++) {
-        Tree.UpdateTax(UpdateList[i].taxpayer, UpdateList[i].value);
+    const seq = req.body.SeqNum;
+
+    if(seqList.indexOf(seq) == -1) {
+        for(var i=0; i<UpdateList.length; i++) {
+            Tree.UpdateTax(UpdateList[i].taxpayer, UpdateList[i].value);
+        }
+        seqList.push(seq);
+    
+    
+        const requestPromises = [];
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/MPT/ReceiveUpdateTax",
+                method: "POST",
+                body: {SeqNum: seq, UpdateList: UpdateList},
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });
     }
 });
 
@@ -181,12 +226,15 @@ app.post("/MPT/UpdateDbit", function(req, res) {
         Tree.UpdateDbit(UpdateList[i].maintainer, UpdateList[i].dbit);
     }
 
+    var seq = seqList[seqList.length-1] + 1;
+    seqList.push(seq);
+
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
         const requestOptions = {
             uri: networkNodeUrl + "/MPT/ReceiveUpdateDbit",
             method: "POST",
-            body: {UpdateList: UpdateList},
+            body: {SeqNum: seq, UpdateList: UpdateList},
             json: true
         };
         requestPromises.push(rp(requestOptions));
@@ -204,12 +252,15 @@ app.post("/blockchain/createblock", function(req, res) {
     const previousBlockHash = lastBlock["hash"];
     const newBlock = chain.createNewBlock(pending_txn_pool.transactions, previousBlockHash);
 
+    var seq = seqList[seqList.length-1] + 1;
+    seqList.push(seq);
+
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
         const requestOptions = {
             uri: networkNodeUrl + "/receive-new-block",
             method: "POST",
-            body: {newBlock: newBlock},
+            body: {SeqNum: seq, newBlock: newBlock},
             json: true
         };
         requestPromises.push(rp(requestOptions));
@@ -231,9 +282,26 @@ app.post("/blockchain/createblock", function(req, res) {
 
 app.post("/MPT/ReceiveUpdateDbit", function(req, res) {
     const UpdateList = req.body.UpdateList;
-    for(var i=0; i<UpdateList.length; i++) {
-        Tree.UpdateDbit(UpdateList[i].maintainer, UpdateList[i].dbit);
+    const seq = req.body.SeqNum;
+    if(SeqList.indexOf(seq) == -1) {
+        for(var i=0; i<UpdateList.length; i++) {
+                Tree.UpdateDbit(UpdateList[i].maintainer, UpdateList[i].dbit);
+        }
+        seqList.push(seq);
+    
+    
+        const requestPromises = [];
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/MPT/ReceiveUpdateDbit",
+                method: "POST",
+                body: {SeqNum: seq, UpdateList: UpdateList},
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });
     }
+    
 });
 
 app.get("/transaction/third-block", function(req, res) {
@@ -245,12 +313,15 @@ app.post("/transaction/broadcast", function(req, res){
     const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
     chain.addTransactionToPendingTransaction(newTransaction);
 
+    var seq = seqList[seqList.length-1] + 1;
+    seqList.push(seq);
+
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
         const requestOptions = {
             uri: networkNodeUrl + "/transaction",
             method: "POST",
-            body: newTransaction,
+            body: {SeqNum: seq, NewTxs: newTransaction},
             json: true
         };
 
@@ -262,68 +333,46 @@ app.post("/transaction/broadcast", function(req, res){
     });
 });
 
-// app.get("/mine", function(req, res){
-//     const lastBlock = chain.getLastBlock();
-//     const previousBlockHash = lastBlock["hash"];
-
-//     const newBlock = chain.createNewBlock(previousBlockHash);
-
-//     const requestPromises = [];
-//     chain.networkNodes.forEach(networkNodeUrl => {
-//         const requestOptions = {
-//             uri: networkNodeUrl + "/receive-new-block",
-//             method: "POST",
-//             body: {newBlock: newBlock},
-//             json: true
-//         };
-//         requestPromises.push(rp(requestOptions));
-//     });
-
-//     Promise.all(requestPromises).then(data => {
-//         const requestOptions = {
-//             uri: chain.currentNodeUrl + "/transaction/broadcast",
-//             method: "POST",
-//             body:{
-//                 amount: 12.5,
-//                 sender: "00",
-//                 recipient: nodeAddress
-//             },
-//             json: true
-//         };
-//         return rp(requestOptions);
-//     }).then(data =>{
-//         res.json({
-//             note: "New block mined successfully",
-//             block: newBlock
-//         });
-//     });
-// });
-
-
-
 app.post("/receive-new-block", function(req, res){
-    const newBlock = req.body.newBlock;
-    const lastBlock = chain.getLastBlock();
-    const correctHash = lastBlock.hash === newBlock.previousBlockHash;
-    const correctIndex = lastBlock["height"]+1 == newBlock["height"];
+    const seq = req.body.SeqNum;
+    if(SeqList.indexOf(seq)==-1) {
+        const newBlock = req.body.newBlock;
+        const lastBlock = chain.getLastBlock();
+        const correctHash = lastBlock.hash === newBlock.previousBlockHash;
+        const correctIndex = lastBlock["height"]+1 == newBlock["height"];
 
-    for(var i=0, UpdateList=chain.getLastBlock().transactions; i<UpdateList.length; i++) {
-        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
-    }
+        for(var i=0, UpdateList=chain.getLastBlock().transactions; i<UpdateList.length; i++) {
+            Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+        }
 
-    if(correctHash && correctIndex){
-        chain.chain.push(newBlock);
-		chain.pendingTransactions = [];
-		res.json({
-			note: 'New block received and accepted.',
-			newBlock: newBlock
-		});
-    }
-    else{
-        res.json({
-			note: 'New block rejected.',
-			newBlock: newBlock
-		});
+        if(correctHash && correctIndex){
+            chain.chain.push(newBlock);
+            chain.pendingTransactions = [];
+            res.json({
+                note: 'New block received and accepted.',
+                newBlock: newBlock
+            });
+        }
+        else{
+            res.json({
+                note: 'New block rejected.',
+                newBlock: newBlock
+            });
+        }
+
+        seqList.push(seq);
+    
+    
+        const requestPromises = [];
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/receive-new-block",
+                method: "POST",
+                body: {SeqNum: seq, newBlock: newBlock},
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });
     }
 });
 
@@ -383,55 +432,6 @@ app.post("/register-nodes-bulk", function(req, res){
 
     res.json({note: "Bulk registeration successful."});
 });
-
-// app.get('/consensus', function(req, res){
-  
-//     const requestPromises = [];
-//     chain.networkNodes.forEach(networkNodeUrl =>{
-//         const requestOptions = {
-//             uri : networkNodeUrl + "/blockchain",
-//             method: "GET",
-//             json: true
-//         };
-
-//         requestPromises.push(rp(requestOptions));
-//     });
-
-//     Promise.all(requestPromises)
-//     .then(blockchains =>{
-//         const currentChainLength = chain.chain.length;
-//         let maxChainLength = currentChainLength;
-//         let newLongestChain = null;
-//         let newPendingTransactions = null;
-
-//         blockchains.forEach(blockchain =>{
-//             if(blockchain.chain.length > maxChainLength)
-//             {
-//                 maxChainLength = blockchain.chain.length;
-//                 newLongestChain = blockchain.chain;
-//                 newPendingTransactions = blockchain.pendingTransactions;
-//             };
-//         });
-
-//         if(!newLongestChain || (newLongestChain && !chain.chainIsValid(newLongestChain)))
-//         {
-//             res.json({
-//                 note: "Current chain has not been replaced.",
-//                 chain: chain.chain
-//             });
-//         }
-//         else if(newLongestChain&& chain.chainIsValid(newLongestChain))
-//         {
-//             chain.chain = newLongestChain;
-//             chain.pendingTransactions = newPendingTransactions;
-//             res.json({
-//                 note: "This chain has been replaced.",
-//                 chain: chain.chain
-//             });
-
-//         }
-//     });
-// });
 
 app.get('/block/:blockHash', function(req, res){
     const blockHash = req.params.blockHash;
