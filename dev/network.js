@@ -47,7 +47,6 @@ for(var i=0, UpdateList=chain.chain[0].transactions; i<UpdateList.length; i++) {
 var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
 
-// 3004 for debugging, should be 3157
 if(port >= 3002) {
     for(var p=port-2; p<port; p++) {
         const newNodeUrl = "http://localhost:" + p;
