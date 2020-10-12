@@ -12,7 +12,7 @@ const TRANSACTION_TYPE = {
 };
 
 
-function Blockchain(){
+function Blockchain(MPT){
     this.chain = [];
     // this.pendingTransactions = [];
 
@@ -23,13 +23,13 @@ function Blockchain(){
     // this.address = this.accounts.getAddress();
     var txn_pool = new Txn_Pool();
     txn_pool.create(1);
-    var genesisBlock = new Block(4000718, txn_pool.transactions, '0xa3d2f1958efa84f053faf7eb14d2c104bef35b3098c23c5034678034c86ec183');
+    var genesisBlock = new Block(4000718, txn_pool.transactions, '0xa3d2f1958efa84f053faf7eb14d2c104bef35b3098c23c5034678034c86ec183', MPT);
     this.chain.push(genesisBlock)   //create Genesis Block
 }
 
 
-Blockchain.prototype.createNewBlock = function(pendingTransactions, previousHash){
-    var newBlock = new Block(this.getLastBlock().height+1, pendingTransactions, previousHash)
+Blockchain.prototype.createNewBlock = function(pendingTransactions, previousHash, MPT){
+    var newBlock = new Block(this.getLastBlock().height+1, pendingTransactions, previousHash, MPT)
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);

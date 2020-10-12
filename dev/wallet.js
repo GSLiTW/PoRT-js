@@ -19,7 +19,6 @@ function Wallet(prik='', pubk='', bal=0) {
         privateKey: 0,
         session: null
     };
-    this.signerSession = null;
 
     if(prik == '' || pubk == ''){
         this.NewKeyPair();

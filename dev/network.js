@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const port = process.argv[2];
 const rp = require("request-promise");
 const fs = require("fs");
+const uuid = require('uuid/v1');
 
 // local modules
 const Blockchain = require("./blockchain.js");
@@ -15,7 +16,7 @@ const Creator = require('./creator');
 const Voter = require('./voter');
 const nodeAddress = uuid().split("-").join("");
 
-const chain = new Blockchain();
+// const chain = new Blockchain();
 
 // preprocess
 var data = fs.readFileSync('./node_address_mapping_table.csv')
@@ -42,6 +43,8 @@ for(var i = 0; i < 157; i++) {
     else if(i == 36) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
     else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
 }
+
+const chain = new Blockchain(Tree);
 
 for(var i=0, UpdateList=chain.chain[0].transactions; i<UpdateList.length; i++) {
     Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
