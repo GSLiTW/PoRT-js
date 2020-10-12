@@ -8,7 +8,6 @@ const secureRandom = require('secure-random');
 const fs = require('fs') ;
 const EthCrypto = require('eth-crypto');
 //const base64 =require('base64-js');
-
 //const ecdsa = require('ecdsa')
 const elliptic = require('elliptic');
 //const pemtool =require('pemtools');
@@ -16,11 +15,9 @@ const elliptic = require('elliptic');
 //const { random } = require('@supercharge/strings');
 //const { timeStamp, Console } = require('console');
 const { constants, Buffer } = require('buffer');
-//const { parse } = require('path');
-//const { type } = require('os');
-//const { start } = require('repl');
-var M = 3;
-var N = 4;
+
+var M = 4;
+var N = 6;
 var a = 2;//delete
 var b = 7;//delete
 var I ="I'm Eric. I've just lost my device,so I need to recovery my Private Key.\nPlease follow the instruction bellow:\n1. Please verify the identity of the owner by signature.\n2. Contact me by my email:XXX@gmail.com or phone:09xx-xxx-xxx.\n3. Send back the secret you just decrypted.\n4. Thank you!"
@@ -29,24 +26,20 @@ function backup(){
     this.TK_SK = null;
     this.PK_Shares =[];
     this.backupfile=null;
-    this.pka=[];
+    this.pka={};
+    this.recoveryshare=[];
 }
-
-backup.prototype.SelectTrustee =function(){
-
-}
-
-backup.prototype.init =async function(){
-    this.generatePKA();
+backup.prototype.init =async function(my_sk){
+    //this.generatePKA();
     var TK =this.GenerateTK(64); //TK is a hex string ,len =112;
     console.log("TK :"+ TK);
     console.log('-------------------------------------------');
   //  console.log(typeof TK);
-    this.TK_SK =this.GenerateTK_SK(TK);
+    this.TK_SK =this.GenerateTK_SK(TK,my_sk);
     console.log("TK@SK :"+ this.TK_SK);
     console.log('-------------------------------------------');
    // console.log('')
-    this.PK_Shares=await this.GeneratePk_Share(TK).then(function(r){
+    this.PK_Shares=await this.GeneratePk_Share(TK,my_sk).then(function(r){
         //outputfile(this.TK_SK,this.PK_Shares);
         console.log("Finsish generating pk@share");
         console.log('-------------------------------------------');
@@ -59,11 +52,11 @@ backup.prototype.init =async function(){
     console.log("output file finish.");
 }
 
-backup.prototype.GenerateTK_SK =function(TK){
+backup.prototype.GenerateTK_SK =function(TK,my_sk){
     console.log("generating TK@SK ...");
     var iv = "spamshog";
     var key = TK;
-    var Sk = "My private key";
+    var Sk = my_sk;
     var cipher = crypto.createCipheriv('bf-cbc', key, iv);
    // console.log(cipher);
    // decipher.setAutoPadding(false);
@@ -77,10 +70,10 @@ backup.prototype.GenerateTK_SK =function(TK){
     return encrypted;
 }
 
-  backup.prototype.GeneratePk_Share =async function(TK){// y= a*x^2 + b*x + c , c = TK
+  backup.prototype.GeneratePk_Share =async function(TK,my_sk){// y= a*x^2 + b*x + c , c = TK
     console.log("Generating PK@share ...");
     console.log();
-    console.log("Start generating secret shares (tki, i=1~4)");
+    console.log("Start generating secret shares (tki, i=1~6)");
     var sol = [];
     const example = "0x"+TK;
     const prime3217 = Decimal('2').pow(3217).sub(1);
@@ -90,7 +83,7 @@ backup.prototype.GenerateTK_SK =function(TK){
     console.log('-------------------------------------------');
     // const secret = Shamir.combine([shares[0], shares[1], shares[2]], prime3217).toHex();
     // console.log(secret);
-    var ds =this.Generate_DS(shares);
+    var ds =this.Generate_DS(shares,my_sk);
     console.log('-------------------------------------------');
     // console.log("ds :");
     // console.log(ds);
@@ -110,10 +103,10 @@ backup.prototype.GenerateTK_SK =function(TK){
    // console.log('-------------------------------------------');
     return sol;
 }
-backup.prototype.Generate_DS=function(share){
-    console.log("Start generating Signature (dsi, i=1~4) ...");
-    var myprivatekey =this.pka[0][0];//temp
-    var mypublickey =this.pka[0][1];
+backup.prototype.Generate_DS=function(share,my_sk){
+    console.log("Start generating Signature (dsi, i=1~6) ...");
+    var myprivatekey =my_sk;//temp
+ //   var mypublickey =this.pka[0][1];
  //   console.log(tk);
     var ds =[];
     for(i=0;i<N;i++){
@@ -126,11 +119,11 @@ backup.prototype.Generate_DS=function(share){
 
         var hash = crypto.createHash('sha256').update(str).digest();
         var buf2 =Buffer.from(myprivatekey,'hex');
-        var buf3 =Buffer.from(mypublickey,'hex');
+       // var buf3 =Buffer.from(mypublickey,'hex');
         var signature =ecdsa.sign(hash,buf2,'hex',{canonical: true});
         ds[i]=signature;
         console.log("signature=",signature);
-        console.log('-------------------------------------------');
+     //   console.log('-------------------------------------------');
        // console.log(buf3);
        // console.log(ecdsa.verify(hash,signature,buf3,'hex'));
 
@@ -162,28 +155,32 @@ backup.prototype.CreateShare=async function(tki,dsi,index){
     var str = JSON.stringify(obj);
   //  console.log(str);
     var encrypted =  await EthCrypto.encryptWithPublicKey(
-              this.pka[index+1][1],
+              this.pka[Object.keys(this.pka)[index]],
               str
           );
     return encrypted;
 }
 
 
-backup.prototype.generatePKA=function() {
-    console.log("generating pka...");
-    for(i=0;i<10;i++){
-        privateKey = secureRandom.randomBuffer(32);
-        const ecdsa = new elliptic.ec('secp256k1');
-        const keys = ecdsa.keyFromPrivate(privateKey);
-        privateKey =keys.getPrivate('hex');
-        publicKey = keys.getPublic('hex')
-        //console.log("Private Key: ", keys);
-        //console.log("Public Key: ", publicKey);
-        this.pka.push([privateKey,publicKey]);
-    }   
-    console.log('--------------------PKA--------------------');    
-    console.log(this.pka);
-    console.log('-------------------------------------------');
+// backup.prototype.generatePKA=function() {
+//     console.log("generating pka...");
+//     for(i=0;i<10;i++){
+//         privateKey = secureRandom.randomBuffer(32);
+//         const ecdsa = new elliptic.ec('secp256k1');
+//         const keys = ecdsa.keyFromPrivate(privateKey);
+//         privateKey =keys.getPrivate('hex');
+//         publicKey = keys.getPublic('hex')
+//         //console.log("Private Key: ", keys);
+//         //console.log("Public Key: ", publicKey);
+//         this.pka.push([privateKey,publicKey]);
+//     }   
+//     console.log('--------------------PKA--------------------');    
+//     console.log(this.pka);
+//     console.log('-------------------------------------------');
+// }
+
+backup.prototype.generatePKA=function(port,pk) {
+      this.pka[port]=pk;
 }
 
   function signaturetest(){
@@ -241,61 +238,135 @@ backup.prototype.inputfile =function(){
 
 //---------------------------------------------trustee 1~3--------------------------------------------------------
 
-backup.prototype.recovery=async function(trusteeIndex,pksh){
-   // console.log("-------------------0---------------------");
-    var DecriptedShare;
-    var find =false;
-    console.log('Trustee ',trusteeIndex," :");
-    for(j=0;j<N;j++){
-     //  console.log('-----------------------1-----------------------');
-       try{
-            console.log('Decrypt with PrivateKey ...'); 
-            const decrypt =await EthCrypto.decryptWithPrivateKey(this.pka[trusteeIndex][0],pksh[j]); 
-            DecriptedShare=decrypt;
-           // console.log(decrypt);
-            DecriptedShare=JSON.parse(DecriptedShare.toString());
-            console.log(DecriptedShare);
-            console.log();
-            console.log(DecriptedShare['Instruction']);
-            console.log();
-            find=true;
-            //console.log('true!');
-          //  console.log(DecriptedShare);
-            if(this.verification(DecriptedShare['tk'],DecriptedShare['ds'],DecriptedShare['Instruction'])){
-                console.log('verified success !');
-                console.log();
-               // console.log( DecriptedShare['tk'])
-                return DecriptedShare['tk'];
-            }else{
-                console.log('verified fail ..');
-                console.log();
-                return null;
-            }
-       }catch(err){
-           console.log('You cant decrypt this share QQ');
-          // console.log(err);
+// backup.prototype.recovery=async function(trusteeIndex,pksh){
+//    // console.log("-------------------0---------------------");
+//     var DecriptedShare;
+//     var find =false;
+//     console.log('Trustee ',trusteeIndex," :");
+//     for(j=0;j<N;j++){
+//      //  console.log('-----------------------1-----------------------');
+//        try{
+//             console.log('Decrypt with PrivateKey ...'); 
+//             const decrypt =await EthCrypto.decryptWithPrivateKey(this.pka[trusteeIndex][0],pksh[j]); 
+//             DecriptedShare=decrypt;
+//            // console.log(decrypt);
+//             DecriptedShare=JSON.parse(DecriptedShare.toString());
+//             console.log(DecriptedShare);
+//             console.log();
+//             console.log(DecriptedShare['Instruction']);
+//             console.log();
+//             find=true;
+//             //console.log('true!');
+//           //  console.log(DecriptedShare);
+//             if(this.verification(DecriptedShare['tk'],DecriptedShare['ds'],DecriptedShare['Instruction'])){
+//                 console.log('verified success !');
+//                 console.log();
+//                // console.log( DecriptedShare['tk'])
+//                 return DecriptedShare['tk'];
+//             }else{
+//                 console.log('verified fail ..');
+//                 console.log();
+//                 return null;
+//             }
+//        }catch(err){
+//            console.log('You cant decrypt this share QQ');
+//           // console.log(err);
 
-       }
-      //  console.log('---------------------2--------------------------');
-      console.log('continue ...');
-    }
+//        }
+//       //  console.log('---------------------2--------------------------');
+//       console.log('continue ...');
+//     }
 
-    if(!find){
-        console.log('cant find my share...');
-        console.log();
-        return null;
-    }
+//     if(!find){
+//         console.log('cant find my share...');
+//         console.log();
+//         return null;
+//     }
  
+// }
+
+
+backup.prototype.recovery=async function(sk,Owner_pk,pksh){
+  // console.log("-------------------0---------------------");
+   var DecriptedShare;
+   var find =false;
+   for(j=0;j<N;j++){
+    //  console.log('-----------------------1-----------------------');
+      try{
+           console.log('Decrypt with PrivateKey ...'); 
+           const decrypt =await EthCrypto.decryptWithPrivateKey(sk,pksh[j]); 
+           DecriptedShare=decrypt;
+          // console.log(decrypt);
+           DecriptedShare=JSON.parse(DecriptedShare.toString());
+          //  console.log(DecriptedShare);
+          //  console.log();
+          //  console.log(DecriptedShare['Instruction']);
+          //  console.log();
+           find=true;
+           //console.log('true!');
+         //  console.log(DecriptedShare);
+           if(this.verification(DecriptedShare['tk'],DecriptedShare['ds'],DecriptedShare['Instruction'],Owner_pk)){
+    
+               console.log('verified success !');
+               console.log();
+               console.log(DecriptedShare['Instruction']);
+              // console.log( DecriptedShare['tk'])
+               return DecriptedShare['tk'];
+           }else{
+               console.log('verified fail ..');
+               console.log();
+               return null;
+           }
+      }catch(err){
+          console.log('You cant decrypt this share QQ');
+         // console.log(err);
+
+      }
+     //  console.log('---------------------2--------------------------');
+     console.log('continue ...');
+   }
+
+   if(!find){
+       console.log('cant find my share...');
+       console.log();
+       return null;
+   }
+
 }
 
-backup.prototype.verification=function(tk,ds,I){
+backup.prototype.verification=function(tk,ds,I,pk){
     console.log('verify with signature ...');
     const ecdsa = new elliptic.ec('secp256k1');
     const tki =tk['x']+','+tk['y'];
     const str =tki+','+I;
     var hash = crypto.createHash('sha256').update(str).digest();
-    var OwnerPublicKey =Buffer.from(this.pka[0][1],'hex');
+    var OwnerPublicKey =Buffer.from(pk,'hex');
     return ecdsa.verify(hash,ds,OwnerPublicKey,'hex');
+}
+backup.prototype.combine=function(share,tksk){
+  recovery_share=[];
+  for(i=0;i<share.length;i++){
+    if(this.recoveryshare[i]!=null){
+      recovery_share.push(this.recoveryshare[i]);
+      
+    }
+  }
+  if(recovery_share.length>=M){
+    const prime3217 = Decimal('2').pow(3217).sub(1);
+    const secret = Shamir.combine(recovery_share, prime3217).toHex();
+    var KEY=secret.substring(2,);
+  //  console.log("Combine all shares to TK");
+  //  console.log('-----------------My-TK---------------------');
+  //  console.log("TK: ",KEY);
+  //  console.log('-------------------------------------------');
+  //  console.log('Decrypt TK@SK by TK');
+    var iv = "spamshog";
+    var decipher = crypto.createDecipheriv('bf-cbc', KEY, iv);
+    var decrypted = decipher.update(tksk, 'hex', 'utf-8');
+    decrypted += decipher.final('utf-8');
+  }
+  return decrypted;
+
 }
 
 //----------------------------------------test---------------------------------------------
