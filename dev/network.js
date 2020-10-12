@@ -11,7 +11,11 @@ const Transaction = require("./transaction.js")
 const MPT = require('./MPT');
 const Pending_Txn_Pool = require('./pending_transaction_pool');
 const Wallet = require('./wallet');
+const backup =require('./backup');
+const requestPromise = require('request-promise');
+//const { delete } = require('request-promise');
 
+const Backup =new backup();
 const chain = new Blockchain();
 
 // preprocess
@@ -27,6 +31,21 @@ var w = fs.readFileSync('./private_public_key.csv')
             .map(e => e.trim()) // remove white spaces for each line
             .map(e => e.split(',').map(e => e.trim())); // split each line to array
 const wallet = new Wallet(w[port-3000][1], w[port-3000][2], 10);
+console.log(wallet);
+
+//const PKA ={};
+// for(i=0;i<10;i++){
+//     let R =Math.floor(Math.random()*158);
+//     if(Backup.pka[R]==undefined&&(R+3000)!=port){
+//         //PKA[R]=w[R][2];
+//         Backup.generatePKA(R+3000,w[R][2]);
+//     }else{
+//         if(Backup.pka[R]!=undefined)console.log("the same !!!!");
+//         i--;
+//     }
+// }
+// console.log(Backup.pka);
+
 w = undefined;
 
 
@@ -374,6 +393,179 @@ app.post("/receive-new-block", function(req, res){
         });
     }
 });
+
+app.get("/PKA",function(req,res){
+
+    res.send(Backup.pka);
+
+})
+app.post("/addPKA/:port",function(req,res){
+    let trusteeport =req.params.port;
+    const requestPromises = [];
+    const requestOptions = {
+        uri: "http://localhost:"+trusteeport+"/returnPK",
+        method: "POST",
+        body: {
+            note:"hello from owner" ,
+            ownerPort:port
+        },
+        json: true
+    };
+    requestPromises.push(rp(requestOptions));
+    Promise.all(requestPromises).then(data=>{
+        res.json({PKA:Backup.pka});
+    })
+
+
+})
+
+app.post("/returnPK",function(req,res){
+    let ownerport=req.body.ownerPort;
+    const requestPromises = [];
+    const requestOptions = {
+        uri: "http://localhost:"+ownerport+"/getPK",
+        method: "POST",
+        body: {
+            note:"respones from trustee" ,
+            trusteePK:wallet.publicKey,
+            trusteeport:port
+        },
+        json: true
+    };
+    requestPromises.push(rp(requestOptions));
+    Promise.all(requestPromises).then(data=>{
+        res.json({note: "return pk finish"});
+    })
+    
+})
+
+app.post("/getPK",function(req,res){
+    Backup.pka[req.body.trusteeport]=req.body.trusteePK;
+    res.json({note:"get PK finish"});
+})
+
+app.post("/deletePKA/:port",function(req,res){
+    delete Backup.pka[req.params.port];
+    res.json({PKA:Backup.pka});
+})
+
+app.get("/backup",async function(req,res){
+    var count=0,i;
+    for(i in Backup.pka){
+        count++;
+    }
+    if(count<6){
+        res.json({message:"Please add more trustee !"});
+    }else{
+        myPrivateKey = wallet.privateKey;
+        await Backup.init(myPrivateKey);
+        res.json({message:"create file success !"});
+    }
+    
+})
+
+app.post("/recoveryReq/:trusteeport",function(req,res){
+    let data =Backup.inputfile();
+    let file =JSON.parse(data);
+    let pkshar=file['PK_Shares'];
+    const trusteeUrl = "http://localhost:" + req.params.trusteeport;
+    const requestPromises = [];
+    const requestOptions = {
+        uri: trusteeUrl + "/decrypt",
+        method: "POST",
+        body: {
+            share: pkshar,
+            publicKey:wallet.publicKey,
+            ownerurl:"http://localhost:"+port 
+        },
+        json: true
+    };
+    
+    requestPromises.push(rp(requestOptions));
+    Promise.all(requestPromises).then(data=>{
+        res.json({
+            message:"finish",
+            share: Backup.recoveryshare
+    });
+    })
+
+})
+
+app.post("/recoveryReq",function(req,res){
+    let data =Backup.inputfile();
+    let file =JSON.parse(data);
+    let pkshar=file['PK_Shares'];
+    const requestPromises = [];
+    for(var i in Backup.pka){
+        const trusteeUrl = "http://localhost:" + i;
+        const requestOptions = {
+            uri: trusteeUrl + "/decrypt",
+            method: "POST",
+            body: {
+                share: pkshar,
+                publicKey:wallet.publicKey,
+                ownerurl:"http://localhost:"+port 
+            },
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    }
+    Promise.all(requestPromises).then(data=>{
+        res.json({
+            message:"finish",
+            share: Backup.recoveryshare
+    });
+    })
+})
+
+app.post("/decrypt",async function(req,res){
+    ownerShare =(await Backup.recovery(wallet.privateKey,req.body.publicKey,req.body.share));
+    //console.log("ownerShare:"+JSON.stringify(ownerShare));
+    const requestPromises = [];
+    const requestOptions = {
+        uri: req.body.ownerurl + "/getResponse",
+        method: "POST",
+        body: {
+            // share: pkshar,
+            // publicKey:Wallet.publicKey,
+            // ownerurl:"http://localhost:"+port 
+            share: ownerShare
+        },
+        json: true
+
+    };
+    requestPromises.push(rp(requestOptions));
+    Promise.all(requestPromises).then(data=>{
+        res.json({
+            message: "success",
+            decript_share: ownerShare 
+        })
+    })
+
+
+
+})
+app.post("/getResponse",function(req,res){
+    let share =req.body.share;//???
+    console.log(share);
+    Backup.recoveryshare.push(share);
+    res.json({shares:Backup.recoveryshare});
+})
+
+app.get("/combine",function(req,res){
+    let data =Backup.inputfile();
+    let file =JSON.parse(data);
+//    console.log(file);
+//    console.log('-------------------------------------------');
+    let tksk =file['TK_SK'];
+    res.json({your_privateKey:Backup.combine(Backup.recoveryshare,tksk)});
+})
+
+
+
+
+
+
 
 //register a new node and broadcast it to network nodes
 app.get("/register-and-broadcast-node", function(req, res){
