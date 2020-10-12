@@ -113,7 +113,7 @@ app.get("/blockchain", function(req, res){
 });
 
 app.get("/wallet", function(req, res) {
-    res.send(wallet);
+    res.send({wallet: wallet, backupinfo: Backup});
 })
 
 app.get("/MPT", function(req, res) {
