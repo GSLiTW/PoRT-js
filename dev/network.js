@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 const bodyParser = require("body-parser");
-const uuid = require("uuid/v1");
 const port = process.argv[2];
 const rp = require("request-promise");
 const fs = require("fs");
@@ -11,7 +10,6 @@ const Blockchain = require("./blockchain.js");
 const Transaction = require("./transaction.js")
 const MPT = require('./MPT');
 const Pending_Txn_Pool = require('./pending_transaction_pool');
-const Block = require('./block');
 const Wallet = require('./wallet');
 const Creator = require('./creator');
 const Voter = require('./voter');
@@ -37,20 +35,25 @@ w = undefined;
 
 
 const Tree = new MPT(true);
-for(var i = 0; i < 43; i++) {
-    if(i == 4) Tree.Insert(data[i][1], 10, 10 * 0.0001, 1); // dbit == 1 means creator
-    else if(i == 15) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 23) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 36) Tree.Insert(data[i][1], 10, 10 * 0.0001, 2); // dbit == 2 means voter
-    else Tree.Insert(data[i][1], 10, 10 * 0.0001, 0);
+for(var i = 0; i < 157; i++) {
+    if(i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
+    else if(i == 15) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 23) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 36) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
 }
 
+for(var i=0, UpdateList=chain.chain[0].transactions; i<UpdateList.length; i++) {
+    Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+}
+
+
 var pending_txn_pool = new Pending_Txn_Pool();
-pending_txn_pool.create(1);
+pending_txn_pool.create(2);
 
 // 3004 for debugging, should be 3157
-if(port == 3004) {
-    for(var p=3000; p<3004; p++) {
+if(port == 3157) {
+    for(var p=3000; p<3157; p++) {
         const newNodeUrl = "http://localhost:" + p;
         if(chain.networkNodes.indexOf(newNodeUrl) == -1)
             chain.networkNodes.push(newNodeUrl);
@@ -81,12 +84,14 @@ if(port == 3004) {
     }
 }
 
-var currentVoters = [];
-var nextVoters = [];
+voter = null;
+currentVoters = [];
+nextVoters = [];
 publicKeys = [];
 commitments = [];
 nonces = [];
-creator = new Creator(Tree, pending_txn_pool);
+creator = null;
+creatorUrl = 0;
 
 
 app.use(bodyParser.json());
@@ -115,10 +120,133 @@ app.get("/transaction-pool", function(req, res) {
 //     res.json({note: `Transaction will be created in block ${blockIndex}.`});
 // });
 
-app.get("/transaction/second-block", function(req, res) {
-    pending_txn_pool.create(2);
-    res.json({note: `push transactions of the second etherscan into pending txn pool.`})
+app.get("/MPT/Search/:key", function(req,res) {
+    const key = req.params.key;
+    res.json({key: key, balance: Tree.Search(key)});
+});
+
+app.post("/MPT/UpdateValues", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, UpdateList[i].value);
+    }
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/MPT/ReceiveUpdateValues",
+            method: "POST",
+            body: {UpdateList: UpdateList},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+    res.json({
+        note: "Update Successfully."
+    })
+
 })
+
+
+app.post("/MPT/ReceiveUpdateValues", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, UpdateList[i].value);
+    }
+});
+
+app.post("/MPT/UpdateTax", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateTax(UpdateList[i].taxpayer, UpdateList[i].value);
+    }
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/MPT/ReceiveUpdateTax",
+            method: "POST",
+            body: {UpdateList: UpdateList},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+    res.json({
+        note: "Update Successfully."
+    })
+
+})
+
+
+app.post("/MPT/ReceiveUpdateTax", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateTax(UpdateList[i].taxpayer, UpdateList[i].value);
+    }
+});
+
+app.post("/MPT/UpdateDbit", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateDbit(UpdateList[i].maintainer, UpdateList[i].dbit);
+    }
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/MPT/ReceiveUpdateDbit",
+            method: "POST",
+            body: {UpdateList: UpdateList},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+    res.json({
+        note: "Update Successfully."
+    })
+
+})
+
+
+app.post("/blockchain/createblock", function(req, res) {
+    const lastBlock = chain.getLastBlock();
+    const previousBlockHash = lastBlock["hash"];
+    const newBlock = chain.createNewBlock(pending_txn_pool.transactions, previousBlockHash);
+
+    const requestPromises = [];
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/receive-new-block",
+            method: "POST",
+            body: {newBlock: newBlock},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
+    });
+
+
+    for(var i=0, UpdateList=chain.getLastBlock().transactions; i<UpdateList.length; i++) {
+        Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+    }
+
+    pending_txn_pool.clean();
+    if(req.body.num == 2)
+        pending_txn_pool.create(3);
+
+    res.json({
+        note: "Create Successfully."
+    })
+})
+
+app.post("/MPT/ReceiveUpdateDbit", function(req, res) {
+    const UpdateList = req.body.UpdateList;
+    for(var i=0; i<UpdateList.length; i++) {
+        Tree.UpdateDbit(UpdateList[i].maintainer, UpdateList[i].dbit);
+    }
+});
 
 app.get("/transaction/third-block", function(req, res) {
     pending_txn_pool.create(3);
@@ -229,54 +357,54 @@ app.post("/register-nodes-bulk", function(req, res){
     res.json({note: "Bulk registeration successful."});
 });
 
-app.get('/consensus', function(req, res){
+// app.get('/consensus', function(req, res){
   
-    const requestPromises = [];
-    chain.networkNodes.forEach(networkNodeUrl =>{
-        const requestOptions = {
-            uri : networkNodeUrl + "/blockchain",
-            method: "GET",
-            json: true
-        };
+//     const requestPromises = [];
+//     chain.networkNodes.forEach(networkNodeUrl =>{
+//         const requestOptions = {
+//             uri : networkNodeUrl + "/blockchain",
+//             method: "GET",
+//             json: true
+//         };
 
-        requestPromises.push(rp(requestOptions));
-    });
+//         requestPromises.push(rp(requestOptions));
+//     });
 
-    Promise.all(requestPromises)
-    .then(blockchains =>{
-        const currentChainLength = chain.chain.length;
-        let maxChainLength = currentChainLength;
-        let newLongestChain = null;
-        let newPendingTransactions = null;
+//     Promise.all(requestPromises)
+//     .then(blockchains =>{
+//         const currentChainLength = chain.chain.length;
+//         let maxChainLength = currentChainLength;
+//         let newLongestChain = null;
+//         let newPendingTransactions = null;
 
-        blockchains.forEach(blockchain =>{
-            if(blockchain.chain.length > maxChainLength)
-            {
-                maxChainLength = blockchain.chain.length;
-                newLongestChain = blockchain.chain;
-                newPendingTransactions = blockchain.pendingTransactions;
-            };
-        });
+//         blockchains.forEach(blockchain =>{
+//             if(blockchain.chain.length > maxChainLength)
+//             {
+//                 maxChainLength = blockchain.chain.length;
+//                 newLongestChain = blockchain.chain;
+//                 newPendingTransactions = blockchain.pendingTransactions;
+//             };
+//         });
 
-        if(!newLongestChain || (newLongestChain && !chain.chainIsValid(newLongestChain)))
-        {
-            res.json({
-                note: "Current chain has not been replaced.",
-                chain: chain.chain
-            });
-        }
-        else if(newLongestChain&& chain.chainIsValid(newLongestChain))
-        {
-            chain.chain = newLongestChain;
-            chain.pendingTransactions = newPendingTransactions;
-            res.json({
-                note: "This chain has been replaced.",
-                chain: chain.chain
-            });
+//         if(!newLongestChain || (newLongestChain && !chain.chainIsValid(newLongestChain)))
+//         {
+//             res.json({
+//                 note: "Current chain has not been replaced.",
+//                 chain: chain.chain
+//             });
+//         }
+//         else if(newLongestChain&& chain.chainIsValid(newLongestChain))
+//         {
+//             chain.chain = newLongestChain;
+//             chain.pendingTransactions = newPendingTransactions;
+//             res.json({
+//                 note: "This chain has been replaced.",
+//                 chain: chain.chain
+//             });
 
-        }
-    });
-});
+//         }
+//     });
+// });
 
 app.get('/block/:blockHash', function(req, res){
     const blockHash = req.params.blockHash;
@@ -307,10 +435,29 @@ app.get("/block-explorer", function(req, res){
     res.sendFile("./block-explorer/index.html", {root: __dirname});
 });
 
+app.post("/creator/sendCreatorID", function(req, res){
+    const isCreator = Tree.Verify(wallet.publicKey);
+    if(isCreator == 1){
+        creator = new Creator(Tree, pending_txn_pool);
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri : networkNodeUrl + "/voter/sendPublicKey",
+                method: "POST",
+                body: {creatorUrl: chain.currentNodeUrl
+                },
+                json: true
+            };
+            rp(requestOptions);
+        });
+    }
+    
+});
+
 app.post("/voter/sendPublicKey", function(req, res){
     const isVoter = Tree.Verify(wallet.publicKey);
     if(isVoter == 2){
-        const creatorUrl = req.body.creatorUrl;
+        voter = new Voter(Tree, pending_txn_pool);
+        creatorUrl = req.body.creatorUrl;
         const requestOptions = {
             uri : creatorUrl + "/creator/createPublicData",
             method: "POST",
@@ -323,53 +470,11 @@ app.post("/voter/sendPublicKey", function(req, res){
     }
 });
 
-app.post("/voter/vote", function(req, res){
-    const voter = new Voter(Tree, pending_txn_pool);
-    wallet.signerPrivateData = voter.Cosig_setSignerPrivateData(wallet.signerPrivateData, port);
-    const commitment = voter.Cosig_commitment(wallet.signerPrivateData);
-    const nonce = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
-    //wallet.signerPrivateData = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
-    wallet.signerPrivateData = voter.Cosig_Cosig_combineNonces_check(wallet.signerPrivateData, wallet.signerPrivateData.session);
-    
-    const creatorUrl = req.body.creatorUrl;
-    const requestOptions = {
-        uri : creatorUrl + "/creator/updatePublicData",
-        method: "POST",
-        body: {voterUrl: chain.currentNodeUrl,
-               publicKey: wallet.publicKey,
-               commitment: commitment,
-               nonce: nonce,
-               session: wallet.signerPrivateData.session
-        },
-        json: true
-    };
-    rp(requestOptions);
-});
-
-app.post("/voter/partialSign", function(req, res){
-    const voter = new Voter(Tree, pending_txn_pool);
-    const publicData = req.body.publicData;
-    wallet.signerPrivateData = voter.Cosig_generatePartialSignature(wallet.signerPrivateData, publicData);
-
-    const creatorUrl = req.body.creatorUrl;
-    const requestOptions = {
-        uri : creatorUrl + "/creator/coSig",
-        method: "POST",
-        body: {voterUrl: chain.currentNodeUrl,
-               partialSignature: wallet.signerPrivateData.session.partialSignature,
-               publicKey: wallet.publicKey,
-               session: wallet.signerPrivateData.session
-        },
-        json: true
-    };
-    rp(requestOptions);
-});
-
 app.post("/creator/createPublicData", function(req, res){
-    publicKeys.push(req.body.publicKey);
-    
     const isCreator = Tree.Verify(wallet.publicKey);
     if(publicKeys.length == 3 && isCreator == 1){
+        currentVoters.push(req.body.voterUrl);
+        publicKeys.push(req.body.publicKey);
         const lastBlock = chain.getLastBlock();
         const previousBlockHash = lastBlock["hash"];
 
@@ -389,46 +494,214 @@ app.post("/creator/createPublicData", function(req, res){
 
         creator.Cosig_createAndCombinePublicData(publicKeys[0], publicKeys[1], publicKeys[2], newBlock);
         
+        const requestPromises = [];
+        currentVoters.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/voter/recordCurrentVoters",
+                method: "POST",
+                body: {currentVoters: [...currentVoters]},
+                json: true
+            };
+            //requestPromises.push(rp(requestOptions));
+            rp(requestOptions);
+        });
+        
+        //const creatorUrl = req.body.creatorUrl;
+        /*Promise.all(requestPromises).then(data => {
+            const rOs = {
+                uri : creatorUrl + "/creator/updatePublicData",
+                method: "POST",
+                body: {voterUrl: chain.currentNodeUrl,
+                    partialSignature: wallet.signerPrivateData.session.partialSignature
+                },
+                json: true
+            };
+            rp(rOs);
+        });*/
+        
     }
+});
 
-    /*const creatorUrl = req.body.creatorUrl;
-    const requestOptions = {
-        uri : creatorUrl + "/creator/updatePublicData",
-        method: "POST",
-        body: {voterUrl: chain.currentNodeUrl,
-               partialSignature: wallet.signerPrivateData.session.partialSignature
-        },
-        json: true
-    };
-    rp(requestOptions);*/
+app.post("/voter/recordCurrentVoters", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
+    if(isVoter == 2){
+        for(var i=0; i<req.body.currentVoters.length(); i++){
+            if(req.body.currentVoters[i] != currentNodeUrl){
+                currentVoters.push(req.body.currentVoters[i]);
+            }
+        }
+    }
+});
+
+app.post("/voter/vote", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
+    if(isVoter == 2){
+        //const voter = new Voter(Tree, pending_txn_pool);
+        wallet.signerPrivateData = voter.Cosig_setSignerPrivateData(wallet.signerPrivateData, port);
+        const commitment = voter.Cosig_commitment(wallet.signerPrivateData);
+        const nonce = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
+        //wallet.signerPrivateData = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
+        //wallet.signerPrivateData = voter.Cosig_Cosig_combineNonces_check(wallet.signerPrivateData, wallet.signerPrivateData.session);
+        
+        //const creatorUrl = req.body.creatorUrl;
+        const requestOptions = {
+            uri : creatorUrl + "/creator/updatePublicData",
+            method: "POST",
+            body: {voterUrl: chain.currentNodeUrl,
+                publicKey: wallet.publicKey,
+                commitment: commitment,
+                nonce: nonce
+            },
+            json: true
+        };
+        rp(requestOptions);
+    }
 });
 
 app.post("/creator/updatePublicData", function(req, res){
-    const index = publicKeys.indexOf(req.body.publicKey);
-    commitments[index] = req.body.commitment;
-    nonces[index] = req.body.nonce;
-    creator.Cosig_commitments(index, req.body.commitment);
-    creator.Cosig_nonces(index, req.body.nonce);
-    creator.Cosig_combineNonces_combine(req.body.session);
+    const isCreator = Tree.Verify(wallet.publicKey);
+    if(isCreator == 1){
+        //currentVoters.push(req.body.voterUrl);
+        const index = publicKeys.indexOf(req.body.publicKey);
+        commitments[index] = req.body.commitment;
+        nonces[index] = req.body.nonce;
+        creator.Cosig_commitments(index, req.body.commitment);
+        creator.Cosig_nonces(index, req.body.nonce);
+        //creator.Cosig_combineNonces_combine(req.body.session);
 
-    const creatorUrl = req.body.creatorUrl;
-    const requestOptions = {
-        uri : creatorUrl + "/voter/partialSign",
-        method: "POST",
-        body: {voterUrl: chain.currentNodeUrl,
-               publicData: creator.publicData
-        },
-        json: true
-    };
-    rp(requestOptions);
+        if(commitments.length() == 3){
+            const requestOptions = {
+                uri : currentVoters[0] + "/voter/combine",
+                method: "POST",
+                body: {voterUrl: chain.currentNodeUrl,
+                    publicData: creator.publicData
+                },
+                json: true
+            };
+            rp(requestOptions);
+        }        
+    }
 });
 
-app.post("/creator/coSig", function(req, res){
-    const index = publicKeys.indexOf(req.body.publicKey);
-    creator.Cosig_exchangePartialSignature(index, req.body.publicKey);
-    creator.Cosig_verifyIndividualPartialSignatures(req.body.session);
-    creator.Cosig_combinePartialSignatures();
-    creator.Cosig_verifySignature();
+app.post("/voter/combine", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
+    if(isVoter == 2){
+        //const voter = new Voter(Tree, pending_txn_pool);
+        const publicData = req.body.publicData;
+        const combineNonce = voter.Cosig_combineNonces_check(wallet.signerPrivateData.session, publicData);
+        wallet.signerPrivateData = voter.Cosig_combineNonces_combine(wallet.signerPrivateData, wallet.signerPrivateData.session.nonceIsNegated);
+
+        //const creatorUrl = req.body.creatorUrl;
+        const requestOptions = {
+            uri : creatorUrl + "/creator/combine",
+            method: "POST",
+            body: {voterUrl: chain.currentNodeUrl,
+                publicKey: wallet.publicKey,
+                combineNonce: combineNonce,
+            },
+            json: true
+        };
+        rp(requestOptions);
+
+        currentVoters.forEach(voterNodeUrl => {
+            const requestPromises = {
+                uri: voterNodeUrl + "/voter/partialSign",
+                method: "POST",
+                body: {voterUrl: chain.currentNodeUrl,
+                    publicKey: wallet.publicKey,
+                    publicData: publicData,
+                    signerNonceIsNegated: wallet.signerPrivateData.session.nonceIsNegated
+                },
+                json: true
+            };
+
+            rp(requestPromises);
+        });
+    }
+});
+
+app.post("/creator/combine", function(req, res){
+    const isCreator = Tree.Verify(wallet.publicKey);
+    if(isCreator == 1){
+        //const voter = new Voter(Tree, pending_txn_pool);
+        creator.Cosig_combineNonces(req.body.combineNonce);
+    }
+});
+
+app.post("/voter/partialSign", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
+    if(isVoter == 2){
+        //const voter = new Voter(Tree, pending_txn_pool);
+        const publicData = req.body.publicData;
+        wallet.signerPrivateData = voter.Cosig_combineNonces_combine(wallet.signerPrivateData, req.body.signerNonceIsNegated);
+        wallet.signerPrivateData = voter.Cosig_generatePartialSignature(wallet.signerPrivateData, publicData);
+
+        //const creatorUrl = req.body.creatorUrl;
+        const requestOptions = {
+            uri : creatorUrl + "/creator/partialSign",
+            method: "POST",
+            body: {voterUrl: chain.currentNodeUrl,
+                publicKey: wallet.publicKey,
+                partialSignature: wallet.signerPrivateData.session.partialSignature
+            },
+            json: true
+        };
+        rp(requestOptions);
+    }
+});
+
+app.post("/creator/partialSign", function(req, res){
+    const isCreator = Tree.Verify(wallet.publicKey);
+    if(isCreator == 1){
+        const index = publicKeys.indexOf(req.body.publicKey);
+        creator.Cosig_exchangePartialSignature(index, req.body.partialSignature);
+        
+        currentVoters.forEach(voterNodeUrl => {
+            const requestOptions = {
+                uri : voterNodeUrl + "/voter/verifyPartialSign",
+                method: "POST",
+                body: {voterUrl: chain.currentNodeUrl,
+                    publicKey: wallet.publicKey,
+                    publicData: creator.publicData
+                },
+                json: true
+            };
+            rp(requestOptions);
+        });
+    }
+});
+
+app.post("/voter/verifyPartialSign", function(req, res){
+    const isVoter = Tree.Verify(wallet.publicKey);
+    if(isVoter == 2){
+        creator.Cosig_verifyIndividualPartialSignatures(wallet.signerPrivateData.session, req.body.publicData);
+        const requestOptions = {
+            uri : voterNodeUrl + "/creator/cosig",
+            method: "POST",
+            body: {voterUrl: chain.currentNodeUrl,
+                publicKey: wallet.publicKey
+            },
+            json: true
+        };
+        rp(requestOptions);
+    }
+});
+
+countSig = [];
+
+app.post("/creator/cosig", function(req, res){
+    const isCreator = Tree.Verify(wallet.publicKey);
+    const isVoter = Tree.Verify(req.body.publicKey);
+    const index = countSig.indexOf(req.body.publicKey);
+    if(isCreator == 1 && isVoter == 2){
+        if(index == -1){
+            countSig.push(req.body.voterUrl);
+        }
+        if(countSig.length == publicKeys.length){
+            creator.Cosig_combinePartialSignatures();
+            creator.Cosig_verifySignature();
+        }
+    }
 });
 
 /*app.get("/creator/sendPoRT", function(req, res){
@@ -491,7 +764,7 @@ app.get("/creator", function(req, res){
                 body: {newBlock: newBlock},
                 json: true
             };
-            requestPromises.push(rp(requestOptions));
+            rp(requestOptions);
         });
         /*Promise.all(requestPromises).then(data => {
             const newBlock = creator.Create(nextVoters, lastBlock["height"]+1, previousBlockHash);

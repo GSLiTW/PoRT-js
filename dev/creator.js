@@ -168,14 +168,14 @@ Creator.prototype.Cosig_nonces = function(idx, signerNonce) {
     this.publicData.nonces[idx] = signerNonce;
 }
 
-Creator.prototype.Cosig_combineNonces_combine = function(signerSession) {
+Creator.prototype.Cosig_combineNonces = function(combineNonces) {
     // -----------------------------------------------------------------------
     // Step 5: Combine nonces
     // The nonces can now be combined into R. Each participant should do this
     // and keep track of whether the nonce was negated or not. This is needed
     // for the later steps.
     // -----------------------------------------------------------------------
-    this.publicData.nonceCombined = muSig.sessionNonceCombine(signerSession, this.publicData.nonces);
+    this.publicData.nonceCombined = combineNonces;
 }
 
 Creator.prototype.Cosig_exchangePartialSignature = function(idx, signerPartialSignature) {
@@ -185,24 +185,6 @@ Creator.prototype.Cosig_exchangePartialSignature = function(idx, signerPartialSi
     // participants. Simulated here by copying.
     // -----------------------------------------------------------------------
     this.publicData.partialSignatures[idx] = signerPartialSignature;
-}
-
-Creator.prototype.Cosig_verifyIndividualPartialSignatures = function(signerSession) {
-    // -----------------------------------------------------------------------
-    // Step 8: Verify individual partial signatures
-    // Every participant should verify the partial signatures received by the
-    // other participants.
-    // -----------------------------------------------------------------------
-    for (let i = 0; i < this.publicData.pubKeys.length; i++) {
-        muSig.partialSigVerify(
-            signerSession,
-            this.publicData.partialSignatures[i],
-            this.publicData.nonceCombined,
-            i,
-            this.publicData.pubKeys[i],
-            this.publicData.nonces[i]
-        );
-    }
 }
 
 Creator.prototype.Cosig_combinePartialSignatures = function() {

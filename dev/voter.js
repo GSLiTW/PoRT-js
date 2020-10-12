@@ -112,14 +112,25 @@ Voter.prototype.Cosig_nonce = function(signerPrivateData) {
     return signerPrivateData.session.nonce;
 }
 
-Voter.prototype.Cosig_combineNonces_check = function(signerPrivateData, signerSession) {
+Voter.prototype.Cosig_combineNonces_check = function(signerSession, publicData) {
     // -----------------------------------------------------------------------
     // Step 5: Combine nonces
     // The nonces can now be combined into R. Each participant should do this
     // and keep track of whether the nonce was negated or not. This is needed
     // for the later steps.
     // -----------------------------------------------------------------------
-    signerPrivateData.session.nonceIsNegated = signerSession.nonceIsNegated;
+
+    return muSig.sessionNonceCombine(signerSession, publicData.nonces);
+}
+
+Voter.prototype.Cosig_combineNonces_combine = function(signerPrivateData, signerNonceIsNegated) {
+    // -----------------------------------------------------------------------
+    // Step 5: Combine nonces
+    // The nonces can now be combined into R. Each participant should do this
+    // and keep track of whether the nonce was negated or not. This is needed
+    // for the later steps.
+    // -----------------------------------------------------------------------
+    signerPrivateData.session.nonceIsNegated = signerNonceIsNegated;
 
     return signerPrivateData;
 }
@@ -143,6 +154,24 @@ Voter.prototype.Cosig_exchangePartialSignature = function(signerPrivateData) {
     // -----------------------------------------------------------------------
 
     return signerPrivateData.session.partialSignature;;
+}
+
+Voter.prototype.Cosig_verifyIndividualPartialSignatures = function(signerSession, publicData) {
+    // -----------------------------------------------------------------------
+    // Step 8: Verify individual partial signatures
+    // Every participant should verify the partial signatures received by the
+    // other participants.
+    // -----------------------------------------------------------------------
+    for (let i = 0; i < publicData.pubKeys.length; i++) {
+        muSig.partialSigVerify(
+            signerSession,
+            publicData.partialSignatures[i],
+            publicData.nonceCombined,
+            i,
+            publicData.pubKeys[i],
+            publicData.nonces[i]
+        );
+    }
 }
 
 

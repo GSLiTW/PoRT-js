@@ -3,11 +3,7 @@ const currentNodeUrl = process.argv[3];
 
 // local modules
 const Block = require('./block.js')
-const ProofOfWork = require('./proof.js')
-const Account = require("./account");
-const Stake = require("./stake");
-const Validators = require('./validators.js');
-const Pending_Txn_Pool = require('./pending_transaction_pool');
+const Txn_Pool = require('./transaction_pool');
 
 const TRANSACTION_TYPE = {
     transaction: "TRANSACTION",
@@ -25,15 +21,15 @@ function Blockchain(){
   
     // this.accounts = new Account();
     // this.address = this.accounts.getAddress();
-    this.pending_txn_pool = new Pending_Txn_Pool();
-    this.pending_txn_pool.create(1);
-    var genesisBlock = new Block(0, this.pending_txn_pool.get_transaction(), 0);
+    var txn_pool = new Txn_Pool();
+    txn_pool.create(1);
+    var genesisBlock = new Block(4000718, txn_pool.transactions, '0xa3d2f1958efa84f053faf7eb14d2c104bef35b3098c23c5034678034c86ec183');
     this.chain.push(genesisBlock)   //create Genesis Block
 }
 
 
-Blockchain.prototype.createNewBlock = function(previousHash){
-    var newBlock = new Block(this.chain.length+1, previousHash)
+Blockchain.prototype.createNewBlock = function(pendingTransactions, previousHash){
+    var newBlock = new Block(this.getLastBlock().height+1, pendingTransactions, previousHash)
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);
