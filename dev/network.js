@@ -37,10 +37,10 @@ w = undefined;
 
 const Tree = new MPT(true);
 for(var i = 0; i < 157; i++) {
-    if(i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
-    else if(i == 15) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 23) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-    else if(i == 36) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    if(i == 0) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
+    else if(i == 1) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
+    else if(i == 3) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
     else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
 }
 
@@ -55,8 +55,8 @@ var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
 
 // 3004 for debugging, should be 3157
-if(port == 3157) {
-    for(var p=3000; p<3157; p++) {
+if(port == 3006) {
+    for(var p=3000; p<3006; p++) {
         const newNodeUrl = "http://localhost:" + p;
         if(chain.networkNodes.indexOf(newNodeUrl) == -1)
             chain.networkNodes.push(newNodeUrl);
@@ -439,9 +439,10 @@ app.get("/block-explorer", function(req, res){
 });
 
 app.post("/creator/sendCreatorID", function(req, res){
-    const isCreator = Tree.Verify(wallet.publicKey);
+    const isCreator = Tree.Verify(wallet.publicKey)[2];
     if(isCreator == 1){
         creator = new Creator(Tree, pending_txn_pool);
+        console.log(creator);
         chain.networkNodes.forEach(networkNodeUrl => {
             const requestOptions = {
                 uri : networkNodeUrl + "/voter/sendPublicKey",
@@ -453,6 +454,8 @@ app.post("/creator/sendCreatorID", function(req, res){
             rp(requestOptions);
         });
     }
+
+    res.json({note: "sendCreatorID successful."});
     
 });
 
@@ -481,7 +484,7 @@ app.post("/creator/createPublicData", function(req, res){
         const lastBlock = chain.getLastBlock();
         const previousBlockHash = lastBlock["hash"];
 
-        //const creator = new Creator(Tree, pending_txn_pool);
+        const creator = new Creator(Tree, pending_txn_pool);
         const newBlock = creator.Create(lastBlock["height"]+1, previousBlockHash);
 
         /*const requestPromises = [];
@@ -559,6 +562,8 @@ app.post("/voter/vote", function(req, res){
         };
         rp(requestOptions);
     }
+
+    res.json({note: "Vote successful."});
 });
 
 app.post("/creator/updatePublicData", function(req, res){
@@ -743,48 +748,8 @@ app.post("/creator/nextVoter", function(req, res){
 });*/
 
 app.get("/creator", function(req, res){
-    const lastBlock = chain.getLastBlock();
-    const previousBlockHash = lastBlock["hash"];
-
-    const isCreator = Tree.Verify(wallet.publicKey);
-    if(isCreator == 1){
-        const creator = new Creator(Tree, pending_txn_pool);
-        const newBlock = creator.Create(lastBlock["height"]+1, previousBlockHash);
-
-        const requestPromises = [];
-        /*chain.networkNodes.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/nextVoter",
-                method: "POST",
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        });*/
-        chain.networkNodes.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/voter",
-                method: "POST",
-                body: {newBlock: newBlock},
-                json: true
-            };
-            rp(requestOptions);
-        });
-        /*Promise.all(requestPromises).then(data => {
-            const newBlock = creator.Create(nextVoters, lastBlock["height"]+1, previousBlockHash);
-            const requestOptions = {
-                uri: chain.currentNodeUrl + "/transaction/broadcast",
-                method: "POST",
-                body: {newBlock: newBlock},
-                json: true
-            };
-            return rp(requestOptions);
-        });*/
-    }
-    else{
-        res.json({
-            note: "ERROR: Creator is invalid !"
-        });
-    }
+    console.log(creator);
+    res.send(creator);
 });
 
 
