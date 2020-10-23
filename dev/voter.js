@@ -70,7 +70,7 @@ function Voter(mpt, /*newBlock,*/ TxPool) {
 }*/
 
 
-Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNumber) {
+Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNumber, publicData) {
     // -----------------------------------------------------------------------
     // Step 2: Create the private signing session
     // Each signing party does this in private. The session ID *must* be
@@ -81,7 +81,7 @@ Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNum
     const idx = portNumber % 3000;
     signerPrivateData.session = muSig.sessionInitialize(
             sessionId,
-            data.privateKey,
+            signerPrivateData.privateKey,
             publicData.message,
             publicData.pubKeyCombined,
             publicData.pubKeyHash,

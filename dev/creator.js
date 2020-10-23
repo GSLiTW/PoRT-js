@@ -6,6 +6,8 @@ const BigInteger = require("bigi");
 const schnorr = require('bip-schnorr');
 const convert = schnorr.convert;
 const muSig = schnorr.muSig;
+const elliptic = require('elliptic');
+const ec = new elliptic.ec('secp256k1');
 
 function Creator(mpt, pendingTxPool){
     this.MPT = mpt;
@@ -14,7 +16,6 @@ function Creator(mpt, pendingTxPool){
     this.nextCreator = -1;
     this.nextVoters = [];
     this.block = null;
-    this.publicData;
 }
 
 /*Creator.prototype.CreatorVerify = function(ID, mappingTable) {
@@ -44,12 +45,12 @@ Creator.prototype.Create = function(height, previousHash) {
     /*const creatorPoRT = new PoRT(address, this.MPT, this.pendingTxs, 1);
     this.nextCreator = creatorPoRT;
     this.nextVoters = nextVoters;*/
+    
+    for(var i = 0; i < this.pendingTxs.length; i++){
+        this.MPT.UpdateValue(this.pendingTxs[i].sender, this.pendingTxs[i].receiver, this.pendingTxs[i].value);
+    }
 
     this.block = new Block(height, this.pendingTxs, previousHash, this.MPT);
-
-    for(var i = 0; i < this.pendingTxs.length; i++){
-        this.MPT(this.pendingTxs[i].sender, this.pendingTxs[i].receiver, this.pendingTxs[i].value);
-    }
 
     return this.block;
 }
@@ -122,15 +123,21 @@ Creator.prototype.Calculate = function() {
     return this.newMappingTable;
 }
 
-Creator.prototype.Cosig_createAndCombinePublicData = function(publicKey1, publicKey2, publicKey3, message) {
+Creator.prototype.Cosig_createAndCombinePublicData = function(publicKeyPair1, publicKeyPair2, publicKeyPair3, message) {
     // data known to every participant
+    console.log("publicKeyPair1, publicKeyPair2, publicKeyPair3: " + publicKeyPair1 + " " + publicKeyPair2 + " " + publicKeyPair3);
     this.publicData = {
+        /*pubKeys: [
+          Buffer.from(publicKey1.encodeCompressed("hex").toString(), 'hex'),
+          Buffer.from(publicKey2.encodeCompressed("hex").toString(), 'hex'),
+          Buffer.from(publicKey3.encodeCompressed("hex").toString(), 'hex')
+        ],*/
         pubKeys: [
-          Buffer.from(publicKey1.toString(), 'hex'),
-          Buffer.from(publicKey2.toString(), 'hex'),
-          Buffer.from(publicKey3.toString(), 'hex')
-        ],
-        message: convert.hash(Buffer.from(message, 'utf8')),
+            Buffer.from(publicKeyPair1.encodeCompressed("hex"), 'hex'),
+            Buffer.from(publicKeyPair2.encodeCompressed("hex"), 'hex'),
+            Buffer.from(publicKeyPair3.encodeCompressed("hex"), 'hex')
+          ],
+        message: convert.hash(Buffer.from(message.toString(), 'utf8')),
         pubKeyHash: null,
         pubKeyCombined: null,
         commitments: [],
@@ -139,6 +146,7 @@ Creator.prototype.Cosig_createAndCombinePublicData = function(publicKey1, public
         partialSignatures: [],
         signature: null,
       };
+    console.log("****************");
     
     // -----------------------------------------------------------------------
     // Step 1: Combine the public keys
@@ -146,8 +154,9 @@ Creator.prototype.Cosig_createAndCombinePublicData = function(publicKey1, public
     // This can be done by every signer individually or by the initializing
     // party and then be distributed to every participant.
     // -----------------------------------------------------------------------
-    this.publicData.pubKeyHash = muSig.computeEll(publicData.pubKeys);
-    this.publicData.pubKeyCombined = muSig.pubKeyCombine(publicData.pubKeys, publicData.pubKeyHash);
+    console.log("this.publicData.pubKeys: " + this.publicData.pubKeys);
+    this.publicData.pubKeyHash = muSig.computeEll(this.publicData.pubKeys);
+    this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
 }
 
 Creator.prototype.Cosig_commitments = function(idx, signerCommmitment) {

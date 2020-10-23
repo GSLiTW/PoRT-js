@@ -55,8 +55,8 @@ var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
 
 // 3004 for debugging, should be 3157
-if(port == 3006) {
-    for(var p=3000; p<3006; p++) {
+if(port == 3003) {
+    for(var p=3000; p<3003; p++) {
         const newNodeUrl = "http://localhost:" + p;
         if(chain.networkNodes.indexOf(newNodeUrl) == -1)
             chain.networkNodes.push(newNodeUrl);
@@ -90,7 +90,7 @@ if(port == 3006) {
 voter = null;
 currentVoters = [];
 nextVoters = [];
-publicKeys = [];
+publicKeyPairs = [];
 commitments = [];
 nonces = [];
 creator = null;
@@ -460,31 +460,37 @@ app.post("/creator/sendCreatorID", function(req, res){
 });
 
 app.post("/voter/sendPublicKey", function(req, res){
-    const isVoter = Tree.Verify(wallet.publicKey);
+    const isVoter = Tree.Verify(wallet.publicKey)[2];
+    console.log("isVoter: " + isVoter);
     if(isVoter == 2){
+        console.log("--------------");
         voter = new Voter(Tree, pending_txn_pool);
         creatorUrl = req.body.creatorUrl;
         const requestOptions = {
             uri : creatorUrl + "/creator/createPublicData",
             method: "POST",
             body: {voterUrl: chain.currentNodeUrl,
-                   publicKey: wallet.publicKey
+                   publicKeyPair: wallet.publicKeyPair
             },
             json: true
         };
         rp(requestOptions);
     }
+
+    res.json({note: "sendPublicKey successful."});
 });
 
 app.post("/creator/createPublicData", function(req, res){
-    const isCreator = Tree.Verify(wallet.publicKey);
-    if(publicKeys.length == 3 && isCreator == 1){
-        currentVoters.push(req.body.voterUrl);
-        publicKeys.push(req.body.publicKey);
+    const isCreator = Tree.Verify(wallet.publicKey)[2];
+    currentVoters.push(req.body.voterUrl);
+    publicKeyPairs.push(req.body.publicKeyPair);
+    console.log("publicKeyPairs.length: " + publicKeyPairs.length);
+    console.log("isCreator: " + isCreator);
+    if(publicKeyPairs.length == 3 && isCreator == 1){
         const lastBlock = chain.getLastBlock();
         const previousBlockHash = lastBlock["hash"];
 
-        const creator = new Creator(Tree, pending_txn_pool);
+        creator = new Creator(Tree, pending_txn_pool);
         const newBlock = creator.Create(lastBlock["height"]+1, previousBlockHash);
 
         /*const requestPromises = [];
@@ -498,14 +504,15 @@ app.post("/creator/createPublicData", function(req, res){
             requestPromises.push(rp(requestOptions));
         });*/
 
-        creator.Cosig_createAndCombinePublicData(publicKeys[0], publicKeys[1], publicKeys[2], newBlock);
+        creator.Cosig_createAndCombinePublicData(publicKeyPairs[0], publicKeyPairs[1], publicKeyPairs[2], newBlock);
         
-        const requestPromises = [];
         currentVoters.forEach(networkNodeUrl => {
             const requestOptions = {
                 uri: networkNodeUrl + "/voter/recordCurrentVoters",
                 method: "POST",
-                body: {currentVoters: [...currentVoters]},
+                body: {currentVoters: [...currentVoters],
+                       publicData: creator.publicData
+                    },
                 json: true
             };
             //requestPromises.push(rp(requestOptions));
@@ -529,21 +536,31 @@ app.post("/creator/createPublicData", function(req, res){
 });
 
 app.post("/voter/recordCurrentVoters", function(req, res){
-    const isVoter = Tree.Verify(wallet.publicKey);
+    const isVoter = Tree.Verify(wallet.publicKey)[2];
     if(isVoter == 2){
         for(var i=0; i<req.body.currentVoters.length(); i++){
             if(req.body.currentVoters[i] != currentNodeUrl){
                 currentVoters.push(req.body.currentVoters[i]);
             }
         }
+        
+        const requestOptions = {
+            uri : chain.currentNodeUrl + "/voter/vote",
+            method: "POST",
+            body: {voterUrl: chain.currentNodeUrl,
+                publicData: req.body.publicData
+            },
+            json: true
+        };
+        rp(requestOptions);
     }
 });
 
 app.post("/voter/vote", function(req, res){
-    const isVoter = Tree.Verify(wallet.publicKey);
+    const isVoter = Tree.Verify(wallet.publicKey)[2];
     if(isVoter == 2){
-        //const voter = new Voter(Tree, pending_txn_pool);
-        wallet.signerPrivateData = voter.Cosig_setSignerPrivateData(wallet.signerPrivateData, port);
+        voter = new Voter(Tree, pending_txn_pool);
+        wallet.signerPrivateData = voter.Cosig_setSignerPrivateData(wallet.signerPrivateData, port, req.body.publicData);
         const commitment = voter.Cosig_commitment(wallet.signerPrivateData);
         const nonce = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
         //wallet.signerPrivateData = voter.Cosig_Cosig_nonce(wallet.signerPrivateData);
@@ -567,7 +584,7 @@ app.post("/voter/vote", function(req, res){
 });
 
 app.post("/creator/updatePublicData", function(req, res){
-    const isCreator = Tree.Verify(wallet.publicKey);
+    const isCreator = Tree.Verify(wallet.publicKey)[2];
     if(isCreator == 1){
         //currentVoters.push(req.body.voterUrl);
         const index = publicKeys.indexOf(req.body.publicKey);
@@ -592,7 +609,7 @@ app.post("/creator/updatePublicData", function(req, res){
 });
 
 app.post("/voter/combine", function(req, res){
-    const isVoter = Tree.Verify(wallet.publicKey);
+    const isVoter = Tree.Verify(wallet.publicKey)[2];
     if(isVoter == 2){
         //const voter = new Voter(Tree, pending_txn_pool);
         const publicData = req.body.publicData;
@@ -629,7 +646,7 @@ app.post("/voter/combine", function(req, res){
 });
 
 app.post("/creator/combine", function(req, res){
-    const isCreator = Tree.Verify(wallet.publicKey);
+    const isCreator = Tree.Verify(wallet.publicKey)[2];
     if(isCreator == 1){
         //const voter = new Voter(Tree, pending_txn_pool);
         creator.Cosig_combineNonces(req.body.combineNonce);
@@ -637,7 +654,7 @@ app.post("/creator/combine", function(req, res){
 });
 
 app.post("/voter/partialSign", function(req, res){
-    const isVoter = Tree.Verify(wallet.publicKey);
+    const isVoter = Tree.Verify(wallet.publicKey)[2];
     if(isVoter == 2){
         //const voter = new Voter(Tree, pending_txn_pool);
         const publicData = req.body.publicData;
@@ -659,7 +676,7 @@ app.post("/voter/partialSign", function(req, res){
 });
 
 app.post("/creator/partialSign", function(req, res){
-    const isCreator = Tree.Verify(wallet.publicKey);
+    const isCreator = Tree.Verify(wallet.publicKey)[2];
     if(isCreator == 1){
         const index = publicKeys.indexOf(req.body.publicKey);
         creator.Cosig_exchangePartialSignature(index, req.body.partialSignature);
@@ -680,7 +697,7 @@ app.post("/creator/partialSign", function(req, res){
 });
 
 app.post("/voter/verifyPartialSign", function(req, res){
-    const isVoter = Tree.Verify(wallet.publicKey);
+    const isVoter = Tree.Verify(wallet.publicKey)[2];
     if(isVoter == 2){
         creator.Cosig_verifyIndividualPartialSignatures(wallet.signerPrivateData.session, req.body.publicData);
         const requestOptions = {
@@ -698,8 +715,8 @@ app.post("/voter/verifyPartialSign", function(req, res){
 countSig = [];
 
 app.post("/creator/cosig", function(req, res){
-    const isCreator = Tree.Verify(wallet.publicKey);
-    const isVoter = Tree.Verify(req.body.publicKey);
+    const isCreator = Tree.Verify(wallet.publicKey)[2];
+    const isVoter = Tree.Verify(req.body.publicKey)[2];
     const index = countSig.indexOf(req.body.publicKey);
     if(isCreator == 1 && isVoter == 2){
         if(index == -1){
@@ -707,6 +724,7 @@ app.post("/creator/cosig", function(req, res){
         }
         if(countSig.length == publicKeys.length){
             creator.Cosig_combinePartialSignatures();
+            res.send(creator.publicData.signature);
             creator.Cosig_verifySignature();
         }
     }
@@ -748,8 +766,7 @@ app.post("/creator/nextVoter", function(req, res){
 });*/
 
 app.get("/creator", function(req, res){
-    console.log(creator);
-    res.send(creator);
+    res.send(creator.publicData.signature);
 });
 
 
