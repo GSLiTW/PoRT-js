@@ -15,10 +15,9 @@ const MPT = require('./MPT');
 const Pending_Txn_Pool = require('./pending_transaction_pool');
 const Wallet = require('./wallet');
 const backup =require('./backup');
-const requestPromise = require('request-promise');
+// const requestPromise = require('request-promise');
 
 const Backup =new backup();
-const chain = new Blockchain();
 const Creator = require('./creator');
 const Voter = require('./voter');
 const nodeAddress = uuid().split("-").join("");
