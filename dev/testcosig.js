@@ -8,9 +8,10 @@ const muSig = schnorr.muSig;
 // data known to every participant
 const publicData = {
   pubKeys: [
-    Buffer.from('03846f34fdb2345f4bf932cb4b7d278fb3af24f44224fb52ae551781c3a3cad68a', 'hex'),
-    Buffer.from('02cd836b1d42c51d80cef695a14502c21d2c3c644bc82f6a7052eb29247cf61f4f', 'hex'),
-    Buffer.from('03b8c1765111002f09ba35c468fab273798a9058d1f8a4e276f45a1f1481dd0bdb', 'hex'),
+    Buffer.from('03bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e', 'hex'),
+    Buffer.from('02ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636f', 'hex'),
+    
+    Buffer.from('030fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9', 'hex'),
   ],
   message: convert.hash(Buffer.from('muSig is awesome!', 'utf8')),
   pubKeyHash: null,
@@ -27,17 +28,17 @@ const publicData = {
 const signerPrivateData = [
   // signer 1
   {
-    privateKey: BigInteger.fromHex('add2b25e2d356bec3770305391cbc80cab3a40057ad836bcb49ef3eed74a3fee'),
+    privateKey: BigInteger.fromHex('157938f922fa2b56d96c11b26b548583ee4ee15694f36d7c368a67833cd6e6d3'),
     session: null,
   },
   // signer 2
   {
-    privateKey: BigInteger.fromHex('0a1645eef5a10e1f5011269abba9fd85c4f0cc70820d6f102fb7137f2988ad78'),
+    privateKey: BigInteger.fromHex('699a1202ba925fc647aaa21cf0a0d61e6dc1b5c5bc724d1f301dc78deba0ae0f'),
     session: null,
   },
   // signer 3
   {
-    privateKey: BigInteger.fromHex('2031e7fed15c770519707bb092a6337215530e921ccea42030c15d86e8eaf0b8'),
+    privateKey: BigInteger.fromHex('28657eace760ef1fa252617fe7f1c42701b52882b68844a8e63b41fbac2be300'),
     session: null,
   }
 ];
@@ -57,18 +58,19 @@ publicData.pubKeyCombined = muSig.pubKeyCombine(publicData.pubKeys, publicData.p
 // unique for every call to sessionInitialize, otherwise it's trivial for
 // an attacker to extract the secret key!
 // -----------------------------------------------------------------------
+d = [0, 1 ,2]
 signerPrivateData.forEach((data, idx) => {
-  const sessionId = randomBuffer(32); // must never be reused between sessions!
+  const sessionId = Buffer.from('00000000000000000000000000000000'); // must never be reused between sessions!
   data.session = muSig.sessionInitialize(
     sessionId,
     data.privateKey,
     publicData.message,
     publicData.pubKeyCombined,
     publicData.pubKeyHash,
-    idx
+    d[idx]
   );
 });
-const signerSession = signerPrivateData[0].session;
+const signerSession = signerPrivateData[1].session;
  
 // -----------------------------------------------------------------------
 // Step 3: Exchange commitments (communication round 1)
@@ -109,8 +111,8 @@ signerPrivateData.forEach(data => (data.session.nonceIsNegated = signerSession.n
 // -----------------------------------------------------------------------
 signerPrivateData.forEach(data => {
   console.log("%%%%%%%%%%%%%%", data.session, publicData.message, publicData.nonceCombined, publicData.pubKeyCombined)
-  data.session.partialSignature = muSig.partialSign(data.session, publicData.message, publicData.nonceCombined, publicData.pubKeyCombined);
-  console.log("~~~~~~~~~~data.session.partialSignature: ", data.session.partialSignature);
+  data.session.partialSignature = BigInteger.fromHex(muSig.partialSign(data.session, publicData.message, publicData.nonceCombined, publicData.pubKeyCombined).toHex());
+  //console.log("~~~~~~~~~~data.session.partialSignature: ", data.session.partialSignature);
 });
  
 // -----------------------------------------------------------------------
@@ -128,15 +130,16 @@ for (let i = 0; i < publicData.pubKeys.length; i++) {
 // other participants.
 // -----------------------------------------------------------------------
 for (let i = 0; i < publicData.pubKeys.length; i++) {
+  console.log("\n++++++++++++++++++++++++++++++++\n", signerSession, publicData.partialSignatures[i], publicData.nonceCombined, i, publicData.pubKeys[i], publicData.nonces[i]);
+
   muSig.partialSigVerify(
     signerSession,
     publicData.partialSignatures[i],
     publicData.nonceCombined,
-    i,
+    d[i],
     publicData.pubKeys[i],
     publicData.nonces[i]
   );
-  console.log("+++++++++++++++++ ", signerSession, publicData.partialSignatures[i], publicData.nonceCombined, i, publicData.pubKeys[i], publicData.nonces[i]);
 }
  
 // -----------------------------------------------------------------------

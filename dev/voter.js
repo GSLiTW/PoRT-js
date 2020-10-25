@@ -77,8 +77,8 @@ Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNum
     // unique for every call to sessionInitialize, otherwise it's trivial for
     // an attacker to extract the secret key!
     // -----------------------------------------------------------------------
-    const sessionId = randomBuffer(32); // must never be reused between sessions!
-    const idx = portNumber % 3000;
+    const sessionId = Buffer.from('00000000000000000000000000000000'); // must never be reused between sessions!
+    this.idx = portNumber % 3000;
     //console.log("~~~~~~~~~~~~~~signerPrivateData.privateKey: ", signerPrivateData.privateKey);
     //console.log("~~~~~~~~~~~~~~type: ", typeof signerPrivateData.privateKey);
     //console.log("publicData: ", publicData);
@@ -95,7 +95,7 @@ Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNum
             Buffer.from(publicData.message, 'hex'),
             Buffer.from(publicData.pubKeyCombined, 'hex'),
             Buffer.from(publicData.pubKeyHash, 'hex'),
-            idx
+            this.idx
     );
 
     //console.log("##################session: ", signerPrivateData.session);
@@ -165,11 +165,8 @@ Voter.prototype.Cosig_generatePartialSignature = function(signerPrivateData, pub
     // Every participant can now create their partial signature s_i over the
     // given message.
     // -----------------------------------------------------------------------
-    //console.log("//////////////signerPrivateData.session: ", signerPrivateData.session);
-    //console.log("//////////////publicData.message: ", publicData.message.data);
-    //console.log("//////////////publicData.nonceCombined: ", publicData.nonceCombined.data);
-    //console.log("//////////////publicData.pubKeyCombined: ", publicData.pubKeyCombined.data);
-    signerPrivateData.session.partialSignature = muSig.partialSign(signerPrivateData.session, Buffer.from(publicData.message.data, 'hex'), Buffer.from(publicData.nonceCombined.data, 'hex'), Buffer.from(publicData.pubKeyCombined.data, 'hex'));
+    console.log("%%%%%%%%%%%%%%", signerPrivateData.session, Buffer.from(publicData.message.data, 'hex'), Buffer.from(publicData.nonceCombined.data, 'hex'), Buffer.from(publicData.pubKeyCombined.data, 'hex'))
+    signerPrivateData.session.partialSignature = BigInteger.fromHex(muSig.partialSign(signerPrivateData.session, Buffer.from(publicData.message.data, 'hex'), Buffer.from(publicData.nonceCombined.data, 'hex'), Buffer.from(publicData.pubKeyCombined.data, 'hex')).toHex());
     //console.log("//////////////signerPrivateData.session.partialSignature: ", signerPrivateData.session.partialSignature);
 
     return signerPrivateData;
@@ -182,7 +179,7 @@ Voter.prototype.Cosig_exchangePartialSignature = function(signerPrivateData) {
     // participants. Simulated here by copying.
     // -----------------------------------------------------------------------
 
-    return signerPrivateData.session.partialSignature;;
+    return signerPrivateData.session.partialSignature;
 }
 
 Voter.prototype.Cosig_verifyIndividualPartialSignatures = function(signerSession, publicData) {
@@ -194,11 +191,13 @@ Voter.prototype.Cosig_verifyIndividualPartialSignatures = function(signerSession
     //console.log("++++++++++++++: ", signerSession, publicData.partialSignatures[0], Buffer.from(publicData.nonceCombined, 'hex'), 0, Buffer.from(publicData.pubKeys[0], 'hex'), Buffer.from(publicData.nonces[0], 'hex'));
     //console.log("--------------: ", signerSession, publicData.partialSignatures[0], Buffer.from(publicData.nonceCombined.data, 'hex'), 0, Buffer.from(publicData.pubKeys[0].data, 'hex'), Buffer.from(publicData.nonces[0].data, 'hex'));
     for (let i = 0; i < publicData.pubKeys.length; i++) {
+        // console.log("FROMHEX: ", BigInteger.fromHex(publicData.partialSignatures[i]))
+        console.log("\n++++++++++++++++++++++++++++++++\n", signerSession, BigInteger.fromHex(publicData.partialSignatures[i]), Buffer.from(publicData.nonceCombined.data, 'hex'), i, Buffer.from(publicData.pubKeys[i].data, 'hex'), Buffer.from(publicData.nonces[i].data, 'hex'));
         muSig.partialSigVerify(
             signerSession,
             BigInteger.fromHex(publicData.partialSignatures[i]),
             Buffer.from(publicData.nonceCombined.data, 'hex'),
-            i,
+            this.idx,
             Buffer.from(publicData.pubKeys[i].data, 'hex'),
             Buffer.from(publicData.nonces[i].data, 'hex')
         );

@@ -128,11 +128,7 @@ Creator.prototype.Cosig_createAndCombinePublicData = function(publicKeyPair1, pu
     //console.log("publicKeyPair1, publicKeyPair2, publicKeyPair3: ", publicKeyPair1 , publicKeyPair2 , publicKeyPair3);
     //console.log("message: ", message);
     this.publicData = {
-        /*pubKeys: [
-          Buffer.from(publicKey1.encodeCompressed("hex").toString(), 'hex'),
-          Buffer.from(publicKey2.encodeCompressed("hex").toString(), 'hex'),
-          Buffer.from(publicKey3.encodeCompressed("hex").toString(), 'hex')
-        ],*/
+        
         pubKeys: [
             Buffer.from(publicKeyPair1.encodeCompressed("hex"), 'hex'),
             Buffer.from(publicKeyPair2.encodeCompressed("hex"), 'hex'),
@@ -158,10 +154,10 @@ Creator.prototype.Cosig_createAndCombinePublicData = function(publicKeyPair1, pu
     // This can be done by every signer individually or by the initializing
     // party and then be distributed to every participant.
     // -----------------------------------------------------------------------
-    //console.log("this.publicData.pubKeys: ", this.publicData.pubKeys);
+    // console.log("this.publicData.pubKeys: ", this.publicData.pubKeys);
     this.publicData.pubKeyHash = muSig.computeEll(this.publicData.pubKeys);
     this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
-    //console.log("_________________this.publicData.pubKeyCombined: ", this.publicData.pubKeyCombined);
+    // console.log("this.publicData.pubKeyCombined: ", this.publicData.pubKeyCombined);
 }
 
 Creator.prototype.Cosig_commitments = function(idx, signerCommmitment) {

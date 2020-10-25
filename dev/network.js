@@ -506,7 +506,8 @@ app.post("/creator/createPublicData", function(req, res){
             requestPromises.push(rp(requestOptions));
         });*/
 
-        creator.Cosig_createAndCombinePublicData(publicKeyPairs[0], publicKeyPairs[1], publicKeyPairs[2], JSON.stringify(newBlock));
+        // creator.Cosig_createAndCombinePublicData(publicKeyPairs[0], publicKeyPairs[1], publicKeyPairs[2], JSON.stringify(newBlock));
+        creator.Cosig_createAndCombinePublicData(publicKeyPairs[0], publicKeyPairs[1], publicKeyPairs[2], 'muSig is awesome!');
 
         for(let i in publicKeyPairs){
             //console.log("***publicKeyPairs[i]: ", publicKeyPairs[i]);
@@ -701,12 +702,14 @@ app.post("/voter/partialSign", function(req, res){
     const isVoter = Tree.Verify(wallet.publicKey)[2];
     if(isVoter == 2){
         //const voter = new Voter(Tree, pending_txn_pool);
-        console.log("$$$$$$$$$$$$$$req.body.signerNonceIsNegated: ", req.body.signerNonceIsNegated);
+        //console.log("$$$$$$$$$$$$$$req.body.signerNonceIsNegated: ", req.body.signerNonceIsNegated);
         wallet.signerPrivateData = voter.Cosig_combineNonces_combine(wallet.signerPrivateData, req.body.signerNonceIsNegated);
         wallet.signerPrivateData = voter.Cosig_generatePartialSignature(wallet.signerPrivateData, req.body.publicData);
-        console.log("$$$$$$$$$$$$$$wallet.signerPrivateData: ", wallet.signerPrivateData);
-        console.log("~~~~~~~~~~~req.body.publicData: ", req.body.publicData);
+        //console.log("$$$$$$$$$$$$$$wallet.signerPrivateData: ", wallet.signerPrivateData);
+        //console.log("~~~~~~~~~~~req.body.publicData: ", req.body.publicData);
 
+
+        // console.log("TOHEX: ", wallet.signerPrivateData.session.partialSignature);
         //const creatorUrl = req.body.creatorUrl;
         const requestOptions = {
             uri : creatorUrl + "/creator/partialSign",
@@ -725,32 +728,34 @@ app.post("/creator/partialSign", function(req, res){
     const isCreator = Tree.Verify(wallet.publicKey)[2];
     if(isCreator == 1){
         const index = publicKeyPairs.indexOf(JSON.stringify(ec.keyFromPublic(req.body.publicKey, "hex").getPublic()));
-        console.log("::::::::::::::::::::: ", index, req.body.partialSignature);
+        //console.log("::::::::::::::::::::: ", index, req.body.partialSignature);
         creator.Cosig_exchangePartialSignature(index, req.body.partialSignature);
-        console.log(";;;;;;;;;;;;;;;;;;;;; ", creator.publicData.partialSignatures);
+        //console.log(";;;;;;;;;;;;;;;;;;;;; ", creator.publicData.partialSignatures);
         
-        currentVoters.forEach(voterNodeUrl => {
-            const requestOptions = {
-                uri : voterNodeUrl + "/voter/verifyPartialSign",
-                method: "POST",
-                body: {voterUrl: chain.currentNodeUrl,
-                    publicKey: wallet.publicKey,
-                    publicData: creator.publicData
-                },
-                json: true
-            };
-            rp(requestOptions);
-        });
+                //currentVoters.forEach(voterNodeUrl => {
+                    if(creator.publicData.partialSignatures[0] != null && creator.publicData.partialSignatures[1] != null && creator.publicData.partialSignatures[2] != null){
+                        const requestOptions = {
+                            uri : currentVoters[0] + "/voter/verifyPartialSign",
+                            method: "POST",
+                            body: {voterUrl: chain.currentNodeUrl,
+                                publicKey: wallet.publicKey,
+                                publicData: creator.publicData
+                            },
+                            json: true
+                        };
+                        rp(requestOptions);
+                    }
+                    //});
     }
 });
 
 app.post("/voter/verifyPartialSign", function(req, res){
     const isVoter = Tree.Verify(wallet.publicKey)[2];
     if(isVoter == 2){
-        console.log("?????????????????????????: ", req.body.publicData);
+        //console.log("?????????????????????????: ", req.body.publicData);
         voter.Cosig_verifyIndividualPartialSignatures(wallet.signerPrivateData.session, req.body.publicData);
         const requestOptions = {
-            uri : voterNodeUrl + "/creator/cosig",
+            uri : creatorUrl + "/creator/cosig",
             method: "POST",
             body: {voterUrl: chain.currentNodeUrl,
                 publicKey: wallet.publicKey
@@ -771,7 +776,7 @@ app.post("/creator/cosig", function(req, res){
         if(index == -1){
             countSig.push(req.body.voterUrl);
         }
-        if(countSig.length == publicKeys.length){
+        if(countSig.length == publicKeyPairs.length){
             creator.Cosig_combinePartialSignatures();
             res.send(creator.publicData.signature);
             creator.Cosig_verifySignature();
