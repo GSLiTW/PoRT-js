@@ -459,12 +459,12 @@ MPT.prototype.Cal_hash = function(){
         Node = [];
         for(var i in this.branch) {
             if(this.branch[i] == null) {
-                Node.push(Buffer(''));
+                Node.push(Buffer.from(''));
             } else {
                 Node.push(this.branch[i].Cal_hash());
             }
         }
-        Node.push(Buffer(''));
+        Node.push(Buffer.from(''));
     }
 
     // console.log(Node)

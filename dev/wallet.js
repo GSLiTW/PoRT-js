@@ -4,7 +4,6 @@ const elliptic = require('elliptic');
 const ripemd160 = require('ripemd160');
 const base58 = require('bs58');
 const BigInteger = require("bigi");
-const ec = new elliptic.ec('secp256k1');
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
 
@@ -12,17 +11,12 @@ function Wallet(prik='', pubk='', bal=0) {
     this.balance = bal;
     this.privateKey = prik;
     this.publicKey = pubk;
-    this.publicKeyPair = ec.keyFromPrivate(prik).getPublic();
-    console.log("~~~~~~~~~~~~~~~~~~~~privateKey: " + prik);
-    console.log("~~~~~~~~~~~~~~~~~~~~publicKey: " + pubk);
-    console.log("--------------------ec: " + ec.keyFromPrivate(prik));
-    console.log("********************this.publicKeyPair: " + this.publicKeyPair);
     
     
     // data only known by the individual party, these values are never shared
     // between the signers!
     this.signerPrivateData = {
-        privateKey: 0,
+        privateKey:BigInteger.fromHex(this.privateKey),
         session: null
     };
 

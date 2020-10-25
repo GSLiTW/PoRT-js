@@ -94,8 +94,13 @@ for (let i = 0; i < publicData.pubKeys.length; i++) {
 // and keep track of whether the nonce was negated or not. This is needed
 // for the later steps.
 // -----------------------------------------------------------------------
+//console.log("~~~~~~~~~~~~~~signerSession: ", signerSession);
+//console.log("~~~~~~~~~~~~~~publicData.nonces: ", publicData.nonces);
 publicData.nonceCombined = muSig.sessionNonceCombine(signerSession, publicData.nonces);
+//console.log("~~~~~~~~~~~~~~signerSession.nonceIsNegated: ", signerSession.nonceIsNegated);
 signerPrivateData.forEach(data => (data.session.nonceIsNegated = signerSession.nonceIsNegated));
+
+//signerPrivateData.forEach(data => (console.log("*******************data.session.nonceIsNegated: ", data.session.nonceIsNegated)));
  
 // -----------------------------------------------------------------------
 // Step 6: Generate partial signatures
@@ -103,7 +108,9 @@ signerPrivateData.forEach(data => (data.session.nonceIsNegated = signerSession.n
 // given message.
 // -----------------------------------------------------------------------
 signerPrivateData.forEach(data => {
+  console.log("%%%%%%%%%%%%%%", data.session, publicData.message, publicData.nonceCombined, publicData.pubKeyCombined)
   data.session.partialSignature = muSig.partialSign(data.session, publicData.message, publicData.nonceCombined, publicData.pubKeyCombined);
+  console.log("~~~~~~~~~~data.session.partialSignature: ", data.session.partialSignature);
 });
  
 // -----------------------------------------------------------------------
@@ -129,6 +136,7 @@ for (let i = 0; i < publicData.pubKeys.length; i++) {
     publicData.pubKeys[i],
     publicData.nonces[i]
   );
+  console.log("+++++++++++++++++ ", signerSession, publicData.partialSignatures[i], publicData.nonceCombined, i, publicData.pubKeys[i], publicData.nonces[i]);
 }
  
 // -----------------------------------------------------------------------
@@ -137,7 +145,7 @@ for (let i = 0; i < publicData.pubKeys.length; i++) {
 // (s, R) that can be verified against combined public key P.
 // -----------------------------------------------------------------------
 publicData.signature = muSig.partialSigCombine(publicData.nonceCombined, publicData.partialSignatures);
-console.log("publicData.signature", publicData.signature);
+//console.log("publicData.signature", publicData.signature);
  
 // -----------------------------------------------------------------------
 // Step 10: Verify signature

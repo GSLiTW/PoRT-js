@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "3000": "nodemon --watch dev -e js dev/network.js 3000 http://localhost:3000 &",
     "3001": "nodemon --watch dev -e js dev/network.js 3001 http://localhost:3001 &",
     "3002": "nodemon --watch dev -e js dev/network.js 3002 http://localhost:3002 &",
@@ -162,26 +161,36 @@
     "3154": "nodemon --watch dev -e js dev/network.js 3154 http://localhost:3154 &",
     "3155": "nodemon --watch dev -e js dev/network.js 3155 http://localhost:3155 &",
     "3156": "nodemon --watch dev -e js dev/network.js 3156 http://localhost:3156 &",
-    "3157": "nodemon --watch dev -e js dev/network.js 3157 http://localhost:3157 &"
+    "3157": "nodemon --watch dev -e js dev/network.js 3157 http://localhost:3157 &",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "big-integer": "^1.6.48",
     "bigi": "^1.4.2",
+    "bigint-buffer": "^1.1.5",
+    "biginteger-buffer": "^0.0.1",
     "bip-schnorr": "^0.3.0",
     "body": "^5.1.0",
     "bs58": "^4.0.1",
     "elliptic": "^6.5.3",
+    "esm": "^3.2.25",
     "express": "^4.17.1",
     "json2csv": "^5.0.1",
+    "keccak256": "^1.0.1",
     "nodemon": "^2.0.2",
     "parser": "^0.1.4",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "ripemd160": "^2.0.2",
+    "rlp": "^2.2.6",
     "secure-random": "^1.1.2",
     "sha256": "^0.2.0",
     "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
   }
 }
