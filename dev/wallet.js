@@ -3,12 +3,22 @@ const secureRandom = require('secure-random');
 const elliptic = require('elliptic');
 const ripemd160 = require('ripemd160');
 const base58 = require('bs58');
+const BigInteger = require("bigi");
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
 
 function Wallet(prik='', pubk='') {
     this.privateKey = prik;
     this.publicKey = pubk;
+    
+    
+    // data only known by the individual party, these values are never shared
+    // between the signers!
+    this.signerPrivateData = {
+        privateKey:BigInteger.fromHex(this.privateKey),
+        session: null
+    };
+
     if(prik == '' || pubk == ''){
         this.NewKeyPair();
     }
@@ -16,11 +26,13 @@ function Wallet(prik='', pubk='') {
 
 Wallet.prototype.NewKeyPair = function(){
     this.privateKey = secureRandom.randomBuffer(32);
+    this.signerPrivateData.privateKey = BigInteger.fromBuffer(this.privateKey);
     const ecdsa = new elliptic.ec('secp256k1');
     const keys = ecdsa.keyFromPrivate(this.privateKey);
-    this.publicKey = keys.getPublic('hex');
-    //console.log("Private Key: ", privateKey);
-    //console.log("Public Key: ", publicKey);
+    this.publicKey = keys.getPublic('hex');     //integer
+    //console.log("Private Key: ", this.privateKey);
+    //console.log("Public Key: ", this.publicKey);
+    //console.log("this.signerPrivateData.privateKey", this.signerPrivateData.privateKey);
 }
 
 Wallet.prototype.PublicKeyHash = function(){
@@ -74,7 +86,7 @@ Wallet.prototype.ValidateAddress = function(address){
 
 module.exports = Wallet;
 
-// w = new Wallet();
+//w = new Wallet();
 // console.log(w.Address(), base58.decode(w.Address()).toString('hex'));
 // console.log(w.ValidateAddress(w.Address()));
 // console.log((w.Sign("123")),(w.Sign("123")));

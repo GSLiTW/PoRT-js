@@ -167,6 +167,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "big-integer": "^1.6.48",
+    "bigi": "^1.4.2",
+    "bigint-buffer": "^1.1.5",
+    "biginteger-buffer": "^0.0.1",
+    "bip-schnorr": "^0.3.0",
     "body": "^5.1.0",
     "bs58": "^4.0.1",
     "decimal.js": "^10.2.1",
@@ -175,14 +180,20 @@
     "express": "^4.17.1",
     "json2csv": "^5.0.1",
     "keccak256": "^1.0.0",
+    "esm": "^3.2.25",
     "nodemon": "^2.0.2",
     "parser": "^0.1.4",
     "promise-request-retry": "^1.0.2",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "ripemd160": "^2.0.2",
+    "rlp": "^2.2.6",
     "secure-random": "^1.1.2",
     "sha256": "^0.2.0",
     "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
   }
 }
