@@ -612,7 +612,7 @@ app.post("/creator/updatePublicData", function(req, res){
         creator.Cosig_nonces(index, nonces[index]);
         //creator.Cosig_combineNonces_combine(req.body.session);
 
-        console.log("*********************************************commitments.length: ", commitments.length);
+        //console.log("*********************************************commitments.length: ", commitments.length);
         if(commitments.length == 3 && commitments[0] != null && commitments[1] != null && commitments[2] != null){
             const requestOptions = {
                 uri : currentVoters[0] + "/voter/combine",
@@ -630,17 +630,17 @@ app.post("/creator/updatePublicData", function(req, res){
 
 app.post("/voter/combine", function(req, res){
     const isVoter = Tree.Verify(wallet.publicKey)[2];
-    console.log("||||||||||||||||||||||||||||||||||||||");
+    //console.log("||||||||||||||||||||||||||||||||||||||");
     if(isVoter == 2){
         //const voter = new Voter(Tree, pending_txn_pool);
         //console.log("~~~~~~~~~~~req.body.publicData.nonces.data: ", req.body.publicData.nonces);
         const combineNonce = voter.Cosig_combineNonces_check(wallet.signerPrivateData.session, req.body.publicData.nonces);
-        console.log("---------------------combineNonce: ", combineNonce);
-        console.log("&&&&&&&&&&&&&&&&&&&&&wallet.signerPrivateData: ", wallet.signerPrivateData);
+        //console.log("---------------------combineNonce: ", combineNonce);
+        //console.log("&&&&&&&&&&&&&&&&&&&&&wallet.signerPrivateData: ", wallet.signerPrivateData);
         //wallet.signerPrivateData = voter.Cosig_combineNonces_combine(wallet.signerPrivateData, wallet.signerPrivateData.session.nonceIsNegated);
 
         //const creatorUrl = req.body.creatorUrl;
-        console.log("&&&&&&&&&&&&&&&&&&&&&wallet.signerPrivateData.session.nonceIsNegated: ", wallet.signerPrivateData.session.nonceIsNegated);
+        //console.log("&&&&&&&&&&&&&&&&&&&&&wallet.signerPrivateData.session.nonceIsNegated: ", wallet.signerPrivateData.session.nonceIsNegated);
         currentVoters.push(chain.currentNodeUrl);   //ensure everyone will do partialSign
         const requestOptions = {
             uri : creatorUrl + "/creator/combine",
@@ -661,7 +661,7 @@ app.post("/creator/combine", function(req, res){
     if(isCreator == 1){
         //const voter = new Voter(Tree, pending_txn_pool);
         creator.Cosig_combineNonces(req.body.combineNonce);
-        console.log("^^^^^^^^^^^^^^^^^^^^^creator.publicData: ", creator.publicData);
+        //console.log("^^^^^^^^^^^^^^^^^^^^^creator.publicData: ", creator.publicData);
         const requestOptions = {
             uri : req.body.voterUrl + "/voter/nonceIsNegated",
             method: "POST",
@@ -703,9 +703,9 @@ app.post("/voter/partialSign", function(req, res){
         //const voter = new Voter(Tree, pending_txn_pool);
         console.log("$$$$$$$$$$$$$$req.body.signerNonceIsNegated: ", req.body.signerNonceIsNegated);
         wallet.signerPrivateData = voter.Cosig_combineNonces_combine(wallet.signerPrivateData, req.body.signerNonceIsNegated);
+        wallet.signerPrivateData = voter.Cosig_generatePartialSignature(wallet.signerPrivateData, req.body.publicData);
         console.log("$$$$$$$$$$$$$$wallet.signerPrivateData: ", wallet.signerPrivateData);
         console.log("~~~~~~~~~~~req.body.publicData: ", req.body.publicData);
-        wallet.signerPrivateData = voter.Cosig_generatePartialSignature(wallet.signerPrivateData, req.body.publicData);
 
         //const creatorUrl = req.body.creatorUrl;
         const requestOptions = {
@@ -713,7 +713,7 @@ app.post("/voter/partialSign", function(req, res){
             method: "POST",
             body: {voterUrl: chain.currentNodeUrl,
                    publicKey: wallet.publicKey,
-                   partialSignature: wallet.signerPrivateData.session.partialSignature
+                   partialSignature: wallet.signerPrivateData.session.partialSignature.toHex()
             },
             json: true
         };

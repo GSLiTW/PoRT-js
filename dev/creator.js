@@ -147,7 +147,7 @@ Creator.prototype.Cosig_createAndCombinePublicData = function(publicKeyPair1, pu
         partialSignatures: [],
         signature: null,
       };
-    console.log("#################pubkeys: ", this.publicData.pubKeys);
+    //console.log("#################pubkeys: ", this.publicData.pubKeys);
     //console.log("this.publicData.message: ", this.publicData.message);
     //console.log("type: ", typeof this.publicData.message);
     //console.log("****************");
@@ -161,7 +161,7 @@ Creator.prototype.Cosig_createAndCombinePublicData = function(publicKeyPair1, pu
     //console.log("this.publicData.pubKeys: ", this.publicData.pubKeys);
     this.publicData.pubKeyHash = muSig.computeEll(this.publicData.pubKeys);
     this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
-    console.log("_________________this.publicData.pubKeyCombined: ", this.publicData.pubKeyCombined);
+    //console.log("_________________this.publicData.pubKeyCombined: ", this.publicData.pubKeyCombined);
 }
 
 Creator.prototype.Cosig_commitments = function(idx, signerCommmitment) {
