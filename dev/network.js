@@ -870,6 +870,20 @@ app.post("/Creator/GetPartialSigns", function(req, res){
 app.post("/Voter/ExchangePartialSign", function(req, res) {
     const partialsigns = req.body.PartialSigns;
     voter.ExchangePartialSign(partialsigns);
+
+    const requestOptions = {
+        uri: voter.CreatorUrl + "/Creator/GetCosig",
+        method: "POST",
+        body: {cosig: voter.publicData.signature},
+        json: true
+    };
+    rp(requestOptions);
+})
+
+app.post("/Creator/GetCosig", function(req, res) {
+    const cosig = req.body.cosig;
+    creator.GetCosig(cosig);
+    console.log("cosig: ", creator.block.coSignature);
 })
 
 app.listen(port, function(){

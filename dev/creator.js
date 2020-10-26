@@ -132,6 +132,10 @@ Creator.prototype.GetPartialSigns = function(VoterPartialSign, VoterPubKey) {
     return true;
 }
 
+Creator.prototype.GetCosig = function(cosig) {
+    this.block.coSignature = cosig;
+}
+
 //尚未改成MPT
 //還要計算vote完回傳的block之variable area
 Creator.prototype.Calculate = function() {
