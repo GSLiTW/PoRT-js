@@ -2,20 +2,21 @@ const Block = require("./block.js");
 const PoRT = require("./PoRT.js");
 const randomBytes = require('random-bytes');
 const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
-const BigInteger = require("bigi");
+const BigInteger = require('bigi');
 const schnorr = require('bip-schnorr');
+const { pubKeyCombine } = require("bip-schnorr/src/mu-sig");
 const convert = schnorr.convert;
 const muSig = schnorr.muSig;
-const elliptic = require('elliptic');
-const ec = new elliptic.ec('secp256k1');
 
-function Creator(mpt, pendingTxPool){
-    this.MPT = mpt;
-    this.pendingTxs = pendingTxPool.get_transaction();
-    this.isNewMappingTableVoted = -1;
-    this.nextCreator = -1;
-    this.nextVoters = [];
-    this.block = null;
+
+function Creator(port, pubKey, MPT){
+    this.MPT = MPT;
+    this.port = port;
+    this.pubKey = pubKey;
+}
+
+Creator.prototype.IsValid = function() {
+    return (this.MPT.Verify(this.pubKey) == 1);
 }
 
 Creator.prototype.CreatorVerify = function(ID, mappingTable) {
@@ -47,20 +48,88 @@ Creator.prototype.PoRT = function() {
     console.log(h);
 }
 
-Creator.prototype.Create = function(height, previousHash) {
-    this.isNewMappingTableVoted = -1;
-
-    /*const creatorPoRT = new PoRT(address, this.MPT, this.pendingTxs, 1);
-    this.nextCreator = creatorPoRT;
-    this.nextVoters = nextVoters;*/
+Creator.prototype.Create = function(pendingTxs, height, previousHash) {
     
-    for(var i = 0; i < this.pendingTxs.length; i++){
-        this.MPT.UpdateValue(this.pendingTxs[i].sender, this.pendingTxs[i].receiver, this.pendingTxs[i].value);
+    for(var i = 0; i < pendingTxs.length; i++){
+        this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
     }
 
-    this.block = new Block(height, this.pendingTxs, previousHash, this.MPT);
+    this.block = new Block(height, pendingTxs, previousHash, this.MPT);
 
     return this.block;
+}
+
+Creator.prototype.GetVoter = function(VoterUrl, VoterPubKey) {
+    if(this.VoterUrl == null) {
+        this.VoterUrl = [VoterUrl];
+        this.VoterPubKey = [VoterPubKey];
+    } else {
+        this.VoterUrl.push(VoterUrl);
+        this.VoterPubKey.push(VoterPubKey);
+    }
+    // console.log(this.VoterUrl)
+}
+
+Creator.prototype.GetSignerSession = function(SignerSession) {
+    this.SignerSession = SignerSession;
+}
+
+Creator.prototype.GetCommitments = function(VoterCommitment, VoterPubKey) {
+    var idx = this.VoterPubKey.indexOf(VoterPubKey);
+    if(this.commitments == null) {
+        this.commitments = []
+        for(var i=0; i < this.VoterPubKey.length; i++) {
+            this.commitments.push(null);
+        }
+    }
+
+    this.commitments[idx] = VoterCommitment;
+    for(var i in this.commitments) {
+        if(this.commitments[i] == null) {
+            return false;
+        }
+    }
+
+    // console.log(true)
+    return true;
+}
+
+Creator.prototype.GetNonces = function(VoterNonce, VoterPubKey) {
+    var idx = this.VoterPubKey.indexOf(VoterPubKey);
+    if(this.nonces == null) {
+        this.nonces = []
+        for(var i=0; i < this.VoterPubKey.length; i++) {
+            this.nonces.push(null);
+        }
+    }
+
+    this.nonces[idx] = VoterNonce;
+    for(var i in this.nonces) {
+        if(this.nonces[i] == null) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+Creator.prototype.GetPartialSigns = function(VoterPartialSign, VoterPubKey) {
+    var idx = this.VoterPubKey.indexOf(VoterPubKey);
+    if(this.partialsigns == null) {
+        this.partialsigns = []
+        for(var i=0; i < this.VoterPubKey.length; i++) {
+            this.partialsigns.push(null);
+        }
+    }
+
+    this.partialsigns[idx] = VoterPartialSign;
+    for(var i in this.partialsigns) {
+        if(this.partialsigns[i] == null) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 //尚未改成MPT
@@ -131,96 +200,5 @@ Creator.prototype.Calculate = function() {
     return this.newMappingTable;
 }
 
-Creator.prototype.Cosig_createAndCombinePublicData = function(publicKeyPair1, publicKeyPair2, publicKeyPair3, message) {
-    // data known to every participant
-    //console.log("publicKeyPair1, publicKeyPair2, publicKeyPair3: ", publicKeyPair1 , publicKeyPair2 , publicKeyPair3);
-    //console.log("message: ", message);
-    this.publicData = {
-        
-        pubKeys: [
-            Buffer.from(publicKeyPair1.encodeCompressed("hex"), 'hex'),
-            Buffer.from(publicKeyPair2.encodeCompressed("hex"), 'hex'),
-            Buffer.from(publicKeyPair3.encodeCompressed("hex"), 'hex')
-          ],
-        message: convert.hash(Buffer.from(message, 'utf8')),
-        pubKeyHash: null,
-        pubKeyCombined: null,
-        commitments: [],
-        nonces: [],
-        nonceCombined: null,
-        partialSignatures: [],
-        signature: null,
-      };
-    //console.log("#################pubkeys: ", this.publicData.pubKeys);
-    //console.log("this.publicData.message: ", this.publicData.message);
-    //console.log("type: ", typeof this.publicData.message);
-    //console.log("****************");
-    
-    // -----------------------------------------------------------------------
-    // Step 1: Combine the public keys
-    // The public keys P_i are combined into the combined public key P.
-    // This can be done by every signer individually or by the initializing
-    // party and then be distributed to every participant.
-    // -----------------------------------------------------------------------
-    // console.log("this.publicData.pubKeys: ", this.publicData.pubKeys);
-    this.publicData.pubKeyHash = muSig.computeEll(this.publicData.pubKeys);
-    this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
-    // console.log("this.publicData.pubKeyCombined: ", this.publicData.pubKeyCombined);
-}
-
-Creator.prototype.Cosig_commitments = function(idx, signerCommmitment) {
-    // -----------------------------------------------------------------------
-    // Step 3: Exchange commitments (communication round 1)
-    // The signers now exchange the commitments H(R_i). This is simulated here
-    // by copying the values from the private data to public data array.
-    // -----------------------------------------------------------------------
-    this.publicData.commitments[idx] = signerCommmitment;
-}
-
-Creator.prototype.Cosig_nonces = function(idx, signerNonce) {
-    // -----------------------------------------------------------------------
-    // Step 4: Get nonces (communication round 2)
-    // Now that everybody has commited to the session, the nonces (R_i) can be
-    // exchanged. Again, this is simulated by copying.
-    // -----------------------------------------------------------------------
-    this.publicData.nonces[idx] = signerNonce;
-}
-
-Creator.prototype.Cosig_combineNonces = function(combineNonces) {
-    // -----------------------------------------------------------------------
-    // Step 5: Combine nonces
-    // The nonces can now be combined into R. Each participant should do this
-    // and keep track of whether the nonce was negated or not. This is needed
-    // for the later steps.
-    // -----------------------------------------------------------------------
-    this.publicData.nonceCombined = combineNonces;
-}
-
-Creator.prototype.Cosig_exchangePartialSignature = function(idx, signerPartialSignature) {
-    // -----------------------------------------------------------------------
-    // Step 7: Exchange partial signatures (communication round 3)
-    // The partial signature of each signer is exchanged with the other
-    // participants. Simulated here by copying.
-    // -----------------------------------------------------------------------
-    this.publicData.partialSignatures[idx] = signerPartialSignature;
-}
-
-Creator.prototype.Cosig_combinePartialSignatures = function() {
-    // -----------------------------------------------------------------------
-    // Step 9: Combine partial signatures
-    // Finally, the partial signatures can be combined into the full signature
-    // (s, R) that can be verified against combined public key P.
-    // -----------------------------------------------------------------------
-    this.publicData.signature = muSig.partialSigCombine(this.publicData.nonceCombined, this.publicData.partialSignatures);
-}
-
-Creator.prototype.Cosig_verifySignature = function() {
-    // -----------------------------------------------------------------------
-    // Step 10: Verify signature
-    // The resulting signature can now be verified as a normal Schnorr
-    // signature (s, R) over the message m and public key P.
-    // -----------------------------------------------------------------------
-    schnorr.verify(this.publicData.pubKeyCombined, this.publicData.message, this.publicData.signature);
-}
 
 module.exports = Creator;

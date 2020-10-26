@@ -1,51 +1,146 @@
-/* 
- * CAUTION: NOT YET DEBUGGED
- */
-var crypto = require("crypto");
-var eol = require('os').EOL;
-
 const PoRT = require("./PoRT.js");
-
 const randomBytes = require('random-bytes');
 const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
-const BigInteger = require("bigi");
+const BigInteger = require('bigi');
 const schnorr = require('bip-schnorr');
 const convert = schnorr.convert;
 const muSig = schnorr.muSig;
-const BigIntegerBuffer = require('biginteger-buffer')
+const elliptic = require('elliptic');
+const ec = new elliptic.ec('secp256k1');
 
-//get voter's wallet and sign a signature
-/*function RSASign(privateKey, data) {
-    const sign = crypto.createSign('RSA-SHA256');
-    sign.update(data);
-    var sig = sign.sign(privateKey, 'hex')
-    console.log(sig);
-    return sig;
+function Voter(port, pubKey, MPT){
+    this.MPT = MPT;
+    this.port = port;
+    this.pubKey = pubKey;
+    this.pubKeyCompressed = ec.keyFromPublic(this.pubKey, "hex").getPublic().encodeCompressed("hex")
 }
 
-function RSAVerify(publicKey, signature, data) {
-    const verify = crypto.createVerify('RSA-SHA256');
-    verify.update(data);
-    console.log(verify.verify(publicKey, signature,'hex'));
+Voter.prototype.IsValid = function() {
+    return (this.MPT.Verify(this.pubKey) == 2);
 }
 
-var dataToSign = "some data";
-var sig = RSASign(privateKey, dataToSign);
-RSAVerify(publicKey, sig, dataToSign);
+Voter.prototype.CreatorUrl = function(url) {
+    this.CreatorUrl = url;
+}
 
-var pubStr = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCbbBSVpWzSmCGVeezhuVFgUEYowUxgX/SnFdymGRCHGc77d5I0xkMAnIOWbI2MmP8j/7sdfPuUF0V5zw+Hd/7iZ6vs2k4JRKdprrB/zSC4GGqCDpDkbRYydcw3kwDgKkHhDp6NwIKvvl87WsnFozi487tGPQ8NO15hngwsV7DrawIDAQAB';
-var publickKey = '-----BEGIN PUBLIC KEY-----' + eol + pubStr + eol + '-----END PUBLIC KEY-----';
+Voter.prototype.GetPublicData = function(pubKeys, message) {
+    this.pubKeys = pubKeys.slice();
+    for(var i in pubKeys) {
+        pubKeys[i] = Buffer.from(pubKeys[i], 'hex');
+    }
+    message = convert.hash(Buffer.from(JSON.stringify(message), 'utf8'));
+    this.publicData = {
+        pubKeys: pubKeys,
+        message: message,
+        pubKeyHash: null,
+        pubKeyCombined: null,
+        commitments: [],
+        nonces: [],
+        nonceCombined: null,
+        partialSignatures: [],
+        signature: null,
+    }
+    // console.log(this.publicData);
 
-var p = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAJtsFJWlbNKYIZV57OG5UWBQRijBTGBf9KcV3KYZEIcZzvt3kjTGQwCcg5ZsjYyY/yP/ux18+5QXRXnPD4d3/uJnq+zaTglEp2musH/NILgYaoIOkORtFjJ1zDeTAOAqQeEOno3Agq++XztaycWjOLjzu0Y9Dw07XmGeDCxXsOtrAgMBAAECgYAV13iFFzxV1B9UHFBX4G05Nc7GR3PuT03YdVAO35LdCZl26XTYicw8t8IeT58M1St16ahoGnpYc3TGC31JMmnVOr58At0jbd4JQgvUaE+2jVvgp0Lc6n/jN+7NYBGlEy44ZpIRbB1Biu7khCZ0D+8PZsDMi6WJK4jgI5Gf/aXvkQJBAOe6809U/1wEVDJFHZ6A++WI/8iebXSbw9hDa4a9qoXv8bsMjYkDiblD3UPRlTEdFsAOA/YuGdah+fKE7jKdKkcCQQCrszD8Z1MYWYE4dMQTRPxEKHGQZd5HHkTQu9l6FV7Bv2ga9wLhT4QTb/5U7WYGgbfxhFzklxoqsmhTJNuLlyO9AkBrA1nDZBQ9MT6UrHheL2Ckgpzkz8zqUdiicZghdEtgaQtv/v8JrBmY9e8jl5DXSoCsFozbzjReexTLW3oI462XAkEAnTQ/kZl4tz6b1XjzXUE4R59P+wmJ7kuEbijQAbs3OuVpB+dJN8l5/+H2VwPU+fgi1np+Ir1GM/mNEzMX4ELNcQJBAIk1s3Y7ep2gK0p4js4f9HU0u2vH25+6bu+y6JFfvIBd8OR1bCFEe3FIui1H/ohh0Eoo3ZgJZ/5JjwfsqJzOoBs=';
-var privateKey = '-----BEGIN PRIVATE KEY-----' + eol + p + eol + '-----END PRIVATE KEY-----'
-*/
+    this.publicData.pubKeyHash = muSig.computeEll(this.publicData.pubKeys);
+    this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
+}
 
-const sha256 = require("sha256");
+Voter.prototype.PrivateSign = function(signerPrivateData) {
+    this.signerPrivateData = signerPrivateData;
+    // console.log(this.pubKeys, this.pubKeyCompressed)
+    const idx = this.pubKeys.indexOf(this.pubKeyCompressed);
+    const sessionId = randomBuffer(32); // must never be reused between sessions!
+    this.signerPrivateData.session = muSig.sessionInitialize(
+        sessionId,
+        this.signerPrivateData.privateKey,
+        this.publicData.message,
+        this.publicData.pubKeyCombined,
+        this.publicData.pubKeyHash,
+        idx
+    );
 
-function Voter(mpt, /*newBlock,*/ TxPool) {
-    this.MPT = mpt;
-    /*this.newBlock = newBlock;*/
-    this.TxPool = TxPool.get_transaction();
+    // console.log(this.signerPrivateData.session.nonce);
+
+    if(idx == 0) {
+        this.signerSession = this.signerPrivateData.session;
+        return this.signerSession;
+    } else {
+        return null;
+    }
+}
+
+Voter.prototype.GetSignerSession = function(SignerSession) {
+    SignerSession.sessionId = Buffer.from(SignerSession.sessionId)
+    SignerSession.ell = Buffer.from(SignerSession.ell)
+    SignerSession.nonce = Buffer.from(SignerSession.nonce)
+    SignerSession.commitment = Buffer.from(SignerSession.commitment)
+    SignerSession.pubKeyCombined = Buffer.from(SignerSession.pubKeyCombined)
+    SignerSession.message = Buffer.from(SignerSession.message)
+    // SignerSession.secretKey = BigInteger.fromH(secretKey)
+    // console.log(SignerSession)
+    this.SignerSession = SignerSession;
+}
+
+Voter.prototype.ExchangeCommitment = function(commitments) {
+    for(var i in commitments) {
+        commitments[i] = Buffer.from(commitments[i])
+    }
+    this.publicData.commitments = commitments;
+    // console.log(this.publicData.commitments)
+}
+
+Voter.prototype.ExchangeNonce = function(nonces) {
+    for(var i in nonces) {
+        nonces[i] = Buffer.from(nonces[i])
+    }
+    this.publicData.nonces = nonces;
+    // console.log(this.publicData.nonces)
+    
+    this.publicData.nonceCombined = muSig.sessionNonceCombine(this.SignerSession, this.publicData.nonces);
+    this.signerPrivateData.session.nonceIsNegated = this.SignerSession.nonceIsNegated;
+
+    this.PartialSign();
+}
+
+Voter.prototype.PartialSign = function() {
+    this.signerPrivateData.session.partialSignature = BigInteger.fromHex(muSig.partialSign(this.signerPrivateData.session, this.publicData.message, this.publicData.nonceCombined, this.publicData.pubKeyCombined).toHex());
+    // console.log(this.signerPrivateData.session.partialSignature)
+}
+
+Voter.prototype.ExchangePartialSign = function(partialsigns) { 
+    for(var i in partialsigns) {
+        partialsigns[i] = BigInteger.fromHex(partialsigns[i])
+    }
+    this.publicData.partialSignatures = partialsigns;
+    // console.log(this.publicData.partialSignatures)
+
+    for (let i = 0; i < this.publicData.pubKeys.length; i++) {
+        // console.log(this.publicData)
+        muSig.partialSigVerify(
+          this.SignerSession,
+          this.publicData.partialSignatures[i],
+          this.publicData.nonceCombined,
+          i,
+          this.publicData.pubKeys[i],
+          this.publicData.nonces[i]
+        );
+    }
+
+    this.CombinePartialSign();
+}
+
+Voter.prototype.CombinePartialSign = function() {
+    this.publicData.signature = muSig.partialSigCombine(this.publicData.nonceCombined, this.publicData.partialSignatures);
+    // console.log(this.publicData)
+
+    this.VerifyCoSig();
+}
+
+Voter.prototype.VerifyCoSig = function() {
+    console.log("CoSig:", this.publicData.signature.toString('hex'))
+    schnorr.verify(this.publicData.pubKeyCombined, this.publicData.message, this.publicData.signature);
+    console.log("Voter", this.port, "- Verified :)")
 }
 
 /*Voter.prototype.Verify = function() {
@@ -69,140 +164,6 @@ function Voter(mpt, /*newBlock,*/ TxPool) {
         console.log("Error: ID does not match to MPT!\n");
     }
 }*/
-
-Voter.prototype.Cosig_setSignerPrivateData = function(signerPrivateData, portNumber, publicData) {
-    // -----------------------------------------------------------------------
-    // Step 2: Create the private signing session
-    // Each signing party does this in private. The session ID *must* be
-    // unique for every call to sessionInitialize, otherwise it's trivial for
-    // an attacker to extract the secret key!
-    // -----------------------------------------------------------------------
-    const sessionId = Buffer.from('00000000000000000000000000000000'); // must never be reused between sessions!
-    this.idx = portNumber % 3000;
-    //console.log("~~~~~~~~~~~~~~signerPrivateData.privateKey: ", signerPrivateData.privateKey);
-    //console.log("~~~~~~~~~~~~~~type: ", typeof signerPrivateData.privateKey);
-    //console.log("publicData: ", publicData);
-    //console.log("type: ", typeof publicData);
-    //console.log("publicData.message: ", publicData.message);
-    //console.log("type: ", typeof publicData.message);
-    /*var jsonObj = JSON.parse(publicData);
-    var jsonStr = JSON.stringify(jsonObj.message);
-    const message = Buffer.from(jsonStr);*/
-
-    signerPrivateData.session = muSig.sessionInitialize(
-            sessionId,
-            signerPrivateData.privateKey,
-            Buffer.from(publicData.message, 'hex'),
-            Buffer.from(publicData.pubKeyCombined, 'hex'),
-            Buffer.from(publicData.pubKeyHash, 'hex'),
-            this.idx
-    );
-
-    //console.log("##################session: ", signerPrivateData.session);
-    //const signerSession = signerPrivateData.session;      //network: if(idx == 0) do this!
-
-    return signerPrivateData;
-}
-
-Voter.prototype.Cosig_commitment = function(signerPrivateData) {
-    // -----------------------------------------------------------------------
-    // Step 3: Exchange commitments (communication round 1)
-    // The signers now exchange the commitments H(R_i). This is simulated here
-    // by copying the values from the private data to public data array.
-    // -----------------------------------------------------------------------
-        
-    return signerPrivateData.session.commitment;
-}
-
-Voter.prototype.Cosig_nonce = function(signerPrivateData) {
-    // -----------------------------------------------------------------------
-    // Step 4: Get nonces (communication round 2)
-    // Now that everybody has commited to the session, the nonces (R_i) can be
-    // exchanged. Again, this is simulated by copying.
-    // ----------------------------------------------------------------------- 
-    
-    return signerPrivateData.session.nonce;
-}
-
-Voter.prototype.Cosig_combineNonces_check = function(signerSession, nonces) {
-    // -----------------------------------------------------------------------
-    // Step 5: Combine nonces
-    // The nonces can now be combined into R. Each participant should do this
-    // and keep track of whether the nonce was negated or not. This is needed
-    // for the later steps.
-    // -----------------------------------------------------------------------
-    //console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@nonces: ", nonces);
-    //console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@nonces[0]: ", nonces[0]);
-    //console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@nonces[1]: ", nonces[1]);
-    //console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@nonces[2]: ", nonces[2]);
-    var nonces_ = [];
-    nonces_.push(BigIntegerBuffer.from(nonces[0].data).buffer);
-    nonces_.push(BigIntegerBuffer.from(nonces[1].data).buffer);
-    nonces_.push(BigIntegerBuffer.from(nonces[2].data).buffer);
-
-    //console.log("!!!!!!!!!!!!!!!!!!signerSession: ", signerSession);
-    //console.log("!!!!!!!!!!!!!!!!!!nonces_: ", nonces_);
-    //console.log("!!!!!!!!!!!!!!!!!!type: ", typeof nonces_[0]);
-
-    return muSig.sessionNonceCombine(signerSession, nonces_);
-}
-
-Voter.prototype.Cosig_combineNonces_combine = function(signerPrivateData, signerNonceIsNegated) {
-    // -----------------------------------------------------------------------
-    // Step 5: Combine nonces
-    // The nonces can now be combined into R. Each participant should do this
-    // and keep track of whether the nonce was negated or not. This is needed
-    // for the later steps.
-    // -----------------------------------------------------------------------
-    signerPrivateData.session.nonceIsNegated = signerNonceIsNegated;
-
-    return signerPrivateData;
-}
-
-Voter.prototype.Cosig_generatePartialSignature = function(signerPrivateData, publicData) {
-    // -----------------------------------------------------------------------
-    // Step 6: Generate partial signatures
-    // Every participant can now create their partial signature s_i over the
-    // given message.
-    // -----------------------------------------------------------------------
-    console.log("%%%%%%%%%%%%%%", signerPrivateData.session, Buffer.from(publicData.message.data, 'hex'), Buffer.from(publicData.nonceCombined.data, 'hex'), Buffer.from(publicData.pubKeyCombined.data, 'hex'))
-    signerPrivateData.session.partialSignature = BigInteger.fromHex(muSig.partialSign(signerPrivateData.session, Buffer.from(publicData.message.data, 'hex'), Buffer.from(publicData.nonceCombined.data, 'hex'), Buffer.from(publicData.pubKeyCombined.data, 'hex')).toHex());
-    //console.log("//////////////signerPrivateData.session.partialSignature: ", signerPrivateData.session.partialSignature);
-
-    return signerPrivateData;
-}
-
-Voter.prototype.Cosig_exchangePartialSignature = function(signerPrivateData) {
-    // -----------------------------------------------------------------------
-    // Step 7: Exchange partial signatures (communication round 3)
-    // The partial signature of each signer is exchanged with the other
-    // participants. Simulated here by copying.
-    // -----------------------------------------------------------------------
-
-    return signerPrivateData.session.partialSignature;
-}
-
-Voter.prototype.Cosig_verifyIndividualPartialSignatures = function(signerSession, publicData) {
-    // -----------------------------------------------------------------------
-    // Step 8: Verify individual partial signatures
-    // Every participant should verify the partial signatures received by the
-    // other participants.
-    // -----------------------------------------------------------------------
-    //console.log("++++++++++++++: ", signerSession, publicData.partialSignatures[0], Buffer.from(publicData.nonceCombined, 'hex'), 0, Buffer.from(publicData.pubKeys[0], 'hex'), Buffer.from(publicData.nonces[0], 'hex'));
-    //console.log("--------------: ", signerSession, publicData.partialSignatures[0], Buffer.from(publicData.nonceCombined.data, 'hex'), 0, Buffer.from(publicData.pubKeys[0].data, 'hex'), Buffer.from(publicData.nonces[0].data, 'hex'));
-    for (let i = 0; i < publicData.pubKeys.length; i++) {
-        // console.log("FROMHEX: ", BigInteger.fromHex(publicData.partialSignatures[i]))
-        console.log("\n++++++++++++++++++++++++++++++++\n", signerSession, BigInteger.fromHex(publicData.partialSignatures[i]), Buffer.from(publicData.nonceCombined.data, 'hex'), i, Buffer.from(publicData.pubKeys[i].data, 'hex'), Buffer.from(publicData.nonces[i].data, 'hex'));
-        muSig.partialSigVerify(
-            signerSession,
-            BigInteger.fromHex(publicData.partialSignatures[i]),
-            Buffer.from(publicData.nonceCombined.data, 'hex'),
-            this.idx,
-            Buffer.from(publicData.pubKeys[i].data, 'hex'),
-            Buffer.from(publicData.nonces[i].data, 'hex')
-        );
-    }
-}
 
 
 /*

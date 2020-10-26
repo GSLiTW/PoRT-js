@@ -319,13 +319,13 @@ MPT.prototype.Verify = function(key) {
                     break;
             }
             if(i == this.key.length) {
-                return this.next.Search(key.substr(i));
+                return this.next.Verify(key.substr(i));
             } else {
                 return -1;
             }
         } else if(this.mode == 'branch') {
             if(this.branch[parseInt(key[0], 16)] != null) {
-                return this.branch[parseInt(key[0],16)].Search(key.substr(1));
+                return this.branch[parseInt(key[0],16)].Verify(key.substr(1));
             } else {
                 return -1;
             }
@@ -339,7 +339,7 @@ MPT.prototype.Verify = function(key) {
 MPT.prototype.UpdateValue = function(from, to, value=0) {
     if(this.type == 'account') {
         if(value <= 0) {
-            console.log("> Weird request: Update value should be larger than 0.");
+            // console.log("> Weird request: Update value should be larger than 0.");
             return;
         }
 
@@ -355,7 +355,7 @@ MPT.prototype.UpdateValue = function(from, to, value=0) {
             return;
         }
 
-        console.log("> Update successfully.\nNow " + from + " has value " + val1 + ", " + to + " has value " + val2 + ".");
+        // console.log("> Update successfully.\nNow " + from + " has value " + val1 + ", " + to + " has value " + val2 + ".");
         return;
     } else if(this.type == 'receipt') {
         console.log("Error: A node in receipt tree should not be updated once inserted.");

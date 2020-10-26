@@ -10,7 +10,6 @@ const publicData = {
   pubKeys: [
     Buffer.from('03bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e', 'hex'),
     Buffer.from('02ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636f', 'hex'),
-    
     Buffer.from('030fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9', 'hex'),
   ],
   message: convert.hash(Buffer.from('muSig is awesome!', 'utf8')),
@@ -58,16 +57,16 @@ publicData.pubKeyCombined = muSig.pubKeyCombine(publicData.pubKeys, publicData.p
 // unique for every call to sessionInitialize, otherwise it's trivial for
 // an attacker to extract the secret key!
 // -----------------------------------------------------------------------
-d = [0, 1 ,2]
+
 signerPrivateData.forEach((data, idx) => {
-  const sessionId = Buffer.from('00000000000000000000000000000000'); // must never be reused between sessions!
+  const sessionId = Buffer.randomBuffer(32); // must never be reused between sessions!
   data.session = muSig.sessionInitialize(
     sessionId,
     data.privateKey,
     publicData.message,
     publicData.pubKeyCombined,
     publicData.pubKeyHash,
-    d[idx]
+    idx
   );
 });
 const signerSession = signerPrivateData[1].session;

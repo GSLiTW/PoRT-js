@@ -4,24 +4,23 @@ const elliptic = require('elliptic');
 const ripemd160 = require('ripemd160');
 const base58 = require('bs58');
 const BigInteger = require("bigi");
+const ec = new elliptic.ec('secp256k1');
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
 
 function Wallet(prik='', pubk='') {
     this.privateKey = prik;
     this.publicKey = pubk;
-    
-    
-    // data only known by the individual party, these values are never shared
-    // between the signers!
-    this.signerPrivateData = {
-        privateKey:BigInteger.fromHex(this.privateKey),
-        session: null
-    };
 
     if(prik == '' || pubk == ''){
         this.NewKeyPair();
     }
+
+    this.signerPrivateData = {
+        privateKey:BigInteger.fromHex(this.privateKey),
+        session: null
+    };
+    this.publicKeyCompressed = ec.keyFromPublic(this.publicKey, "hex").getPublic().encodeCompressed("hex")
 };
 
 Wallet.prototype.NewKeyPair = function(){
