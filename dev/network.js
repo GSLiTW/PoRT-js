@@ -682,100 +682,6 @@ app.get("/Creator", function(req, res){
     
 })
 
-app.post("/Creator/GetVoters", function(req, res){
-    const VoterUrl = req.body.VoterUrl;
-    const VoterPubKey = req.body.publicKey;
-    creator.GetVoter(VoterUrl, VoterPubKey);
-
-    if(creator.VoterUrl.length == VOTER_NUM) {
-
-        const requestPromises = [];
-        creator.VoterUrl.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/Voter/GetData",
-                method: "POST",
-                body: {
-                    pubKeys: creator.VoterPubKey,
-                    message: creator.block,
-                },
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        });
-            
-    }
-
-    res.json("GetVoters success!");
-})
-
-app.post("/Creator/GetCommitments", function(req, res){
-    const VoterCommitment = req.body.Commitment;
-    const VoterPubKey = req.body.publicKey;
-    const SignerSession = req.body.SignerSession;
-    if(SignerSession != null) {
-        creator.GetSignerSession(SignerSession);
-    }
-
-    var flag = creator.GetCommitments(VoterCommitment, VoterPubKey);
-    if(flag) {
-        const requestPromises = [];
-        creator.VoterUrl.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/Voter/ExchangeCommitment",
-                method: "POST",
-                body: {
-                    Commitments: creator.commitments,
-                    SignerSession: creator.SignerSession
-                },
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        })
-    }
-})
-
-app.post("/Creator/GetNonces", function(req, res){
-    const VoterNonce = req.body.Nonce;
-    const VoterPubKey = req.body.publicKey;
-
-    var flag = creator.GetNonces(VoterNonce, VoterPubKey);
-    if(flag) {
-        const requestPromises = [];
-        creator.VoterUrl.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/Voter/ExchangeNonce",
-                method: "POST",
-                body: {
-                    Nonces: creator.nonces
-                },
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        })
-    }
-})
-
-app.post("/Creator/GetPartialSigns", function(req, res){
-    const VoterPartialSign = req.body.PartialSign;
-    const VoterPubKey = req.body.publicKey;
-
-    var flag = creator.GetPartialSigns(VoterPartialSign, VoterPubKey);
-    if(flag) {
-        const requestPromises = [];
-        creator.VoterUrl.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/Voter/ExchangePartialSign",
-                method: "POST",
-                body: {
-                    PartialSigns: creator.partialsigns
-                },
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        })
-    }
-})
-
 app.post("/Voter", function(req, res){
     const seq = req.body.SeqNum;
 
@@ -816,6 +722,32 @@ app.post("/Voter", function(req, res){
     res.json("Voter triggered")
 })
 
+app.post("/Creator/GetVoters", function(req, res){
+    const VoterUrl = req.body.VoterUrl;
+    const VoterPubKey = req.body.publicKey;
+    creator.GetVoter(VoterUrl, VoterPubKey);
+
+    if(creator.VoterUrl.length == VOTER_NUM) {
+
+        const requestPromises = [];
+        creator.VoterUrl.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/Voter/GetData",
+                method: "POST",
+                body: {
+                    pubKeys: creator.VoterPubKey,
+                    message: creator.block,
+                },
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        });
+            
+    }
+
+    res.json("GetVoters success!");
+})
+
 app.post("/Voter/GetData", function(req, res) {
     const pubKeys = req.body.pubKeys;
     const message = req.body.message;
@@ -835,6 +767,32 @@ app.post("/Voter/GetData", function(req, res) {
     res.json("GetData success!")
 })
 
+app.post("/Creator/GetCommitments", function(req, res){
+    const VoterCommitment = req.body.Commitment;
+    const VoterPubKey = req.body.publicKey;
+    const SignerSession = req.body.SignerSession;
+    if(SignerSession != null) {
+        creator.GetSignerSession(SignerSession);
+    }
+
+    var flag = creator.GetCommitments(VoterCommitment, VoterPubKey);
+    if(flag) {
+        const requestPromises = [];
+        creator.VoterUrl.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/Voter/ExchangeCommitment",
+                method: "POST",
+                body: {
+                    Commitments: creator.commitments,
+                    SignerSession: creator.SignerSession
+                },
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        })
+    }
+})
+
 app.post("/Voter/ExchangeCommitment", function(req, res) {
     const commitments = req.body.Commitments;
     const SignerSession = req.body.SignerSession;
@@ -852,6 +810,27 @@ app.post("/Voter/ExchangeCommitment", function(req, res) {
     requestPromises.push(rp(requestOptions));
 })
 
+app.post("/Creator/GetNonces", function(req, res){
+    const VoterNonce = req.body.Nonce;
+    const VoterPubKey = req.body.publicKey;
+
+    var flag = creator.GetNonces(VoterNonce, VoterPubKey);
+    if(flag) {
+        const requestPromises = [];
+        creator.VoterUrl.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/Voter/ExchangeNonce",
+                method: "POST",
+                body: {
+                    Nonces: creator.nonces
+                },
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        })
+    }
+})
+
 app.post("/Voter/ExchangeNonce", function(req, res) {
     const nonces = req.body.Nonces;
     voter.ExchangeNonce(nonces);
@@ -865,6 +844,27 @@ app.post("/Voter/ExchangeNonce", function(req, res) {
         json: true
     };
     requestPromises.push(rp(requestOptions));
+})
+
+app.post("/Creator/GetPartialSigns", function(req, res){
+    const VoterPartialSign = req.body.PartialSign;
+    const VoterPubKey = req.body.publicKey;
+
+    var flag = creator.GetPartialSigns(VoterPartialSign, VoterPubKey);
+    if(flag) {
+        const requestPromises = [];
+        creator.VoterUrl.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/Voter/ExchangePartialSign",
+                method: "POST",
+                body: {
+                    PartialSigns: creator.partialsigns
+                },
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        })
+    }
 })
 
 app.post("/Voter/ExchangePartialSign", function(req, res) {
