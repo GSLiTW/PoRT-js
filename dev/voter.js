@@ -63,8 +63,12 @@ Voter.prototype.PrivateSign = function(signerPrivateData) {
     // console.log(this.signerPrivateData.session.nonce);
 
     if(idx == 0) {
-        this.signerSession = this.signerPrivateData.session;
-        return this.signerSession;
+        this.SignerSession = JSON.parse(JSON.stringify(this.signerPrivateData.session));
+        this.SignerSession.secretKey = null;
+        this.SignerSession.secretNonce = null;
+        // console.log(this.signerPrivateData.session)
+        // console.log(this.SignerSession)
+        return this.SignerSession;
     } else {
         return null;
     }
