@@ -1,4 +1,3 @@
-const uuid = require('uuid/v1');
 const currentNodeUrl = process.argv[3];
 
 // local modules

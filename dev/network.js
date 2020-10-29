@@ -4,8 +4,6 @@ const bodyParser = require("body-parser");
 const port = process.argv[2];
 const rp = require("promise-request-retry");
 const fs = require("fs");
-const uuid = require('uuid/v1');
-
 
 // macros
 const VOTER_NUM = 3;
@@ -21,7 +19,7 @@ const backup =require('./backup');
 const Backup =new backup();
 const Creator = require('./creator');
 const Voter = require('./voter');
-const nodeAddress = uuid().split("-").join("");
+
 
 
 // preprocess
