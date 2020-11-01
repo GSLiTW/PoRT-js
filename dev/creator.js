@@ -1,13 +1,22 @@
-function Creator(mappingTable, pendingTxPool){
-    this.creator = -1;
-    this.isCreatorVerified = -1;
-    this.newMappingTable = mappingTable;
-    this.pendingTxs = pendingTxPool.get_transaction();
-    this.isNewMappingTableVoted = -1;
-    this.nextCreatorIndex = -1;
-    this.nextCreator = -1;
-    this.nextVotersIndex = [];
-    this.nextVoters = [];
+const Block = require("./block.js");
+const PoRT = require("./PoRT.js");
+const randomBytes = require('random-bytes');
+const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
+const BigInteger = require('bigi');
+const schnorr = require('bip-schnorr');
+const { pubKeyCombine } = require("bip-schnorr/src/mu-sig");
+const convert = schnorr.convert;
+const muSig = schnorr.muSig;
+
+
+function Creator(port, pubKey, MPT){
+    this.MPT = MPT;
+    this.port = port;
+    this.pubKey = pubKey;
+}
+
+Creator.prototype.IsValid = function() {
+    return (this.MPT.Verify(this.pubKey) == 1);
 }
 
 Creator.prototype.CreatorVerify = function(ID, mappingTable) {
@@ -31,27 +40,108 @@ Creator.prototype.CreatorVerify = function(ID, mappingTable) {
     return -1;
 }
 
-Creator.prototype.CreatorCreate = function() {
-    this.isNewMappingTableVoted = -1;
-
-    for(var i = 0; i < this.pendingTxs.length; i++){
-        for(var j = 0; j < this.newMappingTable.numOfAddress; j++){
-            if(this.pendingTxs[i].sender == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].transactions.push(this.pendingTxs[i]);
-            }
-            if(this.pendingTxs[i].receiver == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].transactions.push(this.pendingTxs[i]);
-            }
-        }        
-    }
-
-    return this.newMappingTable;
+Creator.prototype.PoRT = function() {
+    var T = 1234;
+    T = T.toString();
+    var tmp = sha256(T + this.account[6].address);
+    var h = parseInt(tmp, 16) % T;
+    console.log(h);
 }
 
-Creator.prototype.CreatorCalculate = function() {
+Creator.prototype.Create = function(pendingTxs, height, previousHash) {
+    
+    for(var i = 0; i < pendingTxs.length; i++){
+        this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
+    }
+
+    this.block = new Block(height, pendingTxs, previousHash, this.MPT);
+
+    return this.block;
+}
+
+Creator.prototype.GetVoter = function(VoterUrl, VoterPubKey) {
+    if(this.VoterUrl == null) {
+        this.VoterUrl = [VoterUrl];
+        this.VoterPubKey = [VoterPubKey];
+    } else {
+        this.VoterUrl.push(VoterUrl);
+        this.VoterPubKey.push(VoterPubKey);
+    }
+    // console.log(this.VoterUrl)
+}
+
+Creator.prototype.GetSignerSession = function(SignerSession) {
+    this.SignerSession = SignerSession;
+}
+
+Creator.prototype.GetCommitments = function(VoterCommitment, VoterPubKey) {
+    var idx = this.VoterPubKey.indexOf(VoterPubKey);
+    if(this.commitments == null) {
+        this.commitments = []
+        for(var i=0; i < this.VoterPubKey.length; i++) {
+            this.commitments.push(null);
+        }
+    }
+
+    this.commitments[idx] = VoterCommitment;
+    for(var i in this.commitments) {
+        if(this.commitments[i] == null) {
+            return false;
+        }
+    }
+
+    // console.log(true)
+    return true;
+}
+
+Creator.prototype.GetNonces = function(VoterNonce, VoterPubKey) {
+    var idx = this.VoterPubKey.indexOf(VoterPubKey);
+    if(this.nonces == null) {
+        this.nonces = []
+        for(var i=0; i < this.VoterPubKey.length; i++) {
+            this.nonces.push(null);
+        }
+    }
+
+    this.nonces[idx] = VoterNonce;
+    for(var i in this.nonces) {
+        if(this.nonces[i] == null) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+Creator.prototype.GetPartialSigns = function(VoterPartialSign, VoterPubKey) {
+    var idx = this.VoterPubKey.indexOf(VoterPubKey);
+    if(this.partialsigns == null) {
+        this.partialsigns = []
+        for(var i=0; i < this.VoterPubKey.length; i++) {
+            this.partialsigns.push(null);
+        }
+    }
+
+    this.partialsigns[idx] = VoterPartialSign;
+    for(var i in this.partialsigns) {
+        if(this.partialsigns[i] == null) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+Creator.prototype.GetCosig = function(cosig) {
+    this.block.coSignature = cosig;
+}
+
+//尚未改成MPT
+//還要計算vote完回傳的block之variable area
+Creator.prototype.Calculate = function() {
     this.isNewMappingTableVoted = 1;
-    // console.log(this.pendingTxs)
-    for(var i = this.pendingTxs.length -1; i >= 0 ; i--){
+
+    for(var i = this.pendingTxs.length - 1; i >= 0; i--){
         for(var j = 0; j < this.newMappingTable.numOfAddress; j++){
             if(this.pendingTxs[i].sender == this.newMappingTable.account[j].address){
                 this.newMappingTable.account[j].balance -= parseFloat(this.pendingTxs[i].value);
@@ -66,9 +156,13 @@ Creator.prototype.CreatorCalculate = function() {
     if(this.pendingTxs.length != 0){
         //console.log(this.pendingTxs.length)
         console.log("Clearing pendingTxs failed!");
+        return null;
     }
 
+    //calculate MPT root
+    //call MPT API
 
+    //clear the bits of creator and voter, and randomly select next creator and voter
     for(var i = 0; i < this.newMappingTable.numOfAddress; i++){
         this.newMappingTable.account[i].creator_bit = 0;
         this.newMappingTable.account[i].voter_bit = 0;
@@ -110,12 +204,5 @@ Creator.prototype.CreatorCalculate = function() {
     return this.newMappingTable;
 }
 
-Creator.prototype.PoRT = function() {
-    var T = 1234;
-    T = T.toString();
-    var tmp = sha256(T + this.account[6].address);
-    var h = parseInt(tmp, 16) % T;
-    console.log(h);
-}
 
 module.exports = Creator;

@@ -1,7 +1,6 @@
-#!/usr/bin/bash
-for i in {3000..3157}
+#!/bin/bash
+for i in {3000..3008}
 do
     echo "Starting port $i"
-    npm run $i > tmp
+    npm run $i > out$i
 done
-rm tmp

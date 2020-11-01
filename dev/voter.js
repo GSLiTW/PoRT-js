@@ -1,18 +1,153 @@
-/* 
- * CAUTION: NOT YET DEBUGGED
- */
+const PoRT = require("./PoRT.js");
+const randomBytes = require('random-bytes');
+const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
+const BigInteger = require('bigi');
+const schnorr = require('bip-schnorr');
+const convert = schnorr.convert;
+const muSig = schnorr.muSig;
+const elliptic = require('elliptic');
+const ec = new elliptic.ec('secp256k1');
 
-const sha256 = require("sha256");
-
-function Voter(ID, GlobalMPT, CreatorMPT, TxPool) {
-    this.CreatorMPT = CreatorMPT;
-    this.GlobalMPT = GlobalMPT;
-    this.TxPool = TxPool.get_transaction();
-    this.ID = ID;
-    this.Verify();
+function Voter(port, pubKey, MPT){
+    this.MPT = MPT;
+    this.port = port;
+    this.pubKey = pubKey;
+    this.pubKeyCompressed = ec.keyFromPublic(this.pubKey, "hex").getPublic().encodeCompressed("hex")
 }
 
-Voter.prototype.Verify = function() {
+Voter.prototype.IsValid = function() {
+    return (this.MPT.Verify(this.pubKey) == 2);
+}
+
+Voter.prototype.CreatorUrl = function(url) {
+    this.CreatorUrl = url;
+}
+
+Voter.prototype.GetPublicData = function(pubKeys, message) {
+    this.pubKeys = pubKeys.slice();
+    for(var i in pubKeys) {
+        pubKeys[i] = Buffer.from(pubKeys[i], 'hex');
+    }
+    message = convert.hash(Buffer.from(JSON.stringify(message), 'utf8'));
+    this.publicData = {
+        pubKeys: pubKeys,
+        message: message,
+        pubKeyHash: null,
+        pubKeyCombined: null,
+        commitments: [],
+        nonces: [],
+        nonceCombined: null,
+        partialSignatures: [],
+        signature: null,
+    }
+    // console.log(this.publicData);
+
+    this.publicData.pubKeyHash = muSig.computeEll(this.publicData.pubKeys);
+    this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
+}
+
+Voter.prototype.PrivateSign = function(signerPrivateData) {
+    this.signerPrivateData = signerPrivateData;
+    // console.log(this.pubKeys, this.pubKeyCompressed)
+    const idx = this.pubKeys.indexOf(this.pubKeyCompressed);
+    const sessionId = randomBuffer(32); // must never be reused between sessions!
+    this.signerPrivateData.session = muSig.sessionInitialize(
+        sessionId,
+        this.signerPrivateData.privateKey,
+        this.publicData.message,
+        this.publicData.pubKeyCombined,
+        this.publicData.pubKeyHash,
+        idx
+    );
+
+    // console.log(this.signerPrivateData.session.nonce);
+
+    if(idx == 0) {
+        this.SignerSession = JSON.parse(JSON.stringify(this.signerPrivateData.session));
+        this.SignerSession.secretKey = null;
+        this.SignerSession.secretNonce = null;
+        // console.log(this.signerPrivateData.session)
+        // console.log(this.SignerSession)
+        return this.SignerSession;
+    } else {
+        return null;
+    }
+}
+
+Voter.prototype.GetSignerSession = function(SignerSession) {
+    SignerSession.sessionId = Buffer.from(SignerSession.sessionId)
+    SignerSession.ell = Buffer.from(SignerSession.ell)
+    SignerSession.nonce = Buffer.from(SignerSession.nonce)
+    SignerSession.commitment = Buffer.from(SignerSession.commitment)
+    SignerSession.pubKeyCombined = Buffer.from(SignerSession.pubKeyCombined)
+    SignerSession.message = Buffer.from(SignerSession.message)
+    // SignerSession.secretKey = BigInteger.fromH(secretKey)
+    // console.log(SignerSession)
+    this.SignerSession = SignerSession;
+}
+
+Voter.prototype.ExchangeCommitment = function(commitments) {
+    for(var i in commitments) {
+        commitments[i] = Buffer.from(commitments[i])
+    }
+    this.publicData.commitments = commitments;
+    // console.log(this.publicData.commitments)
+}
+
+Voter.prototype.ExchangeNonce = function(nonces) {
+    for(var i in nonces) {
+        nonces[i] = Buffer.from(nonces[i])
+    }
+    this.publicData.nonces = nonces;
+    // console.log(this.publicData.nonces)
+    
+    this.publicData.nonceCombined = muSig.sessionNonceCombine(this.SignerSession, this.publicData.nonces);
+    this.signerPrivateData.session.nonceIsNegated = this.SignerSession.nonceIsNegated;
+
+    this.PartialSign();
+}
+
+Voter.prototype.PartialSign = function() {
+    this.signerPrivateData.session.partialSignature = BigInteger.fromHex(muSig.partialSign(this.signerPrivateData.session, this.publicData.message, this.publicData.nonceCombined, this.publicData.pubKeyCombined).toHex());
+    // console.log(this.signerPrivateData.session.partialSignature)
+}
+
+Voter.prototype.ExchangePartialSign = function(partialsigns) { 
+    for(var i in partialsigns) {
+        partialsigns[i] = BigInteger.fromHex(partialsigns[i])
+    }
+    this.publicData.partialSignatures = partialsigns;
+    // console.log(this.publicData.partialSignatures)
+
+    for (let i = 0; i < this.publicData.pubKeys.length; i++) {
+        // console.log(this.publicData)
+        muSig.partialSigVerify(
+          this.SignerSession,
+          this.publicData.partialSignatures[i],
+          this.publicData.nonceCombined,
+          i,
+          this.publicData.pubKeys[i],
+          this.publicData.nonces[i]
+        );
+    }
+
+    this.CombinePartialSign();
+}
+
+Voter.prototype.CombinePartialSign = function() {
+    this.publicData.signature = muSig.partialSigCombine(this.publicData.nonceCombined, this.publicData.partialSignatures);
+    // console.log(this.publicData)
+
+    this.VerifyCoSig();
+}
+
+Voter.prototype.VerifyCoSig = function() {
+    console.log("CoSig:", this.publicData.signature.toString('hex'))
+    schnorr.verify(this.publicData.pubKeyCombined, this.publicData.message, this.publicData.signature);
+    console.log("Voter", this.port, "- Verified :)")
+}
+
+/*Voter.prototype.Verify = function() {
     //console.log(this.GlobalMPT.numOfAddress);
     if(1) {
         for(var i = 0; i < this.GlobalMPT.numOfAddress; i++) {
@@ -32,7 +167,7 @@ Voter.prototype.Verify = function() {
     if(this.IsVoter == undefined) {
         console.log("Error: ID does not match to MPT!\n");
     }
-}
+}*/
 
 
 /*

@@ -1,10 +1,10 @@
 const TRANSACTION_FEE = 1;
-const uuid = require('uuid/v1')
+// const uuid = require('uuid/v1')
 const sha256 = require('sha256')
 const ec = require('elliptic')
 
 function Transaction(senderWallet, to, amount, type) {
-    this.id = uuid(),
+    // this.id = uuid(),
     this.type = type,
 
     this.output = {
