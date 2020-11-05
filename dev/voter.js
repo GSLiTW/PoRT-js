@@ -23,6 +23,18 @@ Voter.prototype.CreatorUrl = function(url) {
     this.CreatorUrl = url;
 }
 
+Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) {
+    var hash = voterMPT.Cal_hash();
+    console.log("merkleRoot: ", merkleRoot);
+    console.log("hash: ", hash);
+    if(merkleRoot == hash){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
 Voter.prototype.GetPublicData = function(pubKeys, message) {
     this.pubKeys = pubKeys.slice();
     for(var i in pubKeys) {

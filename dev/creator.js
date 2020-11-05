@@ -19,37 +19,36 @@ Creator.prototype.IsValid = function() {
     return (this.MPT.Verify(this.pubKey) == 1);
 }
 
-Creator.prototype.CreatorVerify = function(ID, mappingTable) {
-    this.creator = -1;
-    this.isCreatorVerified = -1;
+// Creator.prototype.CreatorVerify = function(ID, mappingTable) {
+//     this.creator = -1;
+//     this.isCreatorVerified = -1;
 
-    if(mappingTable.account == null){
-        console.log("Mapping Table is not valid!");
-        return -1;
-    }
+//     if(mappingTable.account == null){
+//         console.log("Mapping Table is not valid!");
+//         return -1;
+//     }
     
-    for(var i = 0; i < mappingTable.numOfAddress; i++){
-        if(mappingTable.account[i].creator_bit == 1 && mappingTable.account[i].address == ID){
-            this.creator = ID;
-            this.isCreatorVerified = 1;
-            return 1;
-        }
-    }
+//     for(var i = 0; i < mappingTable.numOfAddress; i++){
+//         if(mappingTable.account[i].creator_bit == 1 && mappingTable.account[i].address == ID){
+//             this.creator = ID;
+//             this.isCreatorVerified = 1;
+//             return 1;
+//         }
+//     }
 
-    console.log("Creator error!");
-    return -1;
-}
+//     console.log("Creator error!");
+//     return -1;
+// }
 
-Creator.prototype.PoRT = function() {
-    var T = 1234;
-    T = T.toString();
-    var tmp = sha256(T + this.account[6].address);
-    var h = parseInt(tmp, 16) % T;
-    console.log(h);
-}
+// Creator.prototype.PoRT = function() {
+//     var T = 1234;
+//     T = T.toString();
+//     var tmp = sha256(T + this.account[6].address);
+//     var h = parseInt(tmp, 16) % T;
+//     console.log(h);
+// }
 
-Creator.prototype.Create = function(pendingTxs, height, previousHash) {
-    
+Creator.prototype.Create = function(pendingTxs, height, previousHash) {    
     for(var i = 0; i < pendingTxs.length; i++){
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
     }
@@ -136,73 +135,83 @@ Creator.prototype.GetCosig = function(cosig) {
     this.block.coSignature = cosig;
 }
 
-//尚未改成MPT
-//還要計算vote完回傳的block之variable area
-Creator.prototype.Calculate = function() {
-    this.isNewMappingTableVoted = 1;
-
-    for(var i = this.pendingTxs.length - 1; i >= 0; i--){
-        for(var j = 0; j < this.newMappingTable.numOfAddress; j++){
-            if(this.pendingTxs[i].sender == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].balance -= parseFloat(this.pendingTxs[i].value);
-            }
-            if(this.pendingTxs[i].receiver == this.newMappingTable.account[j].address){
-                this.newMappingTable.account[j].balance += parseFloat(this.pendingTxs[i].value);
-            }
-        }
-        this.pendingTxs.pop();
+Creator.prototype.GetBlock = function(previousHash) {
+    var creatorPoRT = new PoRT(this.pubKey, this.MPT, 1);
+    this.block.nextCreator = creatorPoRT.next_maintainer[1];
+    for(var i = 0; i < this.VoterPubKey.length; i++){
+        var voterPoRT = new PoRT(this.VoterPubKey[i], this.MPT, 2);
+        this.block.nextVoters.push(voterPoRT.next_maintainer[1]);
     }
-
-    if(this.pendingTxs.length != 0){
-        //console.log(this.pendingTxs.length)
-        console.log("Clearing pendingTxs failed!");
-        return null;
-    }
-
-    //calculate MPT root
-    //call MPT API
-
-    //clear the bits of creator and voter, and randomly select next creator and voter
-    for(var i = 0; i < this.newMappingTable.numOfAddress; i++){
-        this.newMappingTable.account[i].creator_bit = 0;
-        this.newMappingTable.account[i].voter_bit = 0;
-    }
-
-    this.nextCreatorIndex = Math.floor(Math.random() * Math.floor(this.newMappingTable.numOfAddress));
-    this.nextCreator = this.newMappingTable.account[this.nextCreatorIndex].address;
-    this.newMappingTable.account[this.nextCreatorIndex].creator_bit = 1;
-    for(var i = 0; i < 3; i++){
-        while(1){
-            var index = Math.floor(Math.random() * Math.floor(this.newMappingTable.numOfAddress));
-            if(i == 0){
-                if(this.nextCreatorIndex != index){
-                    this.nextVotersIndex.push(index);
-                    this.nextVoters.push(this.newMappingTable.account[index].address);
-                    this.newMappingTable.account[index].voter_bit = 1;
-                    break;
-                }
-            }
-            else if(i == 1){
-                if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index){
-                    this.nextVotersIndex.push(index);
-                    this.nextVoters.push(this.newMappingTable.account[index].address);
-                    this.newMappingTable.account[index].voter_bit = 1;
-                    break;
-                }
-            }
-            else if(i == 2){
-                if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index && this.nextVotersIndex[i-2] != index){
-                    this.nextVotersIndex.push(index);
-                    this.nextVoters.push(this.newMappingTable.account[index].address);
-                    this.newMappingTable.account[index].voter_bit = 1;
-                    break;
-                }
-            }
-        }
-    }
-
-    return this.newMappingTable;
+    this.block.hash = this.block.hashBlock(previousHash, this.block);
 }
+
+// //尚未改成MPT
+// //還要計算vote完回傳的block之variable area
+// Creator.prototype.Calculate = function() {
+//     this.isNewMappingTableVoted = 1;
+
+//     for(var i = this.pendingTxs.length - 1; i >= 0; i--){
+//         for(var j = 0; j < this.newMappingTable.numOfAddress; j++){
+//             if(this.pendingTxs[i].sender == this.newMappingTable.account[j].address){
+//                 this.newMappingTable.account[j].balance -= parseFloat(this.pendingTxs[i].value);
+//             }
+//             if(this.pendingTxs[i].receiver == this.newMappingTable.account[j].address){
+//                 this.newMappingTable.account[j].balance += parseFloat(this.pendingTxs[i].value);
+//             }
+//         }
+//         this.pendingTxs.pop();
+//     }
+
+//     if(this.pendingTxs.length != 0){
+//         //console.log(this.pendingTxs.length)
+//         console.log("Clearing pendingTxs failed!");
+//         return null;
+//     }
+
+//     //calculate MPT root
+//     //call MPT API
+
+//     //clear the bits of creator and voter, and randomly select next creator and voter
+//     for(var i = 0; i < this.newMappingTable.numOfAddress; i++){
+//         this.newMappingTable.account[i].creator_bit = 0;
+//         this.newMappingTable.account[i].voter_bit = 0;
+//     }
+
+//     this.nextCreatorIndex = Math.floor(Math.random() * Math.floor(this.newMappingTable.numOfAddress));
+//     this.nextCreator = this.newMappingTable.account[this.nextCreatorIndex].address;
+//     this.newMappingTable.account[this.nextCreatorIndex].creator_bit = 1;
+//     for(var i = 0; i < 3; i++){
+//         while(1){
+//             var index = Math.floor(Math.random() * Math.floor(this.newMappingTable.numOfAddress));
+//             if(i == 0){
+//                 if(this.nextCreatorIndex != index){
+//                     this.nextVotersIndex.push(index);
+//                     this.nextVoters.push(this.newMappingTable.account[index].address);
+//                     this.newMappingTable.account[index].voter_bit = 1;
+//                     break;
+//                 }
+//             }
+//             else if(i == 1){
+//                 if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index){
+//                     this.nextVotersIndex.push(index);
+//                     this.nextVoters.push(this.newMappingTable.account[index].address);
+//                     this.newMappingTable.account[index].voter_bit = 1;
+//                     break;
+//                 }
+//             }
+//             else if(i == 2){
+//                 if(this.nextCreatorIndex != index && this.nextVotersIndex[i-1] != index && this.nextVotersIndex[i-2] != index){
+//                     this.nextVotersIndex.push(index);
+//                     this.nextVoters.push(this.newMappingTable.account[index].address);
+//                     this.newMappingTable.account[index].voter_bit = 1;
+//                     break;
+//                 }
+//             }
+//         }
+//     }
+
+//     return this.newMappingTable;
+// }
 
 
 module.exports = Creator;

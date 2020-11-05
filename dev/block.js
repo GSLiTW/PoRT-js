@@ -11,9 +11,9 @@ function Block(height, pendingTransactions, previousHash, MPT) {
     //variable area
     this.receiptTree = null,
     this.coSignature = NaN,
-    this.hash = this.hashBlock(previousHash, {index: this.index, transactions: this.transactions})
     this.nextCreator = NaN,
-    this.nextVoters = []
+    this.nextVoters = [],
+    this.hash = NaN
 };
 
 Block.prototype.hashBlock = function(previousBlockHash, currentBlockData){

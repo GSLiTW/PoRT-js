@@ -355,15 +355,29 @@ app.post("/transaction/broadcast", function(req, res){
 
 app.post("/receive-new-block", function(req, res){
     const seq = req.body.SeqNum;
-    if(SeqList.indexOf(seq)==-1) {
+    if(seqList.indexOf(seq) == -1) {
         const newBlock = req.body.newBlock;
         const lastBlock = chain.getLastBlock();
         const correctHash = lastBlock.hash === newBlock.previousBlockHash;
         const correctIndex = lastBlock["height"]+1 == newBlock["height"];
 
-        for(var i=0, UpdateList=chain.getLastBlock().transactions; i<UpdateList.length; i++) {
+        // for(var i=0, UpdateList=chain.getLastBlock().transactions; i<UpdateList.length; i++) {
+        //     Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+        // }
+
+        for(var i=0, UpdateList=newBlock.transactions; i<UpdateList.length; i++) {
             Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
         }
+
+        Tree.UpdateDbit(chain.getLastBlock().nextCreator, 0);
+        Tree.UpdateDbit(newBlock.nextCreator, 1);
+
+        for(var i=0, UpdateList=chain.getLastBlock().nextVoters; i<UpdateList.length; i++) {
+            Tree.UpdateDbit(chain.getLastBlock().nextVoters[i], 0);
+            Tree.UpdateDbit(UpdateList[i], 2);
+        }
+
+        console.log("Tree: ", Tree);
 
         if(correctHash && correctIndex){
             chain.chain.push(newBlock);
@@ -653,7 +667,18 @@ app.get("/block-explorer", function(req, res){
 app.get("/Creator", function(req, res){
     creator = new Creator(port, wallet.publicKey, Tree);
     if(creator.IsValid()) {
-        blockToVote = creator.Create(pending_txn_pool, chain.getLastBlock().height+1, chain.getLastBlock().hash);
+        // var previousBlock = chain.getLastBlock();
+        // console.log("********************", previousBlock);
+        // var previousBlockHash;
+        // if(previousBlock == null){
+        //     previousBlockHash = '0';
+        //     //console.log("********************", previousBlockHash);
+        // }
+        // else{
+        //     previousBlockHash = previousBlock["hash"];
+        //     //console.log("--------------------", previousBlockHash);
+        // }
+        blockToVote = creator.Create(pending_txn_pool, chain.getLastBlock().height+1, chain.getLastBlock()["hash"]);
         
         var seq = seqList[seqList.length-1] + 1;
         seqList.push(seq);
@@ -747,22 +772,28 @@ app.post("/Creator/GetVoters", function(req, res){
 })
 
 app.post("/Voter/GetData", function(req, res) {
-    const pubKeys = req.body.pubKeys;
-    const message = req.body.message;
-    voter.GetPublicData(pubKeys, message);
-    const SignerSession = voter.PrivateSign(wallet.signerPrivateData);
+    const isBlockValid = voter.VerifyBlock(req.body.message.merkleRoot, voter.MPT);
+    if(isBlockValid){
+        const pubKeys = req.body.pubKeys;
+        const message = req.body.message;
+        voter.GetPublicData(pubKeys, message);
+        const SignerSession = voter.PrivateSign(wallet.signerPrivateData);
 
-    const requestPromises = [];
-        
-    const requestOptions = {
-        uri: voter.CreatorUrl + "/Creator/GetCommitments",
-        method: "POST",
-        body: {Commitment: voter.signerPrivateData.session.commitment, publicKey: wallet.publicKeyCompressed, SignerSession: SignerSession},
-        json: true
-    };
-    requestPromises.push(rp(requestOptions));
+        const requestPromises = [];
+            
+        const requestOptions = {
+            uri: voter.CreatorUrl + "/Creator/GetCommitments",
+            method: "POST",
+            body: {Commitment: voter.signerPrivateData.session.commitment, publicKey: wallet.publicKeyCompressed, SignerSession: SignerSession},
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
 
-    res.json("GetData success!")
+        res.json("GetData success!")
+    }
+    else{
+        console.log("Error: Block verification failed !");
+    }
 })
 
 app.post("/Creator/GetCommitments", function(req, res){
@@ -882,6 +913,24 @@ app.post("/Creator/GetCosig", function(req, res) {
     const cosig = req.body.cosig;
     creator.GetCosig(cosig);
     console.log("cosig: ", creator.block.coSignature);
+})
+
+app.get("/Creator/GetBlock", function(req, res) {
+    creator.GetBlock(chain.getLastBlock()["hash"]);
+    console.log("current Block: ", creator.block);
+
+    var seq = seqList[seqList.length-1] + 1;
+    seqList.push(seq);
+
+    chain.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + "/receive-new-block",
+            method: "POST",
+            body: {SeqNum: seq, newBlock: creator.block},
+            json: true
+        };
+        rp(requestOptions);
+    });
 })
 
 app.listen(port, function(){
