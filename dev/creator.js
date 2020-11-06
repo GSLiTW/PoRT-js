@@ -53,7 +53,7 @@ Creator.prototype.Create = function(pendingTxs, height, previousHash) {
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
     }
 
-    this.block = new Block(height, pendingTxs, previousHash, this.MPT);
+    this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
 
     return this.block;
 }
@@ -143,6 +143,7 @@ Creator.prototype.GetBlock = function(previousHash) {
         this.block.nextVoters.push(voterPoRT.next_maintainer[1]);
     }
     this.block.hash = this.block.hashBlock(previousHash, this.block);
+    return this.block;
 }
 
 // //尚未改成MPT

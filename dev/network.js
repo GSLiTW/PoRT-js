@@ -381,7 +381,8 @@ app.post("/receive-new-block", function(req, res){
 
         if(correctHash && correctIndex){
             chain.chain.push(newBlock);
-            chain.pendingTransactions = [];
+            pending_txn_pool.clean();
+            if(newBlock.height == 4000719) pending_txn_pool.create(3);
             res.json({
                 note: 'New block received and accepted.',
                 newBlock: newBlock
@@ -562,6 +563,7 @@ app.post("/decrypt",async function(req,res){
 
 
 })
+
 app.post("/getResponse",function(req,res){
     let share =req.body.share;//???
     console.log(share);
@@ -916,8 +918,20 @@ app.post("/Creator/GetCosig", function(req, res) {
 })
 
 app.get("/Creator/GetBlock", function(req, res) {
-    creator.GetBlock(chain.getLastBlock()["hash"]);
-    console.log("current Block: ", creator.block);
+    var newBlock = creator.GetBlock(chain.getLastBlock()["hash"]);
+    // console.log("current Block: ", creator.block);
+
+    chain.chain.push(newBlock);
+    pending_txn_pool.clean();
+    if(newBlock.height == 4000719) pending_txn_pool.create(3);
+
+    Tree.UpdateDbit(chain.getLastBlock().nextCreator, 0);
+    Tree.UpdateDbit(newBlock.nextCreator, 1);
+
+    for(var i=0, UpdateList=chain.getLastBlock().nextVoters; i<UpdateList.length; i++) {
+        Tree.UpdateDbit(chain.getLastBlock().nextVoters[i], 0);
+        Tree.UpdateDbit(UpdateList[i], 2);
+    }
 
     var seq = seqList[seqList.length-1] + 1;
     seqList.push(seq);
@@ -926,11 +940,13 @@ app.get("/Creator/GetBlock", function(req, res) {
         const requestOptions = {
             uri: networkNodeUrl + "/receive-new-block",
             method: "POST",
-            body: {SeqNum: seq, newBlock: creator.block},
+            body: {SeqNum: seq, newBlock: newBlock},
             json: true
         };
         rp(requestOptions);
     });
+
+    res.send("Create Block Succeed.")
 })
 
 app.listen(port, function(){
