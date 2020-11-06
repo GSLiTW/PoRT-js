@@ -384,7 +384,7 @@ app.post("/receive-new-block", function(req, res){
                 Tree.UpdateTax(chain.getLastBlock().nextVoters[i], -(Tree.Search(chain.getLastBlock().nextVoter[i])[1]) * 0.7);
             }
         }
-
+        
         console.log("Tree: ", Tree);
 
         if(correctHash && correctIndex){
