@@ -377,6 +377,14 @@ app.post("/receive-new-block", function(req, res){
             Tree.UpdateDbit(UpdateList[i], 2);
         }
 
+        // refund creator's & voter's tax
+        if(lastBlock["height"] > 4000718) {
+            Tree.UpdateTax(chain.getLastBlock().nextCreator, -(Tree.Search(chain.getLastBlock().nextCreator)[1]));
+            for(var i=0, UpdateList=chain.getLastBlock().nextVoters; i<UpdateList.length; i++) {
+                Tree.UpdateTax(chain.getLastBlock().nextVoters[i], -(Tree.Search(chain.getLastBlock().nextVoter[i])[1]) * 0.7);
+            }
+        }
+
         console.log("Tree: ", Tree);
 
         if(correctHash && correctIndex){
