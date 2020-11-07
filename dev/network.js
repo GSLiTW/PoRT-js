@@ -369,23 +369,15 @@ app.post("/receive-new-block", function(req, res){
             Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
         }
 
-        Tree.UpdateDbit(chain.getLastBlock().nextCreator, 0);
+        Tree.UpdateDbit(lastBlock.nextCreator, 0);
         Tree.UpdateDbit(newBlock.nextCreator, 1);
 
-        for(var i=0, UpdateList=chain.getLastBlock().nextVoters; i<UpdateList.length; i++) {
-            Tree.UpdateDbit(chain.getLastBlock().nextVoters[i], 0);
-            Tree.UpdateDbit(UpdateList[i], 2);
-        }
-
-        // refund creator's & voter's tax
-        if(lastBlock["height"] > 4000718) {
-            Tree.UpdateTax(chain.getLastBlock().nextCreator, -(Tree.Search(chain.getLastBlock().nextCreator)[1]));
-            for(var i=0, UpdateList=chain.getLastBlock().nextVoters; i<UpdateList.length; i++) {
-                Tree.UpdateTax(chain.getLastBlock().nextVoters[i], -(Tree.Search(chain.getLastBlock().nextVoter[i])[1]) * 0.7);
-            }
+        for(var i=0; i<newBlock.nextVoters.length; i++) {
+            Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
+            Tree.UpdateDbit(newBlock.nextVoters[i], 2);
         }
         
-        console.log("Tree: ", Tree);
+        // console.log("Tree: ", Tree);
 
         if(correctHash && correctIndex){
             chain.chain.push(newBlock);
@@ -395,6 +387,14 @@ app.post("/receive-new-block", function(req, res){
                 note: 'New block received and accepted.',
                 newBlock: newBlock
             });
+
+            // refund creator's & voter's tax
+            if(lastBlock["height"] > 4000718) {
+                Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
+                for(var i=0; i<lastBlock.nextVoters.length; i++) {
+                    Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoter[i])[1]) * 0.7);
+                }
+            }
         }
         else{
             res.json({
@@ -922,23 +922,32 @@ app.post("/Voter/ExchangePartialSign", function(req, res) {
 app.post("/Creator/GetCosig", function(req, res) {
     const cosig = req.body.cosig;
     creator.GetCosig(cosig);
-    console.log("cosig: ", creator.block.coSignature);
+    // console.log("cosig: ", creator.block.coSignature);
 })
 
 app.get("/Creator/GetBlock", function(req, res) {
     var newBlock = creator.GetBlock(chain.getLastBlock()["hash"]);
-    // console.log("current Block: ", creator.block);
+    var lastBlock = chain.getLastBlock();
+
+
+    Tree.UpdateDbit(lastBlock.nextCreator, 0);
+    Tree.UpdateDbit(newBlock.nextCreator, 1);
+
+    for(var i=0; i<lastBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
+        Tree.UpdateDbit(newBlock.nextVoters, 2);
+    }
 
     chain.chain.push(newBlock);
     pending_txn_pool.clean();
     if(newBlock.height == 4000719) pending_txn_pool.create(3);
 
-    Tree.UpdateDbit(chain.getLastBlock().nextCreator, 0);
-    Tree.UpdateDbit(newBlock.nextCreator, 1);
-
-    for(var i=0, UpdateList=chain.getLastBlock().nextVoters; i<UpdateList.length; i++) {
-        Tree.UpdateDbit(chain.getLastBlock().nextVoters[i], 0);
-        Tree.UpdateDbit(UpdateList[i], 2);
+    // refund creator's & voter's tax
+    if(lastBlock["height"] > 4000718) {
+        Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
+        for(var i=0; i<lastBlock.nextVoters.length; i++) {
+            Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoter[i])[1]) * 0.7);
+        }
     }
 
     var seq = seqList[seqList.length-1] + 1;
