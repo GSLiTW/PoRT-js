@@ -336,6 +336,15 @@ MPT.prototype.Verify = function(key) {
     }
 };
 
+MPT.prototype.RefundTax = function(to, value = 0) {
+    var val1 = this.Search(to, '+', value);
+    if(val1 == null) {
+        console.log("> An error occurred when updating " + to + "'s value.");
+        return;
+    }
+    this.UpdateTax(to, -value);
+}
+
 MPT.prototype.UpdateValue = function(from, to, value=0) {
     if(this.type == 'account') {
         if(value <= 0) {

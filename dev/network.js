@@ -930,9 +930,11 @@ app.get("/Creator/GetBlock", function(req, res) {
 
     // refund creator's & voter's tax
     if(lastBlock["height"] >= 4000718) {
-        Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
+        Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
+        //Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
         for(var i=0; i<lastBlock.nextVoters.length; i++) {
-            Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
+            Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
+            //Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
         }
     }
 
