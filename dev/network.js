@@ -389,10 +389,10 @@ app.post("/receive-new-block", function(req, res){
             });
 
             // refund creator's & voter's tax
-            if(lastBlock["height"] > 4000718) {
+            if(lastBlock["height"] >= 4000718) {
                 Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
                 for(var i=0; i<lastBlock.nextVoters.length; i++) {
-                    Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoter[i])[1]) * 0.7);
+                    Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
                 }
             }
         }
@@ -926,29 +926,31 @@ app.post("/Creator/GetCosig", function(req, res) {
 })
 
 app.get("/Creator/GetBlock", function(req, res) {
-    var newBlock = creator.GetBlock(chain.getLastBlock()["hash"]);
     var lastBlock = chain.getLastBlock();
 
+    // refund creator's & voter's tax
+    if(lastBlock["height"] >= 4000718) {
+        Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
+        for(var i=0; i<lastBlock.nextVoters.length; i++) {
+            Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
+        }
+    }
 
+    var newBlock = creator.GetBlock(chain.getLastBlock()["hash"]);
+    
     Tree.UpdateDbit(lastBlock.nextCreator, 0);
     Tree.UpdateDbit(newBlock.nextCreator, 1);
 
     for(var i=0; i<lastBlock.nextVoters.length; i++) {
         Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
-        Tree.UpdateDbit(newBlock.nextVoters, 2);
+        Tree.UpdateDbit(newBlock.nextVoters[i], 2);
     }
 
     chain.chain.push(newBlock);
     pending_txn_pool.clean();
     if(newBlock.height == 4000719) pending_txn_pool.create(3);
 
-    // refund creator's & voter's tax
-    if(lastBlock["height"] > 4000718) {
-        Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
-        for(var i=0; i<lastBlock.nextVoters.length; i++) {
-            Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoter[i])[1]) * 0.7);
-        }
-    }
+
 
     var seq = seqList[seqList.length-1] + 1;
     seqList.push(seq);
