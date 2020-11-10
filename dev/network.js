@@ -371,7 +371,8 @@ app.post("/receive-new-block", function(req, res){
 
         Tree.UpdateDbit(lastBlock.nextCreator, 0);
         Tree.UpdateDbit(newBlock.nextCreator, 1);
-
+        
+        // console.log(newBlock)
         for(var i=0; i<newBlock.nextVoters.length; i++) {
             Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
             Tree.UpdateDbit(newBlock.nextVoters[i], 2);
@@ -383,6 +384,15 @@ app.post("/receive-new-block", function(req, res){
             chain.chain.push(newBlock);
             pending_txn_pool.clean();
             if(newBlock.height == 4000719) pending_txn_pool.create(3);
+            var currentdate = new Date(); 
+            var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds() + "."
+                + currentdate.getMilliseconds();
+            console.log(datetime);
             res.json({
                 note: 'New block received and accepted.',
                 newBlock: newBlock
@@ -679,17 +689,15 @@ app.get("/block-explorer", function(req, res){
 app.get("/Creator", function(req, res){
     creator = new Creator(port, wallet.publicKey, Tree);
     if(creator.IsValid()) {
-        // var previousBlock = chain.getLastBlock();
-        // console.log("********************", previousBlock);
-        // var previousBlockHash;
-        // if(previousBlock == null){
-        //     previousBlockHash = '0';
-        //     //console.log("********************", previousBlockHash);
-        // }
-        // else{
-        //     previousBlockHash = previousBlock["hash"];
-        //     //console.log("--------------------", previousBlockHash);
-        // }
+        var currentdate = new Date(); 
+        var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds()+ "."
+                + currentdate.getMilliseconds();
+
         blockToVote = creator.Create(pending_txn_pool, chain.getLastBlock().height+1, chain.getLastBlock()["hash"]);
         
         var seq = seqList[seqList.length-1] + 1;
@@ -707,7 +715,7 @@ app.get("/Creator", function(req, res){
         });
 
         res.json({
-            SeqNum: seq, CreatorUrl: chain.currentNodeUrl
+            SeqNum: seq, CreatorUrl: chain.currentNodeUrl, Time: datetime
         })
     } else {
         creator = null;
@@ -924,52 +932,75 @@ app.post("/Voter/ExchangePartialSign", function(req, res) {
 app.post("/Creator/GetCosig", function(req, res) {
     const cosig = req.body.cosig;
     creator.GetCosig(cosig);
-    // console.log("cosig: ", creator.block.coSignature);
+    
+    var seq = seqList[seqList.length-1] + 1;
+
+    const requestPromises = [];
+    const requestOptions = {
+        uri: "http://localhost:" + creator.port + "/Creator/GetBlock",
+        method: "POST",
+        body: {seqNum: seq},
+        json: true
+    };
+    requestPromises.push(rp(requestOptions));
 })
 
-app.get("/Creator/GetBlock", function(req, res) {
-    var lastBlock = chain.getLastBlock();
+app.post("/Creator/GetBlock", function(req, res) {
+    var seq = req.body.SeqNum;
 
-    // refund creator's & voter's tax
-    if(lastBlock["height"] >= 4000718) {
-        Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-        //Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
-        for(var i=0; i<lastBlock.nextVoters.length; i++) {
-            Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
-            //Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
+    if(seqList.indexOf(seq) == -1) {
+        seqList.push(seq);
+        var lastBlock = chain.getLastBlock();
+
+        // refund creator's & voter's tax
+        if(lastBlock["height"] >= 4000718) {
+            Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
+            //Tree.UpdateTax(lastBlock.nextCreator, -(Tree.Search(lastBlock.nextCreator)[1]));
+            for(var i=0; i<lastBlock.nextVoters.length; i++) {
+                Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
+                //Tree.UpdateTax(lastBlock.nextVoters[i], -(Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
+            }
         }
+
+        var newBlock = creator.GetBlock(chain.getLastBlock()["hash"]);
+        
+        Tree.UpdateDbit(lastBlock.nextCreator, 0);
+        Tree.UpdateDbit(newBlock.nextCreator, 1);
+
+        for(var i=0; i<lastBlock.nextVoters.length; i++) {
+            Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
+            Tree.UpdateDbit(newBlock.nextVoters[i], 2);
+        }
+        console.log(newBlock);
+        chain.chain.push(newBlock);
+        pending_txn_pool.clean();
+        if(newBlock.height == 4000719) pending_txn_pool.create(3);
+
+        var currentdate = new Date(); 
+        var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds() + "."
+                + currentdate.getMilliseconds();
+        console.log(datetime);
+
+        seq = seqList[seqList.length-1] + 1;
+        seqList.push(seq);
+
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/receive-new-block",
+                method: "POST",
+                body: {SeqNum: seq, newBlock: newBlock},
+                json: true
+            };
+            rp(requestOptions);
+        });
+
+        res.send("Create Block Succeed.")
     }
-
-    var newBlock = creator.GetBlock(chain.getLastBlock()["hash"]);
-    
-    Tree.UpdateDbit(lastBlock.nextCreator, 0);
-    Tree.UpdateDbit(newBlock.nextCreator, 1);
-
-    for(var i=0; i<lastBlock.nextVoters.length; i++) {
-        Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
-        Tree.UpdateDbit(newBlock.nextVoters[i], 2);
-    }
-
-    chain.chain.push(newBlock);
-    pending_txn_pool.clean();
-    if(newBlock.height == 4000719) pending_txn_pool.create(3);
-
-
-
-    var seq = seqList[seqList.length-1] + 1;
-    seqList.push(seq);
-
-    chain.networkNodes.forEach(networkNodeUrl => {
-        const requestOptions = {
-            uri: networkNodeUrl + "/receive-new-block",
-            method: "POST",
-            body: {SeqNum: seq, newBlock: newBlock},
-            json: true
-        };
-        rp(requestOptions);
-    });
-
-    res.send("Create Block Succeed.")
 })
 
 app.listen(port, function(){
