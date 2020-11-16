@@ -1,5 +1,4 @@
 const MPT = require("./MPT");
-const Transaction_Pool = require("./transaction_pool.js");
 const Pending_Transaction_Pool = require("./pending_transaction_pool.js");
 const Mapping_table = require("./mapping_table");
 const sha256 = require("sha256");

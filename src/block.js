@@ -1,4 +1,5 @@
 const sha256 = require("sha256");
+const Pending_Transaction_Pool = require("./pending_transaction_pool")
 
 function Block(height, pendingTransactions, previousHash, MPT) {
     //fixed area
@@ -6,14 +7,14 @@ function Block(height, pendingTransactions, previousHash, MPT) {
     this.merkleRoot = MPT.Cal_hash(),
     this.timestamp = Date.now(),
     this.height = height,
-    this.transactions = pendingTransactions,
+    this.transactions = new Pending_Transaction_Pool(pendingTransactions),
     
     //variable area
     this.receiptTree = null,
     this.coSignature = NaN,
-    this.hash = this.hashBlock(previousHash, {index: this.index, transactions: this.transactions})
     this.nextCreator = NaN,
-    this.nextVoters = []
+    this.nextVoters = [],
+    this.hash = NaN
 };
 
 Block.prototype.hashBlock = function(previousBlockHash, currentBlockData){

@@ -2,8 +2,8 @@
 const CSV_data = require("./CSV_data.js");
 const Transaction_MT = require("./transaction_for_mapping_table.js");
 
-function Pending_Transaction_Pool() {
-    this.transactions = [];
+function Pending_Transaction_Pool(tx = []) {
+    this.transactions = tx;
 };
 
 Pending_Transaction_Pool.prototype.create = function(num) {

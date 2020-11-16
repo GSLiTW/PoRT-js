@@ -29,16 +29,13 @@ Wallet.prototype.NewKeyPair = function(){
     const ecdsa = new elliptic.ec('secp256k1');
     const keys = ecdsa.keyFromPrivate(this.privateKey);
     this.publicKey = keys.getPublic('hex');     //integer
-    //console.log("Private Key: ", this.privateKey);
-    //console.log("Public Key: ", this.publicKey);
-    //console.log("this.signerPrivateData.privateKey", this.signerPrivateData.privateKey);
 }
 
 Wallet.prototype.PublicKeyHash = function(){
     let hash = sha256(Buffer.from(publicKey, 'hex'));
-    // console.log("Public Key:", publicKey)
+
     let publicKeyHash = new ripemd160().update(Buffer.from(hash, 'hex')).digest();
-    // console.log(publicKeyHash.toString('hex'))
+
     return publicKeyHash.toString('hex');
 }
 
@@ -52,13 +49,9 @@ Wallet.prototype.Checksum = function(versionedHash){
 
 Wallet.prototype.Address = function() {
     var pubHash = this.PublicKeyHash();
-    // console.log("PublicKeyHash: ", pubHash)
     var versionedHash = "00" + pubHash;
-    // console.log("VersionedHash: ", versionedHash)
     var checksum = this.Checksum(versionedHash);
-    // console.log("CHecksum: ", checksum);
     var fullHash = versionedHash + checksum.toString('hex');
-    // console.log("FUllHash: ", fullHash)
     
     return base58.encode(Buffer.from(fullHash,'hex'));
 }
@@ -71,21 +64,13 @@ Wallet.prototype.Sign = function(dataHash) {
 
 Wallet.prototype.ValidateAddress = function(address){
     var pubHash = base58.decode(address);
-    // console.log("pubHash:", pubHash);
     var actualChecksum = pubHash.subarray(pubHash.length - CHECKSUM_LENGTH);
-    // console.log("actualChecksum:", actualChecksum);
     var version = pubHash.subarray(0,1);
     var pubHash = pubHash.subarray(1,pubHash.length - CHECKSUM_LENGTH);
     var targetChecksum = this.Checksum(Buffer.concat([version, pubHash]));
-    // console.log("targetChecksum:", targetChecksum)
 
     return (actualChecksum.compare(targetChecksum) == 0)
 
 }
 
 module.exports = Wallet;
-
-//w = new Wallet();
-// console.log(w.Address(), base58.decode(w.Address()).toString('hex'));
-// console.log(w.ValidateAddress(w.Address()));
-// console.log((w.Sign("123")),(w.Sign("123")));
