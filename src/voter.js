@@ -7,25 +7,43 @@ const muSig = schnorr.muSig;
 const elliptic = require('elliptic');
 const ec = new elliptic.ec('secp256k1');
 
+/**
+ * Constructor of the Voter class
+ * @class  Voter
+ * @param  {string} port - Network port number of the voter
+ * @param  {string} pubKey - Wallet public key of the voter
+ * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the voter
+ */
 function Voter(port, pubKey, MPT){
     this.MPT = MPT;
     this.port = port;
     this.pubKey = pubKey;
     this.pubKeyCompressed = ec.keyFromPublic(this.pubKey, "hex").getPublic().encodeCompressed("hex")
 }
-
+/**
+ * Check if the caller is selected as voter to perform actions for the current round of block construction
+ * @return {bool} True if the caller is the voter of the current round of block construction; False otherwise 
+ */
 Voter.prototype.IsValid = function() {
-    return (this.MPT.Verify(this.pubKey) == 2);
+    return (this.MPT.Verify(this.pubKey) == 2); // Check by validating the dirty bit in the latest account MPT
 }
-
+/**
+ * Receive creator's network url from creator and save it in Voter's data structure
+ * @param  {string} url - Creator's network url
+ */
 Voter.prototype.CreatorUrl = function(url) {
     this.CreatorUrl = url;
 }
-
-Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) {
+/**
+ * Check if new block's merkle root is valid (matches the merkle root calculated by voter's local MPT copy)
+ * @param  {string} merkleRoot - new block's merkle root calculated by creator
+ * @param  {MPT} voterMPT - voter's local MPT copy
+ * @return {bool} True if merkleRoot is valid; False otherwise 
+ */
+Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) {  // TODO: why do we need to pass voter MPT?
     var hash = voterMPT.Cal_hash();
-    console.log("merkleRoot: ", merkleRoot);
-    console.log("hash: ", hash);
+    // console.log("merkleRoot: ", merkleRoot);
+    // console.log("hash: ", hash);
     if(merkleRoot == hash){
         return 1;
     }
@@ -33,7 +51,12 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) {
         return 0;
     }
 }
-
+/**
+ * Get the publicly known data for multisig from creator and store them in Voter's data structure
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ * @param  {string} pubKeys - wallet public keys of other voters
+ * @param  message - shared message between creator/voter
+ */
 Voter.prototype.GetPublicData = function(pubKeys, message) {
     this.pubKeys = pubKeys.slice();
     for(var i in pubKeys) {
@@ -56,7 +79,12 @@ Voter.prototype.GetPublicData = function(pubKeys, message) {
     this.publicData.pubKeyHash = muSig.computeEll(this.publicData.pubKeys);
     this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
 }
-
+/**
+ * Create the private signing session for multisig
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ * @param  signerPrivateData
+ * @return SignerSession if it is the first voter (idx == 0); null otherwise
+ */
 Voter.prototype.PrivateSign = function(signerPrivateData) {
     this.signerPrivateData = signerPrivateData;
     const idx = this.pubKeys.indexOf(this.pubKeyCompressed);
@@ -81,6 +109,11 @@ Voter.prototype.PrivateSign = function(signerPrivateData) {
     }
 }
 
+/**
+ * Get SignerSession from the first voter and store it in each voter's SignerSession
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ * @param  {} SignerSession - first voter's signer session
+ */
 Voter.prototype.GetSignerSession = function(SignerSession) {
     SignerSession.sessionId = Buffer.from(SignerSession.sessionId)
     SignerSession.ell = Buffer.from(SignerSession.ell)
@@ -91,13 +124,22 @@ Voter.prototype.GetSignerSession = function(SignerSession) {
     this.SignerSession = SignerSession;
 }
 
+/**
+ * Exchange each voter's commitment (communication round 1) through creator
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ * @param  {} commitments
+ */
 Voter.prototype.ExchangeCommitment = function(commitments) {
     for(var i in commitments) {
         commitments[i] = Buffer.from(commitments[i])
     }
     this.publicData.commitments = commitments;
 }
-
+/**
+ * Get nonces from each voter (communication round 2) through creator
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ * @param  {} nonces
+ */
 Voter.prototype.ExchangeNonce = function(nonces) {
     for(var i in nonces) {
         nonces[i] = Buffer.from(nonces[i])
@@ -109,11 +151,18 @@ Voter.prototype.ExchangeNonce = function(nonces) {
 
     this.PartialSign();
 }
-
+/**
+ * Generate partial signatures over the given message
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ */
 Voter.prototype.PartialSign = function() {
     this.signerPrivateData.session.partialSignature = BigInteger.fromHex(muSig.partialSign(this.signerPrivateData.session, this.publicData.message, this.publicData.nonceCombined, this.publicData.pubKeyCombined).toHex());
 }
-
+/**
+ * Exchange voter's partial signatures (communication round 3) through creator
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ * @param  {} partialsigns
+ */
 Voter.prototype.ExchangePartialSign = function(partialsigns) { 
     for(var i in partialsigns) {
         partialsigns[i] = BigInteger.fromHex(partialsigns[i])
@@ -135,14 +184,21 @@ Voter.prototype.ExchangePartialSign = function(partialsigns) {
 
     this.CombinePartialSign();
 }
-
+/**
+ * Combine partial signatures to full signature (s, R) that can be verified against combined public key P
+ * ,then verify as Schnorr signature (s, R) over the message m and public key P.
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ */
 Voter.prototype.CombinePartialSign = function() {
     this.publicData.signature = muSig.partialSigCombine(this.publicData.nonceCombined, this.publicData.partialSignatures);
 
 
     this.VerifyCoSig();
 }
-
+/**
+ * Verify the signature as a normal Schnorr Signature (s, R) over message m and public key P
+ * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+ */
 Voter.prototype.VerifyCoSig = function() {
     console.log("CoSig:", this.publicData.signature.toString('hex'))
     schnorr.verify(this.publicData.pubKeyCombined, this.publicData.message, this.publicData.signature);
