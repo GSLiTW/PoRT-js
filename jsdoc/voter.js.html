@@ -1,4 +1,32 @@
-const randomBytes = require('random-bytes');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: voter.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: voter.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const randomBytes = require('random-bytes');
 const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
 const BigInteger = require('bigi');
 const schnorr = require('bip-schnorr');
@@ -55,8 +83,8 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) {  // TODO: why do 
 /**
  * Get the publicly known data for multisig from creator and store them in Voter's data structure
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
- * @param  {Array[string]} pubKeys - wallet public keys of other voters
- * @param  {*} message - shared message between creator/voter
+ * @param  {string} pubKeys - wallet public keys of other voters
+ * @param  message - shared message between creator/voter
  */
 Voter.prototype.GetPublicData = function(pubKeys, message) {
     this.pubKeys = pubKeys.slice();
@@ -81,7 +109,7 @@ Voter.prototype.GetPublicData = function(pubKeys, message) {
     this.publicData.pubKeyCombined = muSig.pubKeyCombine(this.publicData.pubKeys, this.publicData.pubKeyHash);
 }
 /**
- * Create the private signing session for multisig <br>
+ * Create the private signing session for multisig
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
  * @param  signerPrivateData
  * @return SignerSession if it is the first voter (idx == 0); null otherwise
@@ -111,9 +139,9 @@ Voter.prototype.PrivateSign = function(signerPrivateData) {
 }
 
 /**
- * Get SignerSession from the first voter and store it in each voter's SignerSession <br>
+ * Get SignerSession from the first voter and store it in each voter's SignerSession
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
- * @param  {SignerSession} SignerSession - first voter's signer session
+ * @param  {} SignerSession - first voter's signer session
  */
 Voter.prototype.GetSignerSession = function(SignerSession) {
     SignerSession.sessionId = Buffer.from(SignerSession.sessionId)
@@ -126,7 +154,7 @@ Voter.prototype.GetSignerSession = function(SignerSession) {
 }
 
 /**
- * Exchange each voter's commitment (communication round 1) through creator <br>
+ * Exchange each voter's commitment (communication round 1) through creator
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
  * @param  {} commitments
  */
@@ -137,9 +165,9 @@ Voter.prototype.ExchangeCommitment = function(commitments) {
     this.publicData.commitments = commitments;
 }
 /**
- * Get nonces from each voter (communication round 2) through creator <br>
+ * Get nonces from each voter (communication round 2) through creator
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
- * @param  {Array} nonces
+ * @param  {} nonces
  */
 Voter.prototype.ExchangeNonce = function(nonces) {
     for(var i in nonces) {
@@ -153,16 +181,16 @@ Voter.prototype.ExchangeNonce = function(nonces) {
     this.PartialSign();
 }
 /**
- * Generate partial signatures over the given message <br>
+ * Generate partial signatures over the given message
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
  */
 Voter.prototype.PartialSign = function() {
     this.signerPrivateData.session.partialSignature = BigInteger.fromHex(muSig.partialSign(this.signerPrivateData.session, this.publicData.message, this.publicData.nonceCombined, this.publicData.pubKeyCombined).toHex());
 }
 /**
- * Exchange voter's partial signatures (communication round 3) through creator <br>
+ * Exchange voter's partial signatures (communication round 3) through creator
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
- * @param  {Array} partialsigns
+ * @param  {} partialsigns
  */
 Voter.prototype.ExchangePartialSign = function(partialsigns) { 
     for(var i in partialsigns) {
@@ -171,7 +199,7 @@ Voter.prototype.ExchangePartialSign = function(partialsigns) {
     this.publicData.partialSignatures = partialsigns;
 
 
-    for (let i = 0; i < this.publicData.pubKeys.length; i++) {
+    for (let i = 0; i &lt; this.publicData.pubKeys.length; i++) {
 
         muSig.partialSigVerify(
           this.SignerSession,
@@ -187,15 +215,17 @@ Voter.prototype.ExchangePartialSign = function(partialsigns) {
 }
 /**
  * Combine partial signatures to full signature (s, R) that can be verified against combined public key P
- * ,then verify as Schnorr signature (s, R) over the message m and public key P. <br>
+ * ,then verify as Schnorr signature (s, R) over the message m and public key P.
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
  */
 Voter.prototype.CombinePartialSign = function() {
     this.publicData.signature = muSig.partialSigCombine(this.publicData.nonceCombined, this.publicData.partialSignatures);
+
+
     this.VerifyCoSig();
 }
 /**
- * Verify the signature as a normal Schnorr Signature (s, R) over message m and public key P <br>
+ * Verify the signature as a normal Schnorr Signature (s, R) over message m and public key P
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
  */
 Voter.prototype.VerifyCoSig = function() {
@@ -212,4 +242,26 @@ Voter.prototype.PoRT = function() {
     console.log(h);
 }
 
-module.exports = Voter;
+module.exports = Voter;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Voter.html">Voter</a></li><li><a href="Wallet.html">Wallet</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Mar 08 2021 11:31:21 GMT+0800 (Taipei Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

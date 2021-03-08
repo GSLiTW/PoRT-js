@@ -195,7 +195,6 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "jsdoc": "^3.6.6",
     "jsdoc-to-markdown": "^7.0.0"
   },
   "repository": {
