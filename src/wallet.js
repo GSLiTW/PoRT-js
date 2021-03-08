@@ -7,7 +7,13 @@ const BigInteger = require("bigi");
 const ec = new elliptic.ec('secp256k1');
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
-
+/**
+ * Generate & Initialize Wallet Class
+ * @class
+ * @constructor
+ * @param  {string} prik='' - private key
+ * @param  {string} pubk='' - public key
+ */
 function Wallet(prik='', pubk='') {
     this.privateKey = prik;
     this.publicKey = pubk;
@@ -22,7 +28,9 @@ function Wallet(prik='', pubk='') {
     };
     this.publicKeyCompressed = ec.keyFromPublic(this.publicKey, "hex").getPublic().encodeCompressed("hex")
 };
-
+/**
+ * Generate key pair when no parameters passed into wallet constructor
+ */
 Wallet.prototype.NewKeyPair = function(){
     this.privateKey = secureRandom.randomBuffer(32);
     this.signerPrivateData.privateKey = BigInteger.fromBuffer(this.privateKey);
@@ -30,7 +38,10 @@ Wallet.prototype.NewKeyPair = function(){
     const keys = ecdsa.keyFromPrivate(this.privateKey);
     this.publicKey = keys.getPublic('hex');     //integer
 }
-
+/**
+ * Generate the hash of public key
+ * @return {string}  public key hash
+ */
 Wallet.prototype.PublicKeyHash = function(){
     let hash = sha256(Buffer.from(publicKey, 'hex'));
 
@@ -38,7 +49,11 @@ Wallet.prototype.PublicKeyHash = function(){
 
     return publicKeyHash.toString('hex');
 }
-
+/**
+ * Hash twice to generate checksum
+ * @param  {string} versionedHash - bitcoin blockchain version byte + publickey hash
+ * @return {string} - checksum for address conversion
+ */
 Wallet.prototype.Checksum = function(versionedHash){
     var firstHash = sha256(Buffer.from(versionedHash, 'hex'));
     var secondHash = sha256(Buffer.from(firstHash, 'hex'));
@@ -46,7 +61,10 @@ Wallet.prototype.Checksum = function(versionedHash){
     return secondHash.subarray(0,CHECKSUM_LENGTH);
 
 }
-
+/**
+ * Generate address from initial public key
+ * @return {string}  base58 address
+ */
 Wallet.prototype.Address = function() {
     var pubHash = this.PublicKeyHash();
     var versionedHash = "00" + pubHash;
@@ -55,13 +73,21 @@ Wallet.prototype.Address = function() {
     
     return base58.encode(Buffer.from(fullHash,'hex'));
 }
-
+/**
+ * Sign data for multisignature
+ * @param  {string} dataHash - data to sign
+ * @return {string} signature
+ */
 Wallet.prototype.Sign = function(dataHash) {
     const ecdsa = new elliptic.ec('secp256k1');
     let signature = ecdsa.sign(dataHash, privateKey, "hex", {canonical:true});
     return signature;
 }
-
+/**
+ * Validate if the input address is valid
+ * @param  {string} address - address to validate
+ * @return {bool} True if the input address is valid; False otherwise
+ */
 Wallet.prototype.ValidateAddress = function(address){
     var pubHash = base58.decode(address);
     var actualChecksum = pubHash.subarray(pubHash.length - CHECKSUM_LENGTH);
