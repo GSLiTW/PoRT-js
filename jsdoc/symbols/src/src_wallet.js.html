@@ -16,7 +16,7 @@
 <span class='line'>  9</span> </span><span class="KEYW">const</span><span class="WHIT"> </span><span class="NAME">CHECKSUM_LENGTH</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">4</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="COMM">// 4 bytes</span><span class="WHIT">
 <span class='line'> 10</span> </span><span class="COMM">/**
 <span class='line'> 11</span>  * Generate & Initialize Wallet Class
-<span class='line'> 12</span>  * @class
+<span class='line'> 12</span>  * @class Wallet Class contains public-private key pair as well as its signing function for a wallet node
 <span class='line'> 13</span>  * @constructor
 <span class='line'> 14</span>  * @param  {string} [prik] - private key
 <span class='line'> 15</span>  * @param  {string} [pubk] - public key
@@ -59,7 +59,7 @@
 <span class='line'> 52</span> </span><span class="COMM">/**
 <span class='line'> 53</span>  * Hash twice to generate checksum
 <span class='line'> 54</span>  * @param  {string} versionedHash - bitcoin blockchain version byte + publickey hash
-<span class='line'> 55</span>  * @return {string} - checksum for address conversion
+<span class='line'> 55</span>  * @return {string} checksum for address conversion
 <span class='line'> 56</span>  */</span><span class="WHIT">
 <span class='line'> 57</span> </span><span class="NAME">Wallet.prototype.Checksum</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">versionedHash</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
 <span class='line'> 58</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">firstHash</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">sha256</span><span class="PUNC">(</span><span class="NAME">Buffer.from</span><span class="PUNC">(</span><span class="NAME">versionedHash</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'hex'</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">

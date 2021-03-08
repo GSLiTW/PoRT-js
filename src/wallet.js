@@ -9,7 +9,7 @@ const ec = new elliptic.ec('secp256k1');
 const CHECKSUM_LENGTH = 4; // 4 bytes
 /**
  * Generate & Initialize Wallet Class
- * @class
+ * @class Wallet Class contains public-private key pair as well as its signing function for a wallet node
  * @constructor
  * @param  {string} [prik] - private key
  * @param  {string} [pubk] - public key
@@ -52,7 +52,7 @@ Wallet.prototype.PublicKeyHash = function(){
 /**
  * Hash twice to generate checksum
  * @param  {string} versionedHash - bitcoin blockchain version byte + publickey hash
- * @return {string} - checksum for address conversion
+ * @return {string} checksum for address conversion
  */
 Wallet.prototype.Checksum = function(versionedHash){
     var firstHash = sha256(Buffer.from(versionedHash, 'hex'));

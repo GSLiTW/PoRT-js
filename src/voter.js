@@ -9,7 +9,7 @@ const ec = new elliptic.ec('secp256k1');
 
 /**
  * Constructor of the Voter class
- * @class
+ * @class Voter is used to generate cosignature for block creation
  * @constructor
  * @param  {string} port - Network port number of the voter
  * @param  {string} pubKey - Wallet public key of the voter
