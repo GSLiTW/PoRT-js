@@ -1,7 +1,8 @@
 const currentNodeUrl = process.argv[3];
 
 // local modules
-const Block = require('./block.js')
+const Block = require('./block.js');
+const Transaction_MT = require('./transaction.js');
 const Txn_Pool = require('./transaction_pool');
 
 const TRANSACTION_TYPE = {
@@ -10,7 +11,10 @@ const TRANSACTION_TYPE = {
     validator_fee: "VALIDATOR_FEE"
 };
 
-
+/**
+ * Generate & Initialize Blockchain Class
+ * @param  {MPT} MPT
+ */
 function Blockchain(MPT){
     this.chain = [];
     // this.pendingTransactions = [];
@@ -30,7 +34,13 @@ function Blockchain(MPT){
     this.chain.push(genesisBlock)   //create Genesis Block
 }
 
-
+/**
+ * Generate new block and append it to chain
+ * @param  {list} pendingTransactions
+ * @param  {string} previousHash
+ * @param  {MPT} MPT
+ * @return {Block} New Block
+ */
 Blockchain.prototype.createNewBlock = function(pendingTransactions, previousHash, MPT){
     var newBlock = new Block(this.getLastBlock().height+1, pendingTransactions, previousHash, MPT)
 
@@ -39,45 +49,28 @@ Blockchain.prototype.createNewBlock = function(pendingTransactions, previousHash
 
     return newBlock;
 };
-
+/**
+ * @return {Block} Last Block
+ */
 Blockchain.prototype.getLastBlock = function(){
     return this.chain[this.chain.length-1];
 };
 
+/**
+ * Add transaction to pending transaction
+ * @param  {Transaction_MT} transactionObj
+ * @return {Block} Last Block
+ */
 Blockchain.prototype.addTransactionToPendingTransaction = function(transactionObj){
     this.pendingTransactions.push(transactionObj);
     return this.getLastBlock()["height"]+1;
 };
 
-Blockchain.prototype.chainIsValid = function(blockchain){
-    var validChain = true;
-    for(var i=1; i<blockchain.length; i++){
-        const currentBlock = blockchain[i];
-        const prevBlock = blockchain[i-1];
-        const blockHash = this.hashBlock(prevBlock["hash"], {
-            transactions: currentBlock["transactions"],
-            index: currentBlock["height"]
-            },
-            currentBlock["nonce"]
-        );
-        if(blockHash.substring(0, 2) !== "00")
-            validChain = false;
-        if(currentBlock["previousBlockHash"] !== prevBlock["hash"])
-            validChain = false;
-    }
-
-    const genesisBlock = blockchain[0];
-    const correctNonce = genesisBlock["nonce"] === 100;
-    const correctPreviousBlockHash = genesisBlock["previousBlockHash"] === "0";
-    const correctHash = genesisBlock["hash"] === "0";
-    const correctTransactions = genesisBlock["transactions"].length === 0;
-
-    if(!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransactions)
-        validChain = false;
-    
-    return validChain;
-}
-
+/**
+ * Find block with given blockhash
+ * @param  {string} blockHash
+ * @return {Block} The correct Block
+ */
 Blockchain.prototype.getBlock = function(blockHash){
 
     let correctBlock = null;
@@ -88,7 +81,11 @@ Blockchain.prototype.getBlock = function(blockHash){
 
     return correctBlock;
 };
-
+/**
+ * get transaction from chain by its id
+ * @param  {string} transactionId
+ * @return {Transaction_MT,Block} transaction and the block where it is located
+ */
 Blockchain.prototype.getTransaction = function(transactionId){
 
     let correctTransaction = null;
@@ -109,7 +106,7 @@ Blockchain.prototype.getTransaction = function(transactionId){
 };
 
 /*
- *  This function (method) should be in wallet.js
+ *  TODO: This function (method) should be in wallet.js
  */
 Blockchain.prototype.getAddressData = function(address){
     const addressTransactions = [];
@@ -135,51 +132,5 @@ Blockchain.prototype.getAddressData = function(address){
 
 }
 
-Blockchain.prototype.getBalance = function(publicKey) {
-    return this.accounts.getBalance(publicKey);
-}
-
-Blockchain.prototype.getLeader = function() {
-    return this.stakes.getMax(this.validators.list);
-}
-
-Blockchain.prototype.initialize = function(address) {
-    this.accounts.initialize(address);
-    this.stakes.initialize(address);
-}
-
-Blockchain.prototype.executeTransactions = function(block) {
-    block.data.forEach(transaction => {
-        switch (transaction.type) {
-            case TRANSACTION_TYPE.transaction:
-                this.accounts.update(transaction);
-                this.accounts.transferFee(block, transaction);
-            break;
-            case TRANSACTION_TYPE.stake:
-            this.stakes.update(transaction);
-            this.accounts.decrement(
-                transaction.input.from,
-                transaction.output.amount
-            );
-            this.accounts.transferFee(block, transaction);
-            break;
-            case TRANSACTION_TYPE.validator_fee:
-            if (this.validators.update(transaction)) {
-                this.accounts.decrement(
-                transaction.input.from,
-                transaction.output.amount
-                );
-                this.accounts.transferFee(block, transaction);
-            }
-            break;
-        }
-    });
-}
-
-Blockchain.prototype.executeChain = function(chain) {
-    chain.forEach(block => {
-        this.executeTransactions(block);
-    });
-}
 
 module.exports = Blockchain;

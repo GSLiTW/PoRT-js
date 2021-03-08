@@ -1,6 +1,6 @@
 // data structure for pending txns
 const CSV_data = require("./CSV_data.js");
-const Transaction_MT = require("./transaction_for_mapping_table.js");
+const Transaction_MT = require("./transaction.js");
 
 function Pending_Transaction_Pool(tx = []) {
     this.transactions = tx;
