@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>JsDoc Reference - Voter</title>
+		<title>JsDoc Reference - MPT</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -212,7 +212,7 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Class Voter
+				Class MPT
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
@@ -220,16 +220,16 @@ ul.inheritsList
 				
 				
 			
-				Voter is used to generate cosignature for block creation
+				Data Structure for Merkle Patricia Trie (MPT)
 				
 				
-					<br /><i>Defined in: </i> <a href="../symbols/src/src_voter.js.html">voter.js</a>.
+					<br /><i>Defined in: </i> <a href="../symbols/src/src_MPT.js.html">MPT.js</a>.
 				
 			</p>
 
 <!-- ============================== constructor summary ==================== -->			
 			
-			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class Voter.">
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class MPT.">
 				<caption>Class Summary</caption>
 				<thead>
 					<tr>
@@ -242,9 +242,9 @@ ul.inheritsList
 						<td class="attributes">&nbsp;</td>
 						<td class="nameDescription" >
 							<div class="fixedFont">
-								<b><a href="../symbols/Voter.html#constructor">Voter</a></b>(port, pubKey, MPT)
+								<b><a href="../symbols/MPT.html#constructor">MPT</a></b>(root, type)
 							</div>
-							<div class="description">Constructor of the Voter class</div>
+							<div class="description">Constructor of the MPT Class</div>
 						</td>
 					</tr>
 				</tbody>
@@ -258,7 +258,7 @@ ul.inheritsList
 			
 				
 				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class Voter.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class MPT.">
 					<caption>Method Summary</caption>
 					<thead>
 						<tr>
@@ -271,117 +271,108 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#CombinePartialSign">CombinePartialSign</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#Cal_hash">Cal_hash</a></b>()
 								</div>
-								<div class="description">Combine partial signatures to full signature (s, R) that can be verified against combined public key P
-,then verify as Schnorr signature (s, R) over the message m and public key P.</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#CreatorUrl">CreatorUrl</a></b>(url)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#Cal_pack_nibble">Cal_pack_nibble</a></b>()
 								</div>
-								<div class="description">Receive creator's network url from creator and save it in Voter's data structure</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#ExchangeCommitment">ExchangeCommitment</a></b>(commitments)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#Display">Display</a></b>(level)
 								</div>
-								<div class="description">Exchange each voter's commitment (communication round 1) through creator <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description">Print current MPT status to terminal</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#ExchangeNonce">ExchangeNonce</a></b>(nonces)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#Insert">Insert</a></b>(key, value, tax, dbit)
 								</div>
-								<div class="description">Get nonces from each voter (communication round 2) through creator <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description">Insert new data to MPT</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#ExchangePartialSign">ExchangePartialSign</a></b>(partialsigns)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#RefundTax">RefundTax</a></b>(to, value=0)
 								</div>
-								<div class="description">Exchange voter's partial signatures (communication round 3) through creator <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#GetPublicData">GetPublicData</a></b>(pubKeys, message)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#Search">Search</a></b>(key, Update_flag, Update_value)
 								</div>
-								<div class="description">Get the publicly known data for multisig from creator and store them in Voter's data structure
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description">Search for current status of the input address, or check if a transaction can be successfully processed</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#GetSignerSession">GetSignerSession</a></b>(SignerSession)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#Select">Select</a></b>(h, flag, taxcnt)
 								</div>
-								<div class="description">Get SignerSession from the first voter and store it in each voter's SignerSession <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#IsValid">IsValid</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#TotalTax">TotalTax</a></b>()
 								</div>
-								<div class="description">Check if the caller is selected as voter to perform actions for the current round of block construction</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#PartialSign">PartialSign</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateDbit">UpdateDbit</a></b>(key, dbit=0)
 								</div>
-								<div class="description">Generate partial signatures over the given message <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#PrivateSign">PrivateSign</a></b>(signerPrivateData)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateTax">UpdateTax</a></b>(key, Update_value)
 								</div>
-								<div class="description">Create the private signing session for multisig <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#VerifyBlock">VerifyBlock</a></b>(merkleRoot, voterMPT)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateValue">UpdateValue</a></b>(from, to, value=0)
 								</div>
-								<div class="description">Check if new block's merkle root is valid (matches the merkle root calculated by voter's local MPT copy)</div>
+								<div class="description"></div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Voter.html#VerifyCoSig">VerifyCoSig</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#Verify">Verify</a></b>(key)
 								</div>
-								<div class="description">Verify the signature as a normal Schnorr Signature (s, R) over message m and public key P <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+								<div class="description">Verify the dirty bit of the input address</div>
 							</td>
 						</tr>
 					
@@ -402,11 +393,11 @@ ul.inheritsList
 				</div>
 				
 				<div class="fixedFont">
-						<b>Voter</b>(port, pubKey, MPT)
+						<b>MPT</b>(root, type)
 				</div>
 				
 				<div class="description">
-					Constructor of the Voter class
+					Constructor of the MPT Class
 					
 				</div>
 				
@@ -418,22 +409,16 @@ ul.inheritsList
 						<dt class="heading">Parameters:</dt>
 						
 							<dt>
-								<span class="light fixedFont">{string}</span>  <b>port</b>
-								
+								<span class="light fixedFont">{Boolean}</span>  <b>root</b>
+								<i>Optional, Default: false</i>
 							</dt>
-								<dd>- Network port number of the voter</dd>
+								<dd></dd>
 						
 							<dt>
-								<span class="light fixedFont">{string}</span>  <b>pubKey</b>
-								
+								<span class="light fixedFont">{String}</span>  <b>type</b>
+								<i>Optional, Default: 'account'</i>
 							</dt>
-								<dd>- Wallet public key of the voter</dd>
-						
-							<dt>
-								<span class="light fixedFont">{<a href="../symbols/MPT.html">MPT</a>}</span>  <b>MPT</b>
-								
-							</dt>
-								<dd>- Local Merkle Patricia Trie copy of the voter</dd>
+								<dd></dd>
 						
 						</dl>
 					
@@ -456,17 +441,15 @@ ul.inheritsList
 					Method Detail
 				</div>
 				
-					<a name="CombinePartialSign"> </a>
+					<a name="Cal_hash"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>CombinePartialSign</b>()
+					<b>Cal_hash</b>()
 					
 					</div>
 					<div class="description">
-						Combine partial signatures to full signature (s, R) that can be verified against combined public key P
-,then verify as Schnorr signature (s, R) over the message m and public key P. <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						
 						
 						
 					</div>
@@ -483,15 +466,40 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="CreatorUrl"> </a>
+					<a name="Cal_pack_nibble"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>CreatorUrl</b>(url)
+					<b>Cal_pack_nibble</b>()
 					
 					</div>
 					<div class="description">
-						Receive creator's network url from creator and save it in Voter's data structure
+						
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="Display"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>Display</b>(level)
+					
+					</div>
+					<div class="description">
+						Print current MPT status to terminal
 						
 						
 					</div>
@@ -503,10 +511,10 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>url</b>
+									<span class="light fixedFont">{integer}</span> <b>level</b>
 									
 								</dt>
-								<dd>- Creator's network url</dd>
+								<dd>- specify which level (height) of trie to display</dd>
 							
 							</dl>
 						
@@ -519,16 +527,15 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="ExchangeCommitment"> </a>
+					<a name="Insert"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>ExchangeCommitment</b>(commitments)
+					<b>Insert</b>(key, value, tax, dbit)
 					
 					</div>
 					<div class="description">
-						Exchange each voter's commitment (communication round 1) through creator <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						Insert new data to MPT
 						
 						
 					</div>
@@ -540,7 +547,67 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>commitments</b>
+									<span class="light fixedFont">{String}</span> <b>key</b>
+									
+								</dt>
+								<dd>- public key of the inserted wallet</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>value</b>
+									
+								</dt>
+								<dd>- initial wallet balance</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>tax</b>
+									<i>Optional, Default: 0</i>
+								</dt>
+								<dd>- initial tax value</dd>
+							
+								<dt>
+									<span class="light fixedFont">{integer={0|1|2}}</span> <b>dbit</b>
+									<i>Optional, Default: 0</i>
+								</dt>
+								<dd>- initial dirty bit value</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="RefundTax"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>RefundTax</b>(to, value=0)
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>to</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>value=0</b>
 									
 								</dt>
 								<dd></dd>
@@ -556,16 +623,15 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="ExchangeNonce"> </a>
+					<a name="Search"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>ExchangeNonce</b>(nonces)
+					<b>Search</b>(key, Update_flag, Update_value)
 					
 					</div>
 					<div class="description">
-						Get nonces from each voter (communication round 2) through creator <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						Search for current status of the input address, or check if a transaction can be successfully processed
 						
 						
 					</div>
@@ -577,7 +643,134 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Array}</span> <b>nonces</b>
+									<span class="light fixedFont">{string}</span> <b>key</b>
+									
+								</dt>
+								<dd>- public key of the wallet</dd>
+							
+								<dt>
+									<span class="light fixedFont">{char={'+'|'-'}}</span> <b>Update_flag</b>
+									<i>Optional, Default: null</i>
+								</dt>
+								<dd>- specify transaction type (send or receive)</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>Update_value</b>
+									<i>Optional, Default: null</i>
+								</dt>
+								<dd>- specify transaction value</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="Select"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>Select</b>(h, flag, taxcnt)
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>h</b>
+									
+								</dt>
+								<dd>- hash (from PoRT)</dd>
+							
+								<dt>
+									<span class="light fixedFont">{integer={0|1}}</span> <b>flag</b>
+									
+								</dt>
+								<dd>- indicate what taxcnt means: 0 for tax count; 1 for key</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>taxcnt</b>
+									
+								</dt>
+								<dd>- Ti (from PoRT) if flag==0; Selected Creator's address(key) if flag==1</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="TotalTax"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>TotalTax</b>()
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="UpdateDbit"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>UpdateDbit</b>(key, dbit=0)
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>key</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>dbit=0</b>
 									
 								</dt>
 								<dd></dd>
@@ -593,16 +786,15 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="ExchangePartialSign"> </a>
+					<a name="UpdateTax"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>ExchangePartialSign</b>(partialsigns)
+					<b>UpdateTax</b>(key, Update_value)
 					
 					</div>
 					<div class="description">
-						Exchange voter's partial signatures (communication round 3) through creator <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						
 						
 						
 					</div>
@@ -614,7 +806,13 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Array}</span> <b>partialsigns</b>
+									<b>key</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>Update_value</b>
 									
 								</dt>
 								<dd></dd>
@@ -630,16 +828,15 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="GetPublicData"> </a>
+					<a name="UpdateValue"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>GetPublicData</b>(pubKeys, message)
+					<b>UpdateValue</b>(from, to, value=0)
 					
 					</div>
 					<div class="description">
-						Get the publicly known data for multisig from creator and store them in Voter's data structure
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						
 						
 						
 					</div>
@@ -651,16 +848,22 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Array[string]}</span> <b>pubKeys</b>
+									<b>from</b>
 									
 								</dt>
-								<dd>- wallet public keys of other voters</dd>
+								<dd></dd>
 							
 								<dt>
-									<span class="light fixedFont">{*}</span> <b>message</b>
+									<b>to</b>
 									
 								</dt>
-								<dd>- shared message between creator/voter</dd>
+								<dd></dd>
+							
+								<dt>
+									<b>value=0</b>
+									
+								</dt>
+								<dd></dd>
 							
 							</dl>
 						
@@ -673,16 +876,15 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="GetSignerSession"> </a>
+					<a name="Verify"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>GetSignerSession</b>(SignerSession)
+					<span class="light">{integer={0|1|2}}</span>
+					<b>Verify</b>(key)
 					
 					</div>
 					<div class="description">
-						Get SignerSession from the first voter and store it in each voter's SignerSession <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						Verify the dirty bit of the input address
 						
 						
 					</div>
@@ -694,37 +896,12 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{SignerSession}</span> <b>SignerSession</b>
+									<span class="light fixedFont">{string}</span> <b>key</b>
 									
 								</dt>
-								<dd>- first voter's signer session</dd>
+								<dd>- public key of the wallet</dd>
 							
 							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="IsValid"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{bool}</span>
-					<b>IsValid</b>()
-					
-					</div>
-					<div class="description">
-						Check if the caller is selected as voter to perform actions for the current round of block construction
-						
-						
-					</div>
-					
-					
-					
 						
 						
 						
@@ -733,154 +910,9 @@ ul.inheritsList
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{bool}</span> True if the caller is the voter of the current round of block construction; False otherwise</dd>
+								<dd><span class="light fixedFont">{integer={0|1|2}}</span> 1 if input address is Creator; 2 if input address is Voter; 0 otherwise</dd>
 							
 							</dl>
-						
-						
-						
-
-					<hr />
-				
-					<a name="PartialSign"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>PartialSign</b>()
-					
-					</div>
-					<div class="description">
-						Generate partial signatures over the given message <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="PrivateSign"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>PrivateSign</b>(signerPrivateData)
-					
-					</div>
-					<div class="description">
-						Create the private signing session for multisig <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<b>signerPrivateData</b>
-									
-								</dt>
-								<dd></dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd>SignerSession if it is the first voter (idx == 0); null otherwise</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
-				
-					<a name="VerifyBlock"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{bool}</span>
-					<b>VerifyBlock</b>(merkleRoot, voterMPT)
-					
-					</div>
-					<div class="description">
-						Check if new block's merkle root is valid (matches the merkle root calculated by voter's local MPT copy)
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{string}</span> <b>merkleRoot</b>
-									
-								</dt>
-								<dd>- new block's merkle root calculated by creator</dd>
-							
-								<dt>
-									<span class="light fixedFont">{<a href="../symbols/MPT.html">MPT</a>}</span> <b>voterMPT</b>
-									
-								</dt>
-								<dd>- voter's local MPT copy</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{bool}</span> True if merkleRoot is valid; False otherwise</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
-				
-					<a name="VerifyCoSig"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>VerifyCoSig</b>()
-					
-					</div>
-					<div class="description">
-						Verify the signature as a normal Schnorr Signature (s, R) over message m and public key P <br>
-(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
 						
 						
 						
