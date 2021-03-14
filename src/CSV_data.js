@@ -1,9 +1,15 @@
 const fs = require('fs');
-
+/**
+ * Generate & Initialize CSV_data Class
+ */
 function CSV_data() {
     this.data = null;
 };
-
+/**
+ * Manipulate data from csv files
+ * @param  {Number} num
+ * @return {string[][]} data derived from csv files
+ */
 CSV_data.prototype.getData = function(num) {
     if(num == 1) {
         this.data = fs.readFileSync('./data/block1.csv')
