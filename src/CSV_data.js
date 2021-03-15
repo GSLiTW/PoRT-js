@@ -1,6 +1,7 @@
 const fs = require('fs');
 /**
  * Generate & Initialize CSV_data Class
+ * @class This class is used to manipulate CSV data
  */
 function CSV_data() {
     this.data = null;

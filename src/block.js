@@ -2,6 +2,7 @@ const sha256 = require("sha256");
 const Pending_Transaction_Pool = require("./pending_transaction_pool")
 /**
  * Generate & Initialize Block Class
+ * @class  Block of the Blockchain containing basics of Bitcoin/Ethereum blocks and information about creators and voters
  * @param  {Number} heightTransaction_MT
  * @param  {Transaction_MT} pendingTransactions
  * @param  {string} previousHash

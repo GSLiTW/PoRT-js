@@ -13,6 +13,7 @@ const TRANSACTION_TYPE = {
 
 /**
  * Generate & Initialize Blockchain Class
+ * @class The main data structure of PORT blockchain
  * @param  {MPT} MPT
  */
 function Blockchain(MPT){

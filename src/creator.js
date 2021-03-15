@@ -2,6 +2,7 @@ const Block = require("./block.js");
 const PoRT = require("./PoRT.js");
 /**
  * Generate & Initialize Creator Class
+ * @class Creater is responsible for creating blocks and communicate with voter to generate cosignature
  * @param  {string} port - Network port number of the creator
  * @param  {string} pubKey - Wallet public key of the creator
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the creator
