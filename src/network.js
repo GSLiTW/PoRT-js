@@ -167,6 +167,8 @@ app.post("/MPT/ReceiveUpdateValues", function (req, res) {
             requestPromises.push(rp(requestOptions));
         });
     }
+
+    res.sendStatus(200)
 });
 
 app.post("/MPT/UpdateTax", function (req, res) {
@@ -217,6 +219,8 @@ app.post("/MPT/ReceiveUpdateTax", function (req, res) {
             requestPromises.push(rp(requestOptions));
         });
     }
+
+    res.sendStatus(200);
 });
 
 app.post("/MPT/UpdateDbit", function (req, res) {
@@ -299,6 +303,8 @@ app.post("/MPT/ReceiveUpdateDbit", function (req, res) {
             requestPromises.push(rp(requestOptions));
         });
     }
+
+    res.sendStatus(200);
 
 });
 
@@ -398,7 +404,10 @@ app.post("/receive-new-block", function (req, res) {
             };
             requestPromises.push(rp(requestOptions));
         });
+    } else {
+        res.sendStatus(200);
     }
+    
 });
 
 app.get("/PKA", function (req, res) {
@@ -803,6 +812,8 @@ app.post("/Creator/GetCommitments", function (req, res) {
             requestPromises.push(rp(requestOptions));
         })
     }
+
+    res.sendStatus(200);
 })
 
 app.post("/Voter/ExchangeCommitment", function (req, res) {
@@ -820,6 +831,8 @@ app.post("/Voter/ExchangeCommitment", function (req, res) {
         json: true
     };
     requestPromises.push(rp(requestOptions));
+
+    res.sendStatus(200);
 })
 
 app.post("/Creator/GetNonces", function (req, res) {
@@ -841,6 +854,8 @@ app.post("/Creator/GetNonces", function (req, res) {
             requestPromises.push(rp(requestOptions));
         })
     }
+
+    res.sendStatus(200);
 })
 
 app.post("/Voter/ExchangeNonce", function (req, res) {
@@ -856,6 +871,8 @@ app.post("/Voter/ExchangeNonce", function (req, res) {
         json: true
     };
     requestPromises.push(rp(requestOptions));
+
+    res.sendStatus(200);
 })
 
 app.post("/Creator/GetPartialSigns", function (req, res) {
@@ -877,6 +894,8 @@ app.post("/Creator/GetPartialSigns", function (req, res) {
             requestPromises.push(rp(requestOptions));
         })
     }
+
+    res.sendStatus(200);
 })
 
 app.post("/Voter/ExchangePartialSign", function (req, res) {
@@ -890,6 +909,8 @@ app.post("/Voter/ExchangePartialSign", function (req, res) {
         json: true
     };
     rp(requestOptions);
+
+    res.sendStatus(200);
 })
 
 app.post("/Creator/GetCosig", function (req, res) {
@@ -906,6 +927,8 @@ app.post("/Creator/GetCosig", function (req, res) {
         json: true
     };
     requestPromises.push(rp(requestOptions));
+
+    res.sendStatus(200);
 })
 
 app.post("/Creator/GetBlock", function (req, res) {
@@ -961,6 +984,8 @@ app.post("/Creator/GetBlock", function (req, res) {
         });
 
         res.send("Create Block Succeed.")
+    } else {
+        res.sendStatus(200);
     }
 })
 

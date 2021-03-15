@@ -191,6 +191,8 @@ ul.inheritsList
 	
 	<li><i><a href="../symbols/_global_.html">_global_</a></i></li>
 	
+	<li><a href="../symbols/Creator.html">Creator</a></li>
+	
 	<li><a href="../symbols/MPT.html">MPT</a></li>
 	
 	<li><a href="../symbols/Preprocess.html">Preprocess</a></li>
@@ -273,7 +275,7 @@ ul.inheritsList
 							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/MPT.html#Cal_hash">Cal_hash</a></b>()
 								</div>
-								<div class="description"></div>
+								<div class="description">Generate merkle root of the Merkle Patricia Trie</div>
 							</td>
 						</tr>
 					
@@ -282,7 +284,7 @@ ul.inheritsList
 							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/MPT.html#Cal_pack_nibble">Cal_pack_nibble</a></b>()
 								</div>
-								<div class="description"></div>
+								<div class="description">Intermediate function to generate merkle root, not designed to be called directly</div>
 							</td>
 						</tr>
 					
@@ -307,9 +309,9 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/MPT.html#RefundTax">RefundTax</a></b>(to, value=0)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#RefundTax">RefundTax</a></b>(to, value)
 								</div>
-								<div class="description"></div>
+								<div class="description">Refund taxes for creator/voter.</div>
 							</td>
 						</tr>
 					
@@ -336,16 +338,16 @@ ul.inheritsList
 							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/MPT.html#TotalTax">TotalTax</a></b>()
 								</div>
-								<div class="description"></div>
+								<div class="description">Calculate the sum of taxes accumulated in every wallet in the MPT</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateDbit">UpdateDbit</a></b>(key, dbit=0)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateDbit">UpdateDbit</a></b>(key, dbit)
 								</div>
-								<div class="description"></div>
+								<div class="description">Update the dirty bit value to indicate the creator/voter bits</div>
 							</td>
 						</tr>
 					
@@ -354,16 +356,16 @@ ul.inheritsList
 							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateTax">UpdateTax</a></b>(key, Update_value)
 								</div>
-								<div class="description"></div>
+								<div class="description">Update tax balance for wallets after a specific transaction</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateValue">UpdateValue</a></b>(from, to, value=0)
+								<div class="fixedFont"><b><a href="../symbols/MPT.html#UpdateValue">UpdateValue</a></b>(from, to, value)
 								</div>
-								<div class="description"></div>
+								<div class="description">Update balance for wallets after a specific transaction</div>
 							</td>
 						</tr>
 					
@@ -444,12 +446,12 @@ ul.inheritsList
 					<a name="Cal_hash"> </a>
 					<div class="fixedFont">
 					
-					
+					<span class="light">{String}</span>
 					<b>Cal_hash</b>()
 					
 					</div>
 					<div class="description">
-						
+						Generate merkle root of the Merkle Patricia Trie
 						
 						
 					</div>
@@ -460,6 +462,13 @@ ul.inheritsList
 						
 						
 						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> merkle root of the Merkle Patricia Trie</dd>
+							
+							</dl>
 						
 						
 						
@@ -474,7 +483,7 @@ ul.inheritsList
 					
 					</div>
 					<div class="description">
-						
+						Intermediate function to generate merkle root, not designed to be called directly
 						
 						
 					</div>
@@ -585,11 +594,11 @@ ul.inheritsList
 					<div class="fixedFont">
 					
 					
-					<b>RefundTax</b>(to, value=0)
+					<b>RefundTax</b>(to, value)
 					
 					</div>
 					<div class="description">
-						
+						Refund taxes for creator/voter.
 						
 						
 					</div>
@@ -601,16 +610,16 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>to</b>
+									<span class="light fixedFont">{String}</span> <b>to</b>
 									
 								</dt>
-								<dd></dd>
+								<dd>- public key/ address to refund</dd>
 							
 								<dt>
-									<b>value=0</b>
-									
+									<span class="light fixedFont">{Number}</span> <b>value</b>
+									<i>Optional, Default: 0</i>
 								</dt>
-								<dd></dd>
+								<dd>- amount to refund</dd>
 							
 							</dl>
 						
@@ -722,12 +731,12 @@ ul.inheritsList
 					<a name="TotalTax"> </a>
 					<div class="fixedFont">
 					
-					
+					<span class="light">{Number}</span>
 					<b>TotalTax</b>()
 					
 					</div>
 					<div class="description">
-						
+						Calculate the sum of taxes accumulated in every wallet in the MPT
 						
 						
 					</div>
@@ -738,6 +747,13 @@ ul.inheritsList
 						
 						
 						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Number}</span> the sum of taxes accumulated in the MPT</dd>
+							
+							</dl>
 						
 						
 						
@@ -748,11 +764,11 @@ ul.inheritsList
 					<div class="fixedFont">
 					
 					
-					<b>UpdateDbit</b>(key, dbit=0)
+					<b>UpdateDbit</b>(key, dbit)
 					
 					</div>
 					<div class="description">
-						
+						Update the dirty bit value to indicate the creator/voter bits
 						
 						
 					</div>
@@ -764,16 +780,16 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>key</b>
+									<span class="light fixedFont">{String}</span> <b>key</b>
 									
 								</dt>
-								<dd></dd>
+								<dd>- public key/ address of the wallet to update</dd>
 							
 								<dt>
-									<b>dbit=0</b>
-									
+									<span class="light fixedFont">{Integer={0|1|2}}</span> <b>dbit</b>
+									<i>Optional, Default: 0</i>
 								</dt>
-								<dd></dd>
+								<dd>- new dirty bit value of the wallet</dd>
 							
 							</dl>
 						
@@ -794,7 +810,7 @@ ul.inheritsList
 					
 					</div>
 					<div class="description">
-						
+						Update tax balance for wallets after a specific transaction
 						
 						
 					</div>
@@ -806,16 +822,16 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>key</b>
+									<span class="light fixedFont">{String}</span> <b>key</b>
 									
 								</dt>
-								<dd></dd>
+								<dd>- public key/ address of the wallet to update</dd>
 							
 								<dt>
-									<b>Update_value</b>
+									<span class="light fixedFont">{Number}</span> <b>Update_value</b>
 									
 								</dt>
-								<dd></dd>
+								<dd>- amount of tax to add</dd>
 							
 							</dl>
 						
@@ -832,11 +848,11 @@ ul.inheritsList
 					<div class="fixedFont">
 					
 					
-					<b>UpdateValue</b>(from, to, value=0)
+					<b>UpdateValue</b>(from, to, value)
 					
 					</div>
 					<div class="description">
-						
+						Update balance for wallets after a specific transaction
 						
 						
 					</div>
@@ -848,22 +864,22 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>from</b>
+									<span class="light fixedFont">{String}</span> <b>from</b>
 									
 								</dt>
-								<dd></dd>
+								<dd>- sender of the transaction</dd>
 							
 								<dt>
-									<b>to</b>
+									<span class="light fixedFont">{String}</span> <b>to</b>
 									
 								</dt>
-								<dd></dd>
+								<dd>- receiver of the transaction</dd>
 							
 								<dt>
-									<b>value=0</b>
-									
+									<span class="light fixedFont">{Number}</span> <b>value</b>
+									<i>Optional, Default: 0</i>
 								</dt>
-								<dd></dd>
+								<dd>- amount of the transaction</dd>
 							
 							</dl>
 						
@@ -931,7 +947,7 @@ ul.inheritsList
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Mon Mar 08 2021 14:47:28 GMT+0800 (CST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Mon Mar 15 2021 17:55:30 GMT+0800 (CST)
 		</div>
 	</body>
 </html>
