@@ -363,8 +363,9 @@ MPT.prototype.Verify = function (key) {
 };
 
 /**
- * @param  {} to
- * @param  {} value=0
+ * Refund taxes for creator/voter.
+ * @param  {String} to - public key/ address to refund
+ * @param  {Number} [value=0] - amount to refund
  */
 MPT.prototype.RefundTax = function (to, value = 0) {
     var val1 = this.Search(to, '+', value);
@@ -376,9 +377,10 @@ MPT.prototype.RefundTax = function (to, value = 0) {
 }
 
 /**
- * @param  {} from
- * @param  {} to
- * @param  {} value=0
+ * Update balance for wallets after a specific transaction
+ * @param  {String} from - sender of the transaction
+ * @param  {String} to - receiver of the transaction
+ * @param  {Number} [value=0] - amount of the transaction
  */
 MPT.prototype.UpdateValue = function (from, to, value = 0) {
     if (this.type == 'account') {
@@ -405,8 +407,9 @@ MPT.prototype.UpdateValue = function (from, to, value = 0) {
 };
 
 /**
- * @param  {} key
- * @param  {} Update_value
+ * Update tax balance for wallets after a specific transaction
+ * @param  {String} key - public key/ address of the wallet to update
+ * @param  {Number} Update_value - amount of tax to add
  */
 MPT.prototype.UpdateTax = function (key, Update_value) {
     if (this.mode == 'leaf') {
@@ -441,8 +444,9 @@ MPT.prototype.UpdateTax = function (key, Update_value) {
 }
 
 /**
- * @param  {} key
- * @param  {} dbit=0
+ * Update the dirty bit value to indicate the creator/voter bits
+ * @param  {String} key - public key/ address of the wallet to update
+ * @param  {Integer={0,1,2}} [dbit=0] - new dirty bit value of the wallet 
  */
 MPT.prototype.UpdateDbit = function (key, dbit = 0) {
     if (dbit != 0 && dbit != 1 && dbit != 2) {
@@ -475,6 +479,7 @@ MPT.prototype.UpdateDbit = function (key, dbit = 0) {
 }
 
 /**
+ * Intermediate function to generate merkle root, not designed to be called directly
  */
 MPT.prototype.Cal_pack_nibble = function () {
     var element = null;
@@ -498,6 +503,8 @@ MPT.prototype.Cal_pack_nibble = function () {
 };
 
 /**
+ * Generate merkle root of the Merkle Patricia Trie
+ * @return {String} merkle root of the Merkle Patricia Trie
  */
 MPT.prototype.Cal_hash = function () {
     var Node = [];
@@ -576,6 +583,8 @@ MPT.prototype.Select = function (h, flag, taxcnt) {
 };
 
 /**
+ * Calculate the sum of taxes accumulated in every wallet in the MPT
+ * @return {Number} the sum of taxes accumulated in the MPT
  */
 MPT.prototype.TotalTax = function () {
     if (this.mode == null) {
