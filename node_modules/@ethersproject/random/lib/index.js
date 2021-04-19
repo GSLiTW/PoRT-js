@@ -1,11 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var crypto_1 = require("crypto");
-var bytes_1 = require("@ethersproject/bytes");
+exports.shuffled = exports.randomBytes = void 0;
+var random_1 = require("./random");
+Object.defineProperty(exports, "randomBytes", { enumerable: true, get: function () { return random_1.randomBytes; } });
 var shuffle_1 = require("./shuffle");
-exports.shuffled = shuffle_1.shuffled;
-function randomBytes(length) {
-    return bytes_1.arrayify(crypto_1.randomBytes(length));
-}
-exports.randomBytes = randomBytes;
+Object.defineProperty(exports, "shuffled", { enumerable: true, get: function () { return shuffle_1.shuffled; } });
 //# sourceMappingURL=index.js.map

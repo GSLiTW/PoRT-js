@@ -1,9 +1,4 @@
-#!/usr/bin/bash
- killall /usr/bin/node
- rm out*
-
 #!/bin/bash
-#killall /usr/local/lib/nodejs/node-v12.18.0-linux-x64/bin/node
-#rm out*
-
-
+ killall /usr/local/bin/node
+ rm out*
+ 

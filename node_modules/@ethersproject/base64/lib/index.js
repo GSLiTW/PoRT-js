@@ -1,13 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var bytes_1 = require("@ethersproject/bytes");
-function decode(textData) {
-    return bytes_1.arrayify(new Uint8Array(Buffer.from(textData, "base64")));
-}
-exports.decode = decode;
-;
-function encode(data) {
-    return Buffer.from(bytes_1.arrayify(data)).toString("base64");
-}
-exports.encode = encode;
+exports.encode = exports.decode = void 0;
+var base64_1 = require("./base64");
+Object.defineProperty(exports, "decode", { enumerable: true, get: function () { return base64_1.decode; } });
+Object.defineProperty(exports, "encode", { enumerable: true, get: function () { return base64_1.encode; } });
 //# sourceMappingURL=index.js.map

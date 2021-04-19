@@ -1,5 +1,4 @@
 import { logger, Wordlist } from "./wordlist";
-declare const wordlists: {
-    [locale: string]: Wordlist;
-};
+import { wordlists } from "./wordlists";
 export { logger, Wordlist, wordlists };
+//# sourceMappingURL=index.d.ts.map
