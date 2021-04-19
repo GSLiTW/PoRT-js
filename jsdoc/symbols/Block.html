@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>JsDoc Reference - Transaction_Pool</title>
+		<title>JsDoc Reference - Block</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -220,7 +220,7 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Class Transaction_Pool
+				Class Block
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
@@ -228,16 +228,16 @@ ul.inheritsList
 				
 				
 			
-				Data Structure for the transactions in a block
+				Block of the Blockchain containing basics of Bitcoin/Ethereum blocks and information about creators and voters
 				
 				
-					<br /><i>Defined in: </i> <a href="../symbols/src/src_transaction_pool.js.html">transaction_pool.js</a>.
+					<br /><i>Defined in: </i> <a href="../symbols/src/src_block.js.html">block.js</a>.
 				
 			</p>
 
 <!-- ============================== constructor summary ==================== -->			
 			
-			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class Transaction_Pool.">
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class Block.">
 				<caption>Class Summary</caption>
 				<thead>
 					<tr>
@@ -250,9 +250,9 @@ ul.inheritsList
 						<td class="attributes">&nbsp;</td>
 						<td class="nameDescription" >
 							<div class="fixedFont">
-								<b><a href="../symbols/Transaction_Pool.html#constructor">Transaction_Pool</a></b>()
+								<b><a href="../symbols/Block.html#constructor">Block</a></b>(heightTransaction_MT, pendingTransactions, previousHash, MPT)
 							</div>
-							<div class="description"></div>
+							<div class="description">Generate & Initialize Block Class</div>
 						</td>
 					</tr>
 				</tbody>
@@ -266,7 +266,7 @@ ul.inheritsList
 			
 				
 				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class Transaction_Pool.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class Block.">
 					<caption>Method Summary</caption>
 					<thead>
 						<tr>
@@ -279,27 +279,9 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Transaction_Pool.html#clean">clean</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/Block.html#hashBlock">hashBlock</a></b>(previousBlockHash, currentBlockData)
 								</div>
-								<div class="description">Clean up current transaction pool to empty</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Transaction_Pool.html#create">create</a></b>(num={1,2,3})
-								</div>
-								<div class="description">Generate pending transaction pool for each testing block</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Transaction_Pool.html#show_txns">show_txns</a></b>()
-								</div>
-								<div class="description">Show all transactions in current transaction pool</div>
+								<div class="description">Generate hash of block</div>
 							</td>
 						</tr>
 					
@@ -320,17 +302,46 @@ ul.inheritsList
 				</div>
 				
 				<div class="fixedFont">
-						<b>Transaction_Pool</b>()
+						<b>Block</b>(heightTransaction_MT, pendingTransactions, previousHash, MPT)
 				</div>
 				
 				<div class="description">
-					
+					Generate & Initialize Block Class
 					
 				</div>
 				
 				
 				
 				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								<span class="light fixedFont">{Number}</span>  <b>heightTransaction_MT</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								<span class="light fixedFont">{<a href="../symbols/Transaction_MT.html">Transaction_MT</a>}</span>  <b>pendingTransactions</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								<span class="light fixedFont">{string}</span>  <b>previousHash</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								<span class="light fixedFont">{<a href="../symbols/MPT.html">MPT</a>}</span>  <b>MPT</b>
+								
+							</dt>
+								<dd></dd>
+						
+						</dl>
 					
 					
 					
@@ -351,40 +362,15 @@ ul.inheritsList
 					Method Detail
 				</div>
 				
-					<a name="clean"> </a>
+					<a name="hashBlock"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>clean</b>()
+					<span class="light">{string}</span>
+					<b>hashBlock</b>(previousBlockHash, currentBlockData)
 					
 					</div>
 					<div class="description">
-						Clean up current transaction pool to empty
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="create"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>create</b>(num={1,2,3})
-					
-					</div>
-					<div class="description">
-						Generate pending transaction pool for each testing block
+						Generate hash of block
 						
 						
 					</div>
@@ -396,10 +382,16 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{integer}</span> <b>num={1,2,3}</b>
+									<span class="light fixedFont">{string}</span> <b>previousBlockHash</b>
 									
 								</dt>
-								<dd>- Specify for which block to generate</dd>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/Block.html">Block</a>}</span> <b>currentBlockData</b>
+									
+								</dt>
+								<dd></dd>
 							
 							</dl>
 						
@@ -407,30 +399,12 @@ ul.inheritsList
 						
 						
 						
-						
-						
-
-					<hr />
-				
-					<a name="show_txns"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>show_txns</b>()
-					
-					</div>
-					<div class="description">
-						Show all transactions in current transaction pool
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{string}</span> hash of block</dd>
+							
+							</dl>
 						
 						
 						
@@ -449,7 +423,7 @@ ul.inheritsList
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Mon Mar 15 2021 19:13:23 GMT+0800 (CST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Mon Mar 15 2021 19:13:22 GMT+0800 (CST)
 		</div>
 	</body>
 </html>
