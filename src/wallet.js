@@ -19,24 +19,32 @@ function Wallet(prik='', pubk='') {
     this.publicKey = pubk;
 
     if(prik == '' || pubk == ''){
-        this.NewKeyPair();
+        var keypair = this.NewKeyPair();
+        this.privateKey = keypair[0];
+        this.publicKey = keypair[1];
+        this.signerPrivateData = {
+            privateKey:BigInteger.fromBuffer(this.privateKey),
+            session: null
+        };
+    } else {
+        this.signerPrivateData = {
+            privateKey:BigInteger.fromHex(this.privateKey),
+            session: null
+        };
     }
 
-    this.signerPrivateData = {
-        privateKey:BigInteger.fromHex(this.privateKey),
-        session: null
-    };
+    
     this.publicKeyCompressed = ec.keyFromPublic(this.publicKey, "hex").getPublic().encodeCompressed("hex")
 };
 /**
  * Generate key pair when no parameters passed into wallet constructor
  */
 Wallet.prototype.NewKeyPair = function(){
-    this.privateKey = secureRandom.randomBuffer(32);
-    this.signerPrivateData.privateKey = BigInteger.fromBuffer(this.privateKey);
+    var privateKey = secureRandom.randomBuffer(32);
     const ecdsa = new elliptic.ec('secp256k1');
-    const keys = ecdsa.keyFromPrivate(this.privateKey);
-    this.publicKey = keys.getPublic('hex');     //integer
+    const keys = ecdsa.keyFromPrivate(privateKey);
+    var publicKey = keys.getPublic();
+    return [privateKey, publicKey];
 }
 /**
  * Generate the hash of public key
