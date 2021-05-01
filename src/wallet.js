@@ -44,7 +44,7 @@ Wallet.prototype.NewKeyPair = function(){
     const ecdsa = new elliptic.ec('secp256k1');
     const keys = ecdsa.keyFromPrivate(privateKey);
     var publicKey = keys.getPublic();
-    return [privateKey, publicKey];
+    return [keys.getPrivate(), publicKey];
 }
 /**
  * Generate the hash of public key
