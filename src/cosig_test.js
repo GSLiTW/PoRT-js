@@ -10,8 +10,8 @@ w = new Wallet();
 privateKeys = [];
 publicKeys = [];
 
-for(var i = 1; i <= 7; i++) {
-    var kp = w.NewKeyPair(i.toString());
+for(var i = 0; i < 7; i++) {
+    var kp = w.NewKeyPair();
     // console.log(kp[0].toString('hex'), kp[1].encode('hex'));
     privateKeys.push(kp[0]);
     publicKeys.push(kp[1]);
@@ -30,8 +30,8 @@ S = "Hello World!";
 // computes its individual commit Vi = G^vi.
 vs = [];
 Vs = [];
-for(var i = 10; i < 17; i++) {
-    var kp = w.NewKeyPair(i.toString());
+for(var i = 0; i < 7; i++) {
+    var kp = w.NewKeyPair();
     // console.log(kp[0].toString('hex'), kp[1].encode('hex'));
     vs.push(kp[0]);          
     Vs.push(kp[1]);
@@ -97,4 +97,8 @@ X0_c = X0.mul(c);
 
 // hash.update("\n" + G_r0.add(X0_c).encode('hex') + S);
 console.log("\nV0_aggr': " + G_r0.add(X0_c).encode('hex'));
-
+if(V0_aggr.eq(G_r0.add(X0_c))) {
+    console.log("%c\nCosig Verify Result: Passed :)", "color:green;");
+} else {
+    console.log("%c\nCosig Verify Result: Failed :(", "color:red;");
+}
