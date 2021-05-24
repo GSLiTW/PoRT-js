@@ -39,13 +39,14 @@ function Wallet(prik='', pubk='') {
 /**
  * Generate key pair when no parameters passed into wallet constructor
  */
-Wallet.prototype.NewKeyPair = function(){
-    var privateKey = secureRandom.randomBuffer(32);
+Wallet.prototype.NewKeyPair = function(privateKey=secureRandom.randomBuffer(32)){
+    // var privateKey = secureRandom.randomBuffer(32);
     const ecdsa = new elliptic.ec('secp256k1');
     const keys = ecdsa.keyFromPrivate(privateKey);
-    var publicKey = keys.getPublic();
-    return [keys.getPrivate(), publicKey];
+    // var publicKey = keys.getPublic();
+    return [keys.getPrivate(), keys.getPublic()];
 }
+
 /**
  * Generate the hash of public key
  * @return {string}  public key hash
