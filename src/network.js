@@ -755,13 +755,14 @@ app.post("/Creator/Challenge", function (req, res) {
     if (creator.VoterUrl.length == VOTER_NUM) {
         
         const challenge = creator.GenerateChallenge();
+        
         const requestPromises = [];
         creator.VoterUrl.forEach(networkNodeUrl => {
             const requestOptions = {
                 uri: networkNodeUrl + "/Voter/Response",
                 method: "POST",
                 body: {
-                    c: challenge,
+                    challenge: challenge,
                     message: creator.block,
                 },
                 json: true
@@ -778,8 +779,10 @@ app.post("/Voter/Response", function (req, res) {
     const isBlockValid = voter.VerifyBlock(req.body.message.merkleRoot, voter.MPT);
     if (isBlockValid) {
         const challenge = req.body.challenge;
+        //console.log(challenge);
         
         const response = voter.GenerateResponse(challenge);
+        //console.log(response);
 
         const requestPromises = [];
 

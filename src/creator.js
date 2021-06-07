@@ -60,12 +60,14 @@ Creator.prototype.GetVoter = function (VoterUrl, VoterPubKey, VoterPubV) {
 }
 
 Creator.prototype.GenerateChallenge = function() {
-    V0_aggr = this.VoterPubV[0];
+    this.V0_aggr = this.VoterPubV[0];
     for(var i = 1; i < this.VoterPubV.length; i++) {
-        V0_aggr = V0_aggr.add(this.VoterPubV[i]);
+        this.V0_aggr = this.V0_aggr.add(this.VoterPubV[i]);
     }
 
-    hash.update(V0_aggr.encode('hex') + this.block);
+    // console.log("\nV0_aggr: " + this.V0_aggr.encode('hex'));
+
+    hash.update(this.V0_aggr.encode('hex') + this.block);
     this.challenge = new BN(hash.copy().digest('hex'), 'hex');
 
     return this.challenge.toString('hex');
@@ -74,7 +76,7 @@ Creator.prototype.GenerateChallenge = function() {
 
 Creator.prototype.GetResponses = function (VoterResponseHex) {
     const VoterResponse = new BN(VoterResponseHex, 'hex');
-    console.log(VoterResponse);
+    // console.log(VoterResponse);
     if (this.VoterResponse == null) {
         this.VoterResponse = [VoterResponse];
     } else {
@@ -87,9 +89,35 @@ Creator.prototype.AggregateResponse = function() {
     for(var i = 1; i < this.VoterResponse.length; i++) {
         this.r0_aggr = this.r0_aggr.add(this.VoterResponse[i]);
     }
+    // console.log(this.r0_aggr.toString(16));
 
-    // TODO: Verify CoSig
-    this.GetCoSig();
+    if(this.VerifyCoSig()) {
+        this.GetCoSig();
+    }
+    
+}
+
+Creator.prototype.VerifyCoSig = function() {
+    const keys = this.wallet.NewKeyPair(this.r0_aggr.toString(16));
+    const G_r0 = keys[1];
+    // console.log("\nG_r0:" + G_r0.encode('hex'));
+
+    var X0 = this.VoterPubKey[0];
+    for(var i = 1; i < this.VoterPubKey.length; i++) {
+        X0 = X0.add(this.VoterPubKey[i]);
+    }
+    // console.log("\nX0: " + X0.encode('hex'));
+
+    const X0_c = X0.mul(this.challenge);
+
+    if(this.V0_aggr.eq(G_r0.add(X0_c))) {
+        console.log("%c\nCosig Verify Result: Passed :)", "color:green;");
+    } else {
+        console.log("%c\nCosig Verify Result: Failed :(", "color:red;");
+    }
+
+    return this.V0_aggr.eq(G_r0.add(X0_c));
+
 }
 
 /**

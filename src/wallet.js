@@ -15,28 +15,18 @@ const CHECKSUM_LENGTH = 4; // 4 bytes
  * @param  {string} [pubk] - public key
  */
 function Wallet(prik='', pubk='') {
-    const keys = ecdsa.keyFromPrivate(prik);
-    this.privateKey = keys.getPrivate();
-    this.publicKey = keys.getPublic();
+    
 
     if(prik == '' || pubk == ''){
         var keypair = this.NewKeyPair();
         this.privateKey = keypair[0];
         this.publicKey = keypair[1];
-        this.signerPrivateData = {
-            privateKey:BigInteger.fromBuffer(this.privateKey),
-            session: null
-        };
     } else {
-
-        this.signerPrivateData = {
-            privateKey:BigInteger.fromHex(this.privateKey.toString('hex')),
-            session: null
-        };
+        const keys = ecdsa.keyFromPrivate(prik);
+        this.privateKey = keys.getPrivate();
+        this.publicKey = keys.getPublic();
     }
 
-    
-    this.publicKeyCompressed = this.publicKey.encodeCompressed("hex");
 };
 /**
  * Generate key pair when no parameters passed into wallet constructor
