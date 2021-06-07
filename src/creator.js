@@ -1,5 +1,9 @@
 const Block = require("./block.js");
 const PoRT = require("./PoRT.js");
+const crypto = require('crypto');
+const hash = crypto.createHash('sha256');
+const BN = require('bn.js');
+
 /**
  * Generate & Initialize Creator Class
  * @class Creater is responsible for creating blocks and communicate with voter to generate cosignature
@@ -7,17 +11,18 @@ const PoRT = require("./PoRT.js");
  * @param  {string} pubKey - Wallet public key of the creator
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the creator
  */
-function Creator(port, pubKey, MPT) {
+function Creator(port, wallet, MPT) {
     this.MPT = MPT;
     this.port = port;
-    this.pubKey = pubKey;
+    this.wallet = wallet;
 }
+
 /**
  * Check if the caller is selected as creator to perform actions for the current round of block construction, by passing publickey into MPT function
  * @return {bool} True if the caller is the creator of the current round of block construction; False otherwise
  */
 Creator.prototype.IsValid = function () {
-    return (this.MPT.Verify(this.pubKey) == 1);
+    return (this.MPT.Verify(this.wallet.publicKey.encode('hex')) == 1);
 }
 /**
  * Create a Block, adding transactions, MPT and metadata into it
@@ -35,105 +40,67 @@ Creator.prototype.Create = function (pendingTxs, height, previousHash) {
 
     return this.block;
 }
+
 /**
  * Get voter from network and add to the list
  * @param  {string} VoterUrl - Voter's network url
  * @param  {string} VoterPubKey - Wallet public key of voter
+ * @param  {string} VoterPubV - Round public V of voter
  */
-Creator.prototype.GetVoter = function (VoterUrl, VoterPubKey) {
+Creator.prototype.GetVoter = function (VoterUrl, VoterPubKey, VoterPubV) {
     if (this.VoterUrl == null) {
         this.VoterUrl = [VoterUrl];
         this.VoterPubKey = [VoterPubKey];
+        this.VoterPubV = [VoterPubV]
     } else {
         this.VoterUrl.push(VoterUrl);
         this.VoterPubKey.push(VoterPubKey);
+        this.VoterPubV.push(VoterPubV);
     }
 }
-/**
- * Get signersession from network , generated voter
- * @param  {SignerSession} SignerSession - from network, generataed by voter
- */
-Creator.prototype.GetSignerSession = function (SignerSession) {
-    this.SignerSession = SignerSession;
+
+Creator.prototype.GenerateChallenge = function() {
+    V0_aggr = this.VoterPubV[0];
+    for(var i = 1; i < this.VoterPubV.length; i++) {
+        V0_aggr = V0_aggr.add(this.VoterPubV[i]);
+    }
+
+    hash.update(V0_aggr.encode('hex') + this.block);
+    this.challenge = new BN(hash.copy().digest('hex'), 'hex');
+
+    return this.challenge.toString('hex');
+    
 }
-/**
- * Store and Collect data(commitment) from voter through network (communication round 1) and to be sent back to voter through network <br>
- * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
- * @param  {} VoterCommitment 
- * @param  {string} VoterPubKey - Corresponding Voter's public key, from network
- */
-Creator.prototype.GetCommitments = function (VoterCommitment, VoterPubKey) {
-    var idx = this.VoterPubKey.indexOf(VoterPubKey);
-    if (this.commitments == null) {
-        this.commitments = []
-        for (var i = 0; i < this.VoterPubKey.length; i++) {
-            this.commitments.push(null);
-        }
-    }
 
-    this.commitments[idx] = VoterCommitment;
-    for (var i in this.commitments) {
-        if (this.commitments[i] == null) {
-            return false;
-        }
+Creator.prototype.GetResponses = function (VoterResponseHex) {
+    const VoterResponse = new BN(VoterResponseHex, 'hex');
+    console.log(VoterResponse);
+    if (this.VoterResponse == null) {
+        this.VoterResponse = [VoterResponse];
+    } else {
+        this.VoterResponse.push(VoterResponse);
     }
-
-    return true;
 }
-/**
- * Store and Collect Nonce from voter through network (communication round 2) and to be sent back to voter through network <br>
- * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
- * @param  {Number} VoterNonce
- * @param  {string} VoterPubKey
- */
-Creator.prototype.GetNonces = function (VoterNonce, VoterPubKey) {
-    var idx = this.VoterPubKey.indexOf(VoterPubKey);
-    if (this.nonces == null) {
-        this.nonces = []
-        for (var i = 0; i < this.VoterPubKey.length; i++) {
-            this.nonces.push(null);
-        }
+
+Creator.prototype.AggregateResponse = function() {
+    this.r0_aggr = this.VoterResponse[0];
+    for(var i = 1; i < this.VoterResponse.length; i++) {
+        this.r0_aggr = this.r0_aggr.add(this.VoterResponse[i]);
     }
 
-    this.nonces[idx] = VoterNonce;
-    for (var i in this.nonces) {
-        if (this.nonces[i] == null) {
-            return false;
-        }
-    }
-
-    return true;
+    // TODO: Verify CoSig
+    this.GetCoSig();
 }
-/**
- * Store and Collect PartialSign from voters through network (communication round 3) and to be sent back to voter through network <br>
- * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
- * @param  {string} VoterPartialSign
- * @param  {string} VoterPubKey
- */
-Creator.prototype.GetPartialSigns = function (VoterPartialSign, VoterPubKey) {
-    var idx = this.VoterPubKey.indexOf(VoterPubKey);
-    if (this.partialsigns == null) {
-        this.partialsigns = []
-        for (var i = 0; i < this.VoterPubKey.length; i++) {
-            this.partialsigns.push(null);
-        }
-    }
 
-    this.partialsigns[idx] = VoterPartialSign;
-    for (var i in this.partialsigns) {
-        if (this.partialsigns[i] == null) {
-            return false;
-        }
-    }
-
-    return true;
-}
 /**
  * The final step of communication: store cosignature in the block
  * @param  {string} cosig - cosignature generated from voter.combinepartialsign
  */
-Creator.prototype.GetCosig = function (cosig) {
-    this.block.coSignature = cosig; 
+Creator.prototype.GetCoSig = function () {
+    this.block.CoSig = {
+        c: this.challenge,
+        r0_aggr: this.r0_aggr
+    }; 
 }
 /**
  * Complete the generation of current new block

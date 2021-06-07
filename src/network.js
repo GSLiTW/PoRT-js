@@ -659,7 +659,7 @@ app.get("/block-explorer", function (req, res) {
 });
 
 app.get("/Creator", function (req, res) {
-    creator = new Creator(port, wallet.publicKey, Tree);
+    creator = new Creator(port, wallet, Tree);
     if (creator.IsValid()) {
         var currentdate = new Date();
         var datetime = "Last Sync: " + currentdate.getDate() + "/"
@@ -670,11 +670,13 @@ app.get("/Creator", function (req, res) {
             + currentdate.getSeconds() + "."
             + currentdate.getMilliseconds();
 
+        // Create new temporary block
         blockToVote = creator.Create(pending_txn_pool, chain.getLastBlock().height + 1, chain.getLastBlock()["hash"]);
 
         var seq = seqList[seqList.length - 1] + 1;
         seqList.push(seq);
 
+        // Broadcast to find Voters
         const requestPromises = [];
         chain.networkNodes.forEach(networkNodeUrl => {
             const requestOptions = {
@@ -701,16 +703,18 @@ app.post("/Voter", function (req, res) {
     const seq = req.body.SeqNum;
 
     if (seqList.indexOf(seq) == -1) {
-        voter = new Voter(port, wallet.publicKey, Tree);
+        voter = new Voter(port, wallet, Tree);
         if (voter.IsValid()) {
             voter.CreatorUrl(req.body.CreatorUrl);
 
             const requestPromises = [];
 
             const requestOptions = {
-                uri: voter.CreatorUrl + "/Creator/GetVoters",
+                uri: voter.CreatorUrl + "/Creator/Challenge",
                 method: "POST",
-                body: { VoterUrl: chain.currentNodeUrl, publicKey: wallet.publicKeyCompressed },
+                body: { VoterUrl: chain.currentNodeUrl, 
+                    publicKey: wallet.publicKey.encode('hex'),
+                    publicV: voter.publicV.encode('hex') },
                 json: true
             };
             requestPromises.push(rp(requestOptions));
@@ -737,20 +741,27 @@ app.post("/Voter", function (req, res) {
     res.json("Voter triggered")
 })
 
-app.post("/Creator/GetVoters", function (req, res) {
+app.post("/Creator/Challenge", function (req, res) {
     const VoterUrl = req.body.VoterUrl;
-    const VoterPubKey = req.body.publicKey;
-    creator.GetVoter(VoterUrl, VoterPubKey);
+    const VoterPubKeyHex = req.body.publicKey;
+    const VoterPubVHex = req.body.publicV;
+
+    const VoterPubKey = wallet.PublicKeyFromHex(VoterPubKeyHex);
+    const VoterPubV = wallet.PublicKeyFromHex(VoterPubVHex);
+
+    creator.GetVoter(VoterUrl, VoterPubKey, VoterPubV);
+    
 
     if (creator.VoterUrl.length == VOTER_NUM) {
-
+        
+        const challenge = creator.GenerateChallenge();
         const requestPromises = [];
         creator.VoterUrl.forEach(networkNodeUrl => {
             const requestOptions = {
-                uri: networkNodeUrl + "/Voter/GetData",
+                uri: networkNodeUrl + "/Voter/Response",
                 method: "POST",
                 body: {
-                    pubKeys: creator.VoterPubKey,
+                    c: challenge,
                     message: creator.block,
                 },
                 json: true
@@ -763,171 +774,48 @@ app.post("/Creator/GetVoters", function (req, res) {
     res.json("GetVoters success!");
 })
 
-app.post("/Voter/GetData", function (req, res) {
+app.post("/Voter/Response", function (req, res) {
     const isBlockValid = voter.VerifyBlock(req.body.message.merkleRoot, voter.MPT);
     if (isBlockValid) {
-        const pubKeys = req.body.pubKeys;
-        const message = req.body.message;
-        voter.GetPublicData(pubKeys, message);
-        const SignerSession = voter.PrivateSign(wallet.signerPrivateData);
+        const challenge = req.body.challenge;
+        
+        const response = voter.GenerateResponse(challenge);
 
         const requestPromises = [];
 
         const requestOptions = {
-            uri: voter.CreatorUrl + "/Creator/GetCommitments",
+            uri: voter.CreatorUrl + "/Creator/GetResponses",
             method: "POST",
-            body: { Commitment: voter.signerPrivateData.session.commitment, publicKey: wallet.publicKeyCompressed, SignerSession: SignerSession },
+            body: { response: response },
             json: true
         };
         requestPromises.push(rp(requestOptions));
 
-        res.json("GetData success!")
+        res.json("Response Generated");
     }
     else {
         console.log("Error: Block verification failed !");
     }
 })
 
-app.post("/Creator/GetCommitments", function (req, res) {
-    const VoterCommitment = req.body.Commitment;
-    const VoterPubKey = req.body.publicKey;
-    const SignerSession = req.body.SignerSession;
-    if (SignerSession != null) {
-        creator.GetSignerSession(SignerSession);
-    }
+app.post("/Creator/GetResponses", function (req, res) {
+    const response = req.body.response;
+    creator.GetResponses(response);
 
-    var flag = creator.GetCommitments(VoterCommitment, VoterPubKey);
-    if (flag) {
+    if (creator.VoterResponse.length == VOTER_NUM) {
+        creator.AggregateResponse();
+
+        var seq = seqList[seqList.length - 1] + 1;
+
         const requestPromises = [];
-        creator.VoterUrl.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/Voter/ExchangeCommitment",
-                method: "POST",
-                body: {
-                    Commitments: creator.commitments,
-                    SignerSession: creator.SignerSession
-                },
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        })
+        const requestOptions = {
+            uri: "http://localhost:" + creator.port + "/Creator/GetBlock",
+            method: "POST",
+            body: { seqNum: seq },
+            json: true
+        };
+        requestPromises.push(rp(requestOptions));
     }
-
-    res.sendStatus(200);
-})
-
-app.post("/Voter/ExchangeCommitment", function (req, res) {
-    const commitments = req.body.Commitments;
-    const SignerSession = req.body.SignerSession;
-    voter.GetSignerSession(SignerSession);
-    voter.ExchangeCommitment(commitments);
-
-    const requestPromises = [];
-
-    const requestOptions = {
-        uri: voter.CreatorUrl + "/Creator/GetNonces",
-        method: "POST",
-        body: { Nonce: voter.signerPrivateData.session.nonce, publicKey: wallet.publicKeyCompressed },
-        json: true
-    };
-    requestPromises.push(rp(requestOptions));
-
-    res.sendStatus(200);
-})
-
-app.post("/Creator/GetNonces", function (req, res) {
-    const VoterNonce = req.body.Nonce;
-    const VoterPubKey = req.body.publicKey;
-
-    var flag = creator.GetNonces(VoterNonce, VoterPubKey);
-    if (flag) {
-        const requestPromises = [];
-        creator.VoterUrl.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/Voter/ExchangeNonce",
-                method: "POST",
-                body: {
-                    Nonces: creator.nonces
-                },
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        })
-    }
-
-    res.sendStatus(200);
-})
-
-app.post("/Voter/ExchangeNonce", function (req, res) {
-    const nonces = req.body.Nonces;
-    voter.ExchangeNonce(nonces);
-
-    const requestPromises = [];
-
-    const requestOptions = {
-        uri: voter.CreatorUrl + "/Creator/GetPartialSigns",
-        method: "POST",
-        body: { PartialSign: voter.signerPrivateData.session.partialSignature.toHex(), publicKey: wallet.publicKeyCompressed },
-        json: true
-    };
-    requestPromises.push(rp(requestOptions));
-
-    res.sendStatus(200);
-})
-
-app.post("/Creator/GetPartialSigns", function (req, res) {
-    const VoterPartialSign = req.body.PartialSign;
-    const VoterPubKey = req.body.publicKey;
-
-    var flag = creator.GetPartialSigns(VoterPartialSign, VoterPubKey);
-    if (flag) {
-        const requestPromises = [];
-        creator.VoterUrl.forEach(networkNodeUrl => {
-            const requestOptions = {
-                uri: networkNodeUrl + "/Voter/ExchangePartialSign",
-                method: "POST",
-                body: {
-                    PartialSigns: creator.partialsigns
-                },
-                json: true
-            };
-            requestPromises.push(rp(requestOptions));
-        })
-    }
-
-    res.sendStatus(200);
-})
-
-app.post("/Voter/ExchangePartialSign", function (req, res) {
-    const partialsigns = req.body.PartialSigns;
-    voter.ExchangePartialSign(partialsigns);
-
-    const requestOptions = {
-        uri: voter.CreatorUrl + "/Creator/GetCosig",
-        method: "POST",
-        body: { cosig: voter.publicData.signature },
-        json: true
-    };
-    rp(requestOptions);
-
-    res.sendStatus(200);
-})
-
-app.post("/Creator/GetCosig", function (req, res) {
-    const cosig = req.body.cosig;
-    creator.GetCosig(cosig);
-
-    var seq = seqList[seqList.length - 1] + 1;
-
-    const requestPromises = [];
-    const requestOptions = {
-        uri: "http://localhost:" + creator.port + "/Creator/GetBlock",
-        method: "POST",
-        body: { seqNum: seq },
-        json: true
-    };
-    requestPromises.push(rp(requestOptions));
-
     res.sendStatus(200);
 })
 

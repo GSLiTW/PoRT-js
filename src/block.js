@@ -18,10 +18,10 @@ function Block(height, pendingTransactions, previousHash, MPT) {
     
     //variable area
     this.receiptTree = null,
-    this.coSignature = NaN,
-    this.nextCreator = NaN,
+    this.CoSig = null,
+    this.nextCreator = null,
     this.nextVoters = [],
-    this.hash = NaN
+    this.hash = null
 };
 /**
  * Generate hash of block

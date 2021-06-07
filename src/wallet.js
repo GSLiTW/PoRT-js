@@ -4,7 +4,7 @@ const elliptic = require('elliptic');
 const ripemd160 = require('ripemd160');
 const base58 = require('bs58');
 const BigInteger = require("bigi");
-const ec = new elliptic.ec('secp256k1');
+const ecdsa = new elliptic.ec('secp256k1');
 
 const CHECKSUM_LENGTH = 4; // 4 bytes
 /**
@@ -15,8 +15,9 @@ const CHECKSUM_LENGTH = 4; // 4 bytes
  * @param  {string} [pubk] - public key
  */
 function Wallet(prik='', pubk='') {
-    this.privateKey = prik;
-    this.publicKey = pubk;
+    const keys = ecdsa.keyFromPrivate(prik);
+    this.privateKey = keys.getPrivate();
+    this.publicKey = keys.getPublic();
 
     if(prik == '' || pubk == ''){
         var keypair = this.NewKeyPair();
@@ -27,24 +28,29 @@ function Wallet(prik='', pubk='') {
             session: null
         };
     } else {
+
         this.signerPrivateData = {
-            privateKey:BigInteger.fromHex(this.privateKey),
+            privateKey:BigInteger.fromHex(this.privateKey.toString('hex')),
             session: null
         };
     }
 
     
-    this.publicKeyCompressed = ec.keyFromPublic(this.publicKey, "hex").getPublic().encodeCompressed("hex")
+    this.publicKeyCompressed = this.publicKey.encodeCompressed("hex");
 };
 /**
  * Generate key pair when no parameters passed into wallet constructor
  */
 Wallet.prototype.NewKeyPair = function(privateKey=secureRandom.randomBuffer(32)){
     // var privateKey = secureRandom.randomBuffer(32);
-    const ecdsa = new elliptic.ec('secp256k1');
+    
     const keys = ecdsa.keyFromPrivate(privateKey);
     // var publicKey = keys.getPublic();
     return [keys.getPrivate(), keys.getPublic()];
+}
+
+Wallet.prototype.PublicKeyFromHex = function(hex) {
+    return ecdsa.keyFromPublic(hex, 'hex').getPublic();
 }
 
 /**

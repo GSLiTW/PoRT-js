@@ -55,9 +55,6 @@ c = new BN(hash.copy().digest('hex'), 'hex');
 console.log("\nc:", c.toString('hex'));
 
 
-
-
-
 // 4) Response: In a final bottom-up phase, each node i waits
 // to receive a partial aggregate response ˆrj from each of
 // its immediate children j ∈ Ci.

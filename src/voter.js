@@ -6,6 +6,7 @@ const convert = schnorr.convert;
 const muSig = schnorr.muSig;
 const elliptic = require('elliptic');
 const ec = new elliptic.ec('secp256k1');
+const BN = require('bn.js');
 
 /**
  * Constructor of the Voter class
@@ -15,18 +16,20 @@ const ec = new elliptic.ec('secp256k1');
  * @param  {string} pubKey - Wallet public key of the voter
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the voter
  */
-function Voter(port, pubKey, MPT){
+function Voter(port, wallet, MPT){
     this.MPT = MPT;
     this.port = port;
-    this.pubKey = pubKey;
-    this.pubKeyCompressed = ec.keyFromPublic(this.pubKey, "hex").getPublic().encodeCompressed("hex")
+    this.wallet = wallet;
+    var kp = wallet.NewKeyPair();
+    this.secretv = kp[0];
+    this.publicV = kp[1];
 }
 /**
  * Check if the caller is selected as voter to perform actions for the current round of block construction
  * @return {bool} True if the caller is the voter of the current round of block construction; False otherwise 
  */
 Voter.prototype.IsValid = function() {
-    return (this.MPT.Verify(this.pubKey) == 2); // Check by validating the dirty bit in the latest account MPT
+    return (this.MPT.Verify(this.wallet.publicKey.encode('hex')) == 2); // Check by validating the dirty bit in the latest account MPT
 }
 /**
  * Receive creator's network url from creator and save it in Voter's data structure
@@ -52,6 +55,16 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) {  // TODO: why do 
         return 0;
     }
 }
+
+Voter.prototype.GenerateResponse = function(cHex) {
+    const c = new BN(cHex, 'hex');
+    const v = new BN(this.secretv.toString('hex'), 'hex');
+    const x = new BN(this.wallet.privateKey.toString('hex'), 'hex');
+    this.response = v.sub(c.mul(x));
+
+    return this.response.toString('hex');
+}
+
 /**
  * Get the publicly known data for multisig from creator and store them in Voter's data structure
  * (ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
@@ -204,12 +217,7 @@ Voter.prototype.VerifyCoSig = function() {
     console.log("Voter", this.port, "- Verified :)")
 }
 
-Voter.prototype.PoRT = function() {
-    var T = 1234;
-    T = T.toString();
-    var tmp = sha256(T + this.account[6].address);
-    var h = parseInt(tmp, 16) % T;
-    console.log(h);
-}
+
+
 
 module.exports = Voter;
