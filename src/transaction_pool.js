@@ -1,11 +1,17 @@
-// data structure for those txns in the current block
 const CSV_data = require("./CSV_data.js");
-const Transaction_MT = require("./transaction_for_mapping_table.js");
+const Transaction_MT = require("./transaction.js");
 
+/**
+ * @class Data Structure for the transactions in a block
+ */
 function Transaction_Pool() {
     this.transactions = [];
 };
 
+/**
+ * Generate pending transaction pool for each testing block
+ * @param  {integer} num={1,2,3} - Specify for which block to generate 
+ */
 Transaction_Pool.prototype.create = function(num) {
     var data = new CSV_data();
     var data_ = data.getData(num); //get data of block1
@@ -29,11 +35,15 @@ Transaction_Pool.prototype.create = function(num) {
     }
     else console.log("wrong block number.");
 }
-
+/**
+ * Clean up current transaction pool to empty
+ */
 Transaction_Pool.prototype.clean = function() {
     this.transactions = [];
 }
-
+/**
+ * Show all transactions in current transaction pool
+ */
 Transaction_Pool.prototype.show_txns = function() {
     console.log(this.transactions);
 }

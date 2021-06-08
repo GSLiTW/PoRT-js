@@ -1,3 +1,6 @@
 "use strict";
-module.exports = {};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.connect = void 0;
+function connect() { }
+exports.connect = connect;
 //# sourceMappingURL=browser-net.js.map

@@ -1,0 +1,822 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="generator" content="JsDoc Toolkit" />
+		
+		<title>JsDoc Reference - Creator</title>
+
+		<style type="text/css">
+			/* default.css */
+body
+{
+	font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+	width: 800px;
+}
+
+.header
+{
+	clear: both;
+	background-color: #ccc;
+	padding: 8px;
+}
+
+h1
+{
+	font-size: 150%;
+	font-weight: bold;
+	padding: 0;
+	margin: 1em 0 0 .3em;
+}
+
+hr
+{
+	border: none 0;
+	border-top: 1px solid #7F8FB1;
+	height: 1px;
+}
+
+pre.code
+{
+	display: block;
+	padding: 8px;
+	border: 1px dashed #ccc;
+}
+
+#index
+{
+	margin-top: 24px;
+	float: left;
+	width: 160px;
+	position: absolute;
+	left: 8px;
+	background-color: #F3F3F3;
+	padding: 8px;
+}
+
+#content
+{
+	margin-left: 190px;
+	width: 600px;
+}
+
+.classList
+{
+	list-style-type: none;
+	padding: 0;
+	margin: 0 0 0 8px;
+	font-family: arial, sans-serif;
+	font-size: 1em;
+	overflow: auto;
+}
+
+.classList li
+{
+	padding: 0;
+	margin: 0 0 8px 0;
+}
+
+.summaryTable { width: 100%; }
+
+h1.classTitle
+{
+	font-size:170%;
+	line-height:130%;
+}
+
+h2 { font-size: 110%; }
+caption, div.sectionTitle
+{
+	background-color: #7F8FB1;
+	color: #fff;
+	font-size:130%;
+	text-align: left;
+	padding: 2px 6px 2px 6px;
+	border: 1px #7F8FB1 solid;
+}
+
+div.sectionTitle { margin-bottom: 8px; }
+.summaryTable thead { display: none; }
+
+.summaryTable td
+{
+	vertical-align: top;
+	padding: 4px;
+	border-bottom: 1px #7F8FB1 solid;
+	border-right: 1px #7F8FB1 solid;
+}
+
+/*col#summaryAttributes {}*/
+.summaryTable td.attributes
+{
+	border-left: 1px #7F8FB1 solid;
+	width: 140px;
+	text-align: right;
+}
+
+td.attributes, .fixedFont
+{
+	line-height: 15px;
+	color: #002EBE;
+	font-family: "Courier New",Courier,monospace;
+	font-size: 13px;
+}
+
+.summaryTable td.nameDescription
+{
+	text-align: left;
+	font-size: 13px;
+	line-height: 15px;
+}
+
+.summaryTable td.nameDescription, .description
+{
+	line-height: 15px;
+	padding: 4px;
+	padding-left: 4px;
+}
+
+.summaryTable { margin-bottom: 8px; }
+
+ul.inheritsList
+{
+	list-style: square;
+	margin-left: 20px;
+	padding-left: 0;
+}
+
+.detailList {
+	margin-left: 20px; 
+	line-height: 15px;
+}
+.detailList dt { margin-left: 20px; }
+
+.detailList .heading
+{
+	font-weight: bold;
+	padding-bottom: 6px;
+	margin-left: 0;
+}
+
+.light, td.attributes, .light a:link, .light a:visited
+{
+	color: #777;
+	font-style: italic;
+}
+
+.fineprint
+{
+	text-align: right;
+	font-size: 10px;
+}
+		</style>
+	</head>
+
+	<body>
+<!-- ============================== header ================================= -->	
+		<!-- begin static/header.html -->
+		<div id="header">
+</div>
+		<!-- end static/header.html -->
+
+<!-- ============================== classes index ============================ -->
+		<div id="index">
+			<!-- begin publish.classesIndex -->
+			<div align="center"><a href="../index.html">Class Index</a>
+| <a href="../files.html">File Index</a></div>
+<hr />
+<h2>Classes</h2>
+<ul class="classList">
+	
+	<li><i><a href="../symbols/_global_.html">_global_</a></i></li>
+	
+	<li><a href="../symbols/Block.html">Block</a></li>
+	
+	<li><a href="../symbols/Blockchain.html">Blockchain</a></li>
+	
+	<li><a href="../symbols/Creator.html">Creator</a></li>
+	
+	<li><a href="../symbols/CSV_data.html">CSV_data</a></li>
+	
+	<li><a href="../symbols/MPT.html">MPT</a></li>
+	
+	<li><a href="../symbols/Preprocess.html">Preprocess</a></li>
+	
+	<li><a href="../symbols/Transaction_MT.html">Transaction_MT</a></li>
+	
+	<li><a href="../symbols/Transaction_Pool.html">Transaction_Pool</a></li>
+	
+	<li><a href="../symbols/Voter.html">Voter</a></li>
+	
+	<li><a href="../symbols/Wallet.html">Wallet</a></li>
+	
+</ul>
+<hr />
+			<!-- end publish.classesIndex -->
+		</div>
+		
+		<div id="content">
+<!-- ============================== class title ============================ -->
+			<h1 class="classTitle">
+				
+				Class Creator
+			</h1>
+
+<!-- ============================== class summary ========================== -->			
+			<p class="description">
+				
+				
+			
+				Creater is responsible for creating blocks and communicate with voter to generate cosignature
+				
+				
+					<br /><i>Defined in: </i> <a href="../symbols/src/src_creator.js.html">creator.js</a>.
+				
+			</p>
+
+<!-- ============================== constructor summary ==================== -->			
+			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class Creator.">
+				<caption>Class Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/Creator.html#constructor">Creator</a></b>(port, pubKey, MPT)
+							</div>
+							<div class="description">Generate & Initialize Creator Class</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+
+<!-- ============================== properties summary ===================== -->
+			
+
+<!-- ============================== methods summary ======================== -->
+			
+				
+				
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class Creator.">
+					<caption>Method Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Method Attributes</th>
+							<th scope="col">Method Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#Create">Create</a></b>(pendingTxs, height, previousHash)
+								</div>
+								<div class="description">Create a Block, adding transactions, MPT and metadata into it</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#GetBlock">GetBlock</a></b>(previousHash)
+								</div>
+								<div class="description">Complete the generation of current new block</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#GetCommitments">GetCommitments</a></b>(VoterCommitment, VoterPubKey)
+								</div>
+								<div class="description">Store and Collect data(commitment) from voter through network (communication round 1) and to be sent back to voter through network <br>
+(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#GetCosig">GetCosig</a></b>(cosig)
+								</div>
+								<div class="description">The final step of communication: store cosignature in the block</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#GetNonces">GetNonces</a></b>(VoterNonce, VoterPubKey)
+								</div>
+								<div class="description">Store and Collect Nonce from voter through network (communication round 2) and to be sent back to voter through network <br>
+(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#GetPartialSigns">GetPartialSigns</a></b>(VoterPartialSign, VoterPubKey)
+								</div>
+								<div class="description">Store and Collect PartialSign from voters through network (communication round 3) and to be sent back to voter through network <br>
+(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#GetSignerSession">GetSignerSession</a></b>(SignerSession)
+								</div>
+								<div class="description">Get signersession from network , generated voter</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#GetVoter">GetVoter</a></b>(VoterUrl, VoterPubKey)
+								</div>
+								<div class="description">Get voter from network and add to the list</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Creator.html#IsValid">IsValid</a></b>()
+								</div>
+								<div class="description">Check if the caller is selected as creator to perform actions for the current round of block construction, by passing publickey into MPT function</div>
+							</td>
+						</tr>
+					
+					</tbody>
+				</table>
+				
+				
+				
+			
+<!-- ============================== events summary ======================== -->
+			
+
+<!-- ============================== constructor details ==================== -->		
+			
+			<div class="details"><a name="constructor"> </a>
+				<div class="sectionTitle">
+					Class Detail
+				</div>
+				
+				<div class="fixedFont">
+						<b>Creator</b>(port, pubKey, MPT)
+				</div>
+				
+				<div class="description">
+					Generate & Initialize Creator Class
+					
+				</div>
+				
+				
+				
+				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								<span class="light fixedFont">{string}</span>  <b>port</b>
+								
+							</dt>
+								<dd>- Network port number of the creator</dd>
+						
+							<dt>
+								<span class="light fixedFont">{string}</span>  <b>pubKey</b>
+								
+							</dt>
+								<dd>- Wallet public key of the creator</dd>
+						
+							<dt>
+								<span class="light fixedFont">{<a href="../symbols/MPT.html">MPT</a>}</span>  <b>MPT</b>
+								
+							</dt>
+								<dd>- Local Merkle Patricia Trie copy of the creator</dd>
+						
+						</dl>
+					
+					
+					
+					
+					
+					
+					
+
+			</div>
+			
+
+<!-- ============================== field details ========================== -->		
+			
+
+<!-- ============================== method details ========================= -->		
+			
+				<div class="sectionTitle">
+					Method Detail
+				</div>
+				
+					<a name="Create"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/Block.html">Block</a>}</span>
+					<b>Create</b>(pendingTxs, height, previousHash)
+					
+					</div>
+					<div class="description">
+						Create a Block, adding transactions, MPT and metadata into it
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{list}</span> <b>pendingTxs</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>height</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>previousHash</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/Block.html">Block</a>}</span> created block</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="GetBlock"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>GetBlock</b>(previousHash)
+					
+					</div>
+					<div class="description">
+						Complete the generation of current new block
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>previousHash</b>
+									
+								</dt>
+								<dd>- hash value of the last block</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>the completed new block</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="GetCommitments"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>GetCommitments</b>(VoterCommitment, VoterPubKey)
+					
+					</div>
+					<div class="description">
+						Store and Collect data(commitment) from voter through network (communication round 1) and to be sent back to voter through network <br>
+(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>VoterCommitment</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>VoterPubKey</b>
+									
+								</dt>
+								<dd>- Corresponding Voter's public key, from network</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="GetCosig"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>GetCosig</b>(cosig)
+					
+					</div>
+					<div class="description">
+						The final step of communication: store cosignature in the block
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>cosig</b>
+									
+								</dt>
+								<dd>- cosignature generated from voter.combinepartialsign</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="GetNonces"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>GetNonces</b>(VoterNonce, VoterPubKey)
+					
+					</div>
+					<div class="description">
+						Store and Collect Nonce from voter through network (communication round 2) and to be sent back to voter through network <br>
+(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>VoterNonce</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>VoterPubKey</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="GetPartialSigns"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>GetPartialSigns</b>(VoterPartialSign, VoterPubKey)
+					
+					</div>
+					<div class="description">
+						Store and Collect PartialSign from voters through network (communication round 3) and to be sent back to voter through network <br>
+(ref: https://bitcoindev.network/pure-javascript-implementation-of-the-schnorr-bip/)
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>VoterPartialSign</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>VoterPubKey</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="GetSignerSession"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>GetSignerSession</b>(SignerSession)
+					
+					</div>
+					<div class="description">
+						Get signersession from network , generated voter
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{SignerSession}</span> <b>SignerSession</b>
+									
+								</dt>
+								<dd>- from network, generataed by voter</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="GetVoter"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>GetVoter</b>(VoterUrl, VoterPubKey)
+					
+					</div>
+					<div class="description">
+						Get voter from network and add to the list
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>VoterUrl</b>
+									
+								</dt>
+								<dd>- Voter's network url</dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>VoterPubKey</b>
+									
+								</dt>
+								<dd>- Wallet public key of voter</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="IsValid"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{bool}</span>
+					<b>IsValid</b>()
+					
+					</div>
+					<div class="description">
+						Check if the caller is selected as creator to perform actions for the current round of block construction, by passing publickey into MPT function
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{bool}</span> True if the caller is the creator of the current round of block construction; False otherwise</dd>
+							
+							</dl>
+						
+						
+						
+
+					
+				
+			
+			
+<!-- ============================== event details ========================= -->		
+			
+			
+			<hr />
+		</div>
+
+		
+<!-- ============================== footer ================================= -->
+		<div class="fineprint" style="clear:both">
+			
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Mon Mar 15 2021 19:13:22 GMT+0800 (CST)
+		</div>
+	</body>
+</html>

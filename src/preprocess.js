@@ -2,13 +2,18 @@ const fs = require('fs');
 const MPT = require('./MPT');
 const Pending_Txn_Pool = require('./pending_transaction_pool');
 const Block = require('./block');
-
+/**
+ * @class Function used to set up things required for our prototype demo
+ */
 function Preprocess() {
     this.chain,
     this.tree,
     this.pending_txn_pool
 }
 
+/**
+ * Set up all wallet data, designate initial value of creator/voter, and create initial block and transaction pool data
+ */
 Preprocess.prototype.initialize = function() {
     var data = fs.readFileSync('node_address_mapping_table.csv')
             .toString() // convert Buffer to string

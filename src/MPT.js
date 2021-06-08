@@ -1,6 +1,11 @@
 const keccak256 = require('keccak256');
 const rlp = require('rlp');
-
+/**
+ * Constructor of the MPT Class
+ * @class Data Structure for Merkle Patricia Trie (MPT)
+ * @param  {Boolean} [root=false]
+ * @param  {String} [type='account']
+ */
 function MPT(root = false, type = 'account') {
     this.type = type;
     this.mode = null;
@@ -14,6 +19,10 @@ function MPT(root = false, type = 'account') {
     this.root = root;
 };
 
+/**
+ * Print current MPT status to terminal
+ * @param  {integer} level - specify which level (height) of trie to display
+ */
 MPT.prototype.Display = function (level) {
     if (level == 0) console.log("**********START PRINTING TRIE**********");
     if (this.mode == null) {
@@ -52,6 +61,13 @@ MPT.prototype.Display = function (level) {
     if (level == 0) console.log("**********FINiSH PRINTING TRIE**********");
 };
 
+/**
+ * Insert new data to MPT
+ * @param  {String} key - public key of the inserted wallet
+ * @param  {Number} value - initial wallet balance
+ * @param  {Number} [tax=0] - initial tax value
+ * @param  {integer={0,1,2}} [dbit=0] - initial dirty bit value
+ */
 MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
     /* FOR DEBUGGING: TAX = 0.1 * VALUE */
     // tax = 0.1 * value;
@@ -261,6 +277,12 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
 
 };
 
+/**
+ * Search for current status of the input address, or check if a transaction can be successfully processed
+ * @param  {string} key - public key of the wallet 
+ * @param  {char={'+','-'}} [Update_flag=null] - specify transaction type (send or receive)
+ * @param  {Number} [Update_value=null] - specify transaction value
+ */
 MPT.prototype.Search = function (key, Update_flag = null, Update_value = null) {
     if (this.type == 'account') {
         if (this.mode == 'leaf') {
@@ -304,6 +326,11 @@ MPT.prototype.Search = function (key, Update_flag = null, Update_value = null) {
     }
 };
 
+/**
+ * Verify the dirty bit of the input address
+ * @param  {string} key - public key of the wallet
+ * @return {integer={0,1,2}} 1 if input address is Creator; 2 if input address is Voter; 0 otherwise
+ */
 MPT.prototype.Verify = function (key) {
     if (this.type == 'account') {
         if (this.mode == 'leaf') {
@@ -335,6 +362,11 @@ MPT.prototype.Verify = function (key) {
     }
 };
 
+/**
+ * Refund taxes for creator/voter.
+ * @param  {String} to - public key/ address to refund
+ * @param  {Number} [value=0] - amount to refund
+ */
 MPT.prototype.RefundTax = function (to, value = 0) {
     var val1 = this.Search(to, '+', value);
     if (val1 == null) {
@@ -344,6 +376,12 @@ MPT.prototype.RefundTax = function (to, value = 0) {
     this.UpdateTax(to, -value);
 }
 
+/**
+ * Update balance for wallets after a specific transaction
+ * @param  {String} from - sender of the transaction
+ * @param  {String} to - receiver of the transaction
+ * @param  {Number} [value=0] - amount of the transaction
+ */
 MPT.prototype.UpdateValue = function (from, to, value = 0) {
     if (this.type == 'account') {
         if (value <= 0) {
@@ -368,6 +406,11 @@ MPT.prototype.UpdateValue = function (from, to, value = 0) {
     }
 };
 
+/**
+ * Update tax balance for wallets after a specific transaction
+ * @param  {String} key - public key/ address of the wallet to update
+ * @param  {Number} Update_value - amount of tax to add
+ */
 MPT.prototype.UpdateTax = function (key, Update_value) {
     if (this.mode == 'leaf') {
         if (this.key == key) {
@@ -400,6 +443,11 @@ MPT.prototype.UpdateTax = function (key, Update_value) {
     }
 }
 
+/**
+ * Update the dirty bit value to indicate the creator/voter bits
+ * @param  {String} key - public key/ address of the wallet to update
+ * @param  {Integer={0,1,2}} [dbit=0] - new dirty bit value of the wallet 
+ */
 MPT.prototype.UpdateDbit = function (key, dbit = 0) {
     if (dbit != 0 && dbit != 1 && dbit != 2) {
         console.error("Error: dbit should be 0, 1 or 2.");
@@ -430,6 +478,9 @@ MPT.prototype.UpdateDbit = function (key, dbit = 0) {
     }
 }
 
+/**
+ * Intermediate function to generate merkle root, not designed to be called directly
+ */
 MPT.prototype.Cal_pack_nibble = function () {
     var element = null;
     if (this.mode == 'leaf') {
@@ -451,6 +502,10 @@ MPT.prototype.Cal_pack_nibble = function () {
     }
 };
 
+/**
+ * Generate merkle root of the Merkle Patricia Trie
+ * @return {String} merkle root of the Merkle Patricia Trie
+ */
 MPT.prototype.Cal_hash = function () {
     var Node = [];
     if (this.mode == null) {
@@ -483,11 +538,10 @@ MPT.prototype.Cal_hash = function () {
     }
 };
 
-/*
- * h := hash (from PoRT) 
- * flag := indicate what taxcnt means
- * taxcnt := (flag == 0) Ti (from PoRT)
- *           (flag == 1) Selected Creator's address(key)
+/**
+ * @param  {String} h - hash (from PoRT)
+ * @param  {integer={0,1}} flag - indicate what taxcnt means: 0 for tax count; 1 for key
+ * @param  {Number} taxcnt - Ti (from PoRT) if flag==0; Selected Creator's address(key) if flag==1
  */
 MPT.prototype.Select = function (h, flag, taxcnt) {
 
@@ -528,6 +582,10 @@ MPT.prototype.Select = function (h, flag, taxcnt) {
     }
 };
 
+/**
+ * Calculate the sum of taxes accumulated in every wallet in the MPT
+ * @return {Number} the sum of taxes accumulated in the MPT
+ */
 MPT.prototype.TotalTax = function () {
     if (this.mode == null) {
         return -1;

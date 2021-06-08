@@ -1,39 +1,32 @@
-const TRANSACTION_FEE = 1;
-// const uuid = require('uuid/v1')
-const sha256 = require('sha256')
-const ec = require('elliptic')
-
-function Transaction(senderWallet, to, amount, type) {
-    // this.id = uuid(),
-    this.type = type,
-
-    this.output = {
-        to: to,
-        amount: amount - TRANSACTION_FEE,
-        fee: TRANSACTION_FEE
-    }
-
-    this.input = {
-        timestamp: Date.now(),
-        from: senderWallet.publicKey,
-        signature: senderWallet.sign(sha256(JSON.stringify(this.output).toString()))
-    }
-
+const sha256 = require('sha256');
+/**
+ * @class Data Structure for a single transaction 
+ * @param  {string} id - Transaction Hash
+ * @param  {string} sender - Sender's public key/ address
+ * @param  {string} receiver - Receiver's public key/ address
+ * @param  {float} value - Transaction value
+ */
+function Transaction_MT(id, sender, receiver, value) {
+    this.id = id;
+    this.sender = sender;
+    this.receiver = receiver;
+    this.value = value;
 }
 
-Transaction.prototype.newTransaction = function(senderWallet, to, amount, type) {
-    if (amount + TRANSACTION_FEE > senderWallet.balance) {
-      console.log(`Amount : ${amount} exceeds the balance`);
-      return;
-    }
-
-    return Transaction(senderWallet, to, amount, type);
+Transaction_MT.prototype.get_id = function() {
+    return this.id;
 }
 
-
-
-Transaction.prototype.verifyTransaction = function() {
-    return ec.ec.KeyFromPublic(this.input.from).verify(sha256(JSON.stringify(this.output).toString(), this.input.signature))
+Transaction_MT.prototype.get_sender = function() {
+    return this.sender;
 }
 
-module.exports = Transaction;
+Transaction_MT.prototype.get_receiver = function() {
+    return this.receiver;
+}
+
+Transaction_MT.prototype.get_value = function() {
+    return this.value;
+}
+
+module.exports = Transaction_MT;

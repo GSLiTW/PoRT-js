@@ -5,3 +5,6 @@
 *out
 
 *.doc
+
+# dependencies
+/node_modules
