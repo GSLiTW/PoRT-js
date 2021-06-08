@@ -173,12 +173,13 @@
     "body": "^5.1.0",
     "bs58": "^4.0.1",
     "decimal.js": "^10.2.1",
-    "elliptic": "^6.5.3",
+    "elliptic": ">=6.5.4",
     "esm": "^3.2.25",
     "eth-crypto": "^1.8.0",
     "express": "^4.17.1",
     "json2csv": "^5.0.3",
     "keccak256": "^1.0.1",
+    "lodash": ">=4.17.21",
     "nodemon": "^2.0.2",
     "parser": "^0.1.4",
     "promise-request-retry": "^1.0.2",
@@ -190,7 +191,9 @@
     "secp256k1": "^4.0.2",
     "secure-random": "^1.1.2",
     "sha256": "^0.2.0",
-    "uuid": "^3.4.0"
+    "underscore": ">=1.12.1",
+    "uuid": "^3.4.0",
+    "ws": ">=7.4.6"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
