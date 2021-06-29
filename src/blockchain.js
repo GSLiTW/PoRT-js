@@ -3,7 +3,7 @@ const currentNodeUrl = process.argv[3];
 // local modules
 const Block = require('./block.js');
 const Transaction_MT = require('./transaction.js');
-const Txn_Pool = require('./transaction_pool');
+const Txn_Pool = require('./pending_transaction_pool');
 
 const TRANSACTION_TYPE = {
     transaction: "TRANSACTION",

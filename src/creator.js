@@ -139,7 +139,7 @@ Creator.prototype.GetBlock = function (previousHash) {
     var creatorPoRT = new PoRT(this.pubKey, this.MPT, 1);
     this.block.nextCreator = creatorPoRT.next_maintainer[1];
     for (var i = 0; i < this.VoterPubKey.length; i++) {
-        var voterPoRT = new PoRT(this.VoterPubKey[i], this.MPT, 2);
+        var voterPoRT = new PoRT(this.VoterPubKey[i].encode('hex'), this.MPT, 2);
         this.block.nextVoters.push(voterPoRT.next_maintainer[1]);
     }
     this.block.hash = this.block.hashBlock(previousHash, this.block);
