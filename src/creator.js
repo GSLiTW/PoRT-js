@@ -32,9 +32,13 @@ Creator.prototype.IsValid = function () {
  * @return {Block} created block
  */
 Creator.prototype.Create = function (pendingTxs, height, previousHash) {
-    for (var i = 0; i < pendingTxs.length; i++) {
+    //console.log(this.MPT.Cal_hash());
+
+    /*for (var i = 0; i < pendingTxs.length; i++) {
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
-    }
+    }*/
+
+    //console.log(this.MPT.Cal_hash());
 
     this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
 

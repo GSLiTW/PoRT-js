@@ -45,9 +45,10 @@ Voter.prototype.CreatorUrl = function(url) {
  * @return {bool} True if merkleRoot is valid; False otherwise 
  */
 Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) {  // TODO: why do we need to pass voter MPT?
-    var hash = voterMPT.Cal_hash();
-    // console.log("merkleRoot: ", merkleRoot);
-    // console.log("hash: ", hash);
+    var hash = voterMPT.oldHash;
+    console.log("merkleRoot: ", merkleRoot);
+    console.log("hash: ", hash);
+
     if(merkleRoot == hash){
         return 1;
     }

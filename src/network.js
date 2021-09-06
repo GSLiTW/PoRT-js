@@ -20,7 +20,7 @@ const Backup = new backup();
 const Creator = require('./creator');
 const Voter = require('./voter');
 
-
+const Block = require('./block.js');
 
 // preprocess
 var data = fs.readFileSync('./data/node_address_mapping_table.csv')
@@ -39,6 +39,7 @@ w = undefined;
 
 
 const Tree = new MPT(true);
+
 for (var i = 0; i < 157; i++) {
     if (i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
     else if (i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
@@ -47,15 +48,28 @@ for (var i = 0; i < 157; i++) {
     else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
 }
 
+
 const chain = new Blockchain(Tree);
 
 for (var i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
     Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
 
+Tree.Cal_old_hash();
+Tree.ResetSaved();
 
 var pending_txn_pool = new Pending_Txn_Pool();
 pending_txn_pool.create(2);
+
+var tempBlock = new Block(4000719, pending_txn_pool.transactions,chain.chain[0].hash, Tree);
+tempBlock.timestamp = 1604671786702;
+tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
+tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
+tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
+
+pending_txn_pool.clean();
+pending_txn_pool.create(3);
+
 
 if (port >= 3002) {
     for (var p = port - 2; p < port; p++) {
@@ -342,26 +356,50 @@ app.post("/receive-new-block", function (req, res) {
     if (seqList.indexOf(seq) == -1) {
         const newBlock = req.body.newBlock;
         const lastBlock = chain.getLastBlock();
-        const correctHash = lastBlock.hash === newBlock.previousBlockHash;
-        const correctIndex = lastBlock["height"] + 1 == newBlock["height"];
+        const correctHash = lastBlock.hash === tempBlock.previousBlockHash;
+        const correctIndex = lastBlock["height"] + 1 == tempBlock["height"];
+
+        if(!Tree.saved)
+        Tree.Cal_old_hash();
 
 
-        for (var i = 0, UpdateList = newBlock.transactions; i < UpdateList.length; i++) {
+        for (var i = 0, UpdateList = tempBlock.transactions; i < UpdateList.length; i++) {
             Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
         }
 
-        Tree.UpdateDbit(lastBlock.nextCreator, 0);
-        Tree.UpdateDbit(newBlock.nextCreator, 1);
 
-        for (var i = 0; i < newBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextCreator, 0);
+        Tree.UpdateDbit(tempBlock.nextCreator, 1);
+
+        for (var i = 0; i < tempBlock.nextVoters.length; i++) {
             Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
-            Tree.UpdateDbit(newBlock.nextVoters[i], 2);
+            Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
         }
 
+
         if (correctHash && correctIndex) {
-            chain.chain.push(newBlock);
+            // refund creator's & voter's tax
+            if (lastBlock["height"] >= 4000718) {
+                Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
+                for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+                    Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
+                }
+                
+            }
+
+            console.log(tempBlock);
+
+            chain.chain.push(tempBlock);
+            
+
+            console.log('hi');
+            
+
+            console.log('old hash: '+Tree.oldHash);
+            console.log('new hash: '+Tree.Cal_hash());
+
             pending_txn_pool.clean();
-            if (newBlock.height == 4000719) pending_txn_pool.create(3);
+            if (newBlock.height == 4000720) pending_txn_pool.create(3);
             var currentdate = new Date();
             var datetime = "Last Sync: " + currentdate.getDate() + "/"
                 + (currentdate.getMonth() + 1) + "/"
@@ -375,14 +413,6 @@ app.post("/receive-new-block", function (req, res) {
                 note: 'New block received and accepted.',
                 newBlock: newBlock
             });
-
-            // refund creator's & voter's tax
-            if (lastBlock["height"] >= 4000718) {
-                Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-                for (var i = 0; i < lastBlock.nextVoters.length; i++) {
-                    Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
-                }
-            }
         }
         else {
             res.json({
@@ -393,6 +423,9 @@ app.post("/receive-new-block", function (req, res) {
 
         seqList.push(seq);
 
+        tempBlock = newBlock;
+        Tree.ResetSaved();
+        console.log(tempBlock);
 
         const requestPromises = [];
         chain.networkNodes.forEach(networkNodeUrl => {
@@ -660,7 +693,9 @@ app.get("/block-explorer", function (req, res) {
 
 app.get("/Creator", function (req, res) {
     creator = new Creator(port, wallet, Tree);
+    
     if (creator.IsValid()) {
+        
         var currentdate = new Date();
         var datetime = "Last Sync: " + currentdate.getDate() + "/"
             + (currentdate.getMonth() + 1) + "/"
@@ -671,10 +706,14 @@ app.get("/Creator", function (req, res) {
             + currentdate.getMilliseconds();
 
         // Create new temporary block
-        blockToVote = creator.Create(pending_txn_pool, chain.getLastBlock().height + 1, chain.getLastBlock()["hash"]);
+        blockToVote = creator.Create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
 
         var seq = seqList[seqList.length - 1] + 1;
         seqList.push(seq);
+        for(var i=0;i<seqList.length;i++)
+        {
+            console.log(seqList[i]);
+        }
 
         // Broadcast to find Voters
         const requestPromises = [];
@@ -705,6 +744,8 @@ app.post("/Voter", function (req, res) {
     if (seqList.indexOf(seq) == -1) {
         voter = new Voter(port, wallet, Tree);
         if (voter.IsValid()) {
+            console.log('i am voter');
+
             voter.CreatorUrl(req.body.CreatorUrl);
 
             const requestPromises = [];
@@ -763,7 +804,7 @@ app.post("/Creator/Challenge", function (req, res) {
                 method: "POST",
                 body: {
                     challenge: challenge,
-                    message: creator.block,
+                    message: tempBlock,
                 },
                 json: true
             };
@@ -823,11 +864,14 @@ app.post("/Creator/GetResponses", function (req, res) {
 })
 
 app.post("/Creator/GetBlock", function (req, res) {
-    var seq = req.body.SeqNum;
+    var seq = req.body.seqNum;//has fault
 
     if (seqList.indexOf(seq) == -1) {
         seqList.push(seq);
         var lastBlock = chain.getLastBlock();
+
+        if(!Tree.saved)
+        Tree.Cal_old_hash();
 
         // refund creator's & voter's tax
         if (lastBlock["height"] >= 4000718) {
@@ -837,19 +881,19 @@ app.post("/Creator/GetBlock", function (req, res) {
             }
         }
 
-        var newBlock = creator.GetBlock(chain.getLastBlock()["hash"]);
+        var newBlock = creator.GetBlock(tempBlock.hash);
 
         Tree.UpdateDbit(lastBlock.nextCreator, 0);
-        Tree.UpdateDbit(newBlock.nextCreator, 1);
+        Tree.UpdateDbit(tempBlock.nextCreator, 1);
 
         for (var i = 0; i < lastBlock.nextVoters.length; i++) {
             Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
-            Tree.UpdateDbit(newBlock.nextVoters[i], 2);
+            Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
         }
-        console.log(newBlock);
-        chain.chain.push(newBlock);
+        console.log(tempBlock);
+        chain.chain.push(tempBlock);
         pending_txn_pool.clean();
-        if (newBlock.height == 4000719) pending_txn_pool.create(3);
+        if (newBlock.height == 4000720) pending_txn_pool.create(3);
 
         var currentdate = new Date();
         var datetime = "Last Sync: " + currentdate.getDate() + "/"

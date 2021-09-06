@@ -11,6 +11,8 @@ function MPT(root = false, type = 'account') {
     this.mode = null;
     this.key = null;
     this.value = null;
+    this.oldHash = null;
+    this.saved=false;
     this.next = null;
     this.branch = [null, null, null, null,
         null, null, null, null,
@@ -539,6 +541,15 @@ MPT.prototype.Cal_hash = function () {
 };
 
 /**
+ * Generate old merkle root of the Merkle Patricia Trie
+ * @return {String} old merkle root of the Merkle Patricia Trie
+ */
+ MPT.prototype.Cal_old_hash = function () {
+    this.oldHash = this.Cal_hash();
+    this.saved=true;
+};
+
+/**
  * @param  {String} h - hash (from PoRT)
  * @param  {integer={0,1}} flag - indicate what taxcnt means: 0 for tax count; 1 for key
  * @param  {Number} taxcnt - Ti (from PoRT) if flag==0; Selected Creator's address(key) if flag==1
@@ -605,6 +616,14 @@ MPT.prototype.TotalTax = function () {
         }
         return taxcnt;
     }
+}
+
+//modified
+/**
+ * reset Saved before next round
+ */
+ MPT.prototype.ResetSaved = function () {
+    this.saved=false;
 }
 
 module.exports = MPT;
