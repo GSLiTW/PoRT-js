@@ -139,11 +139,11 @@ Creator.prototype.GetCoSig = function () {
  * @param  {string} previousHash - hash value of the last block
  * @return the completed new block
  */
-Creator.prototype.GetBlock = function (previousHash) {
-    var creatorPoRT = new PoRT(this.pubKey, this.MPT, 1);
+Creator.prototype.GetBlock = function (previousHash,lastBlock) {
+    var creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, 1);
     this.block.nextCreator = creatorPoRT.next_maintainer[1];
-    for (var i = 0; i < this.VoterPubKey.length; i++) {
-        var voterPoRT = new PoRT(this.VoterPubKey[i].encode('hex'), this.MPT, 2);
+    for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+        var voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, 2);
         this.block.nextVoters.push(voterPoRT.next_maintainer[1]);
     }
     this.block.hash = this.block.hashBlock(previousHash, this.block);
