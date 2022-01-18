@@ -62,9 +62,19 @@ Blockchain.prototype.getLastBlock = function(){
  * @param  {Transaction_MT} transactionObj
  * @return {Block} Last Block
  */
-Blockchain.prototype.addTransactionToPendingTransaction = function(transactionObj){
-    this.pendingTransactions.push(transactionObj);
-    return this.getLastBlock()["height"]+1;
+ Blockchain.prototype.addTransactionToPendingTransaction = function(transactionObj){
+    let isexist = false;
+    for(let i = 0; i < this.pendingTransactions.length; i++){
+        if(this.pendingTransactions[i] == transactionObj){
+            isexist = true;
+            break;
+        }
+    }
+    if(!isexist){
+        this.pendingTransactions.push(transactionObj);
+    }
+    // return this.getLastBlock()["height"]+1;
+    return isexist;
 };
 
 /**

@@ -28,6 +28,7 @@ let CreatorStartThisRound = false; // if true, means Creator already call ("Crea
 let FirstRoundLock = false; // if is true, means ("/Creator/Challenge") overtime, Creator will not wait for rest of voters
 let FirstRountSetTimeout = null; // record setTimeout in ("/Creator/Challenge"), confirm that only one timeout a time
 let FirstRoundVoterNum = 0; // record when First Round Lock, how many Voters attend this round 
+let GetResponsesSetTimeout = null;
 
 // preprocess
 var data = fs.readFileSync('./data/node_address_mapping_table.csv')
@@ -334,28 +335,50 @@ app.get("/transaction/third-block", function (req, res) {
     res.json({ note: `push transactions of the third etherscan into pending txn pool.` })
 })
 
-app.post("/transaction/broadcast", function (req, res) {
-    const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
-    chain.addTransactionToPendingTransaction(newTransaction);
-
-    var seq = seqList[seqList.length - 1] + 1;
-    seqList.push(seq);
-
+app.post("/transaction/launch", function (req, res) {
+    const newTransaction = Transaction("1000", "Amy", "John")
+    let isexist = chain.addTransactionToPendingTransaction(newTransaction);
     const requestPromises = [];
     chain.networkNodes.forEach(networkNodeUrl => {
         const requestOptions = {
-            uri: networkNodeUrl + "/transaction",
+            uri: networkNodeUrl + "/transaction/broadcast",
             method: "POST",
-            body: { SeqNum: seq, NewTxs: newTransaction },
+            body: { NewTxs: newTransaction },
             json: true
         };
 
         requestPromises.push(rp(requestOptions));
     });
-
     Promise.all(requestPromises).then(data => {
         res.json({ note: "Transaction created and broadcast successfully." });
     });
+});
+
+app.post("/transaction/broadcast", function (req, res) {
+    // const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
+    let isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
+
+    // var seq = seqList[seqList.length - 1] + 1;
+    // seqList.push(seq);
+    if(!isexist){
+        const requestPromises = [];
+        chain.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + "/transaction/broadcast",
+                method: "POST",
+                body: { NewTxs: newTransaction },
+                json: true
+            };
+
+            requestPromises.push(rp(requestOptions));
+        });
+
+        Promise.all(requestPromises).then(data => {
+            res.json({ note: "Transaction created and broadcast successfully." });
+        });
+    }
+
+    
 });
 
 app.post("/receive-new-block", function (req, res) {
@@ -398,8 +421,23 @@ app.post("/receive-new-block", function (req, res) {
             console.log("push tempblock" + tempBlock.height + " into chain");
             chain.chain.push(tempBlock);
 
-            pending_txn_pool.clean();
-            if (newBlock.height == 4000720) pending_txn_pool.create(3);
+            /*pending_txn_pool.clean();
+            if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
+            
+            // only delete txs which are in new block
+            console.log("before delete all tx: "+pending_txn_pool.transactions);
+            for(var i=0;i<newBlock.transactions.length;i++)
+            {
+                pending_txn_pool.transactions.forEach(function(tx,index,arr)
+                {
+                    if(tx.id == newBlock.transactions[i].id)
+                    {
+                        arr.splice(index, 1);
+                    }
+                })
+            }
+            console.log("after delete all tx: "+pending_txn_pool.transactions);
+
             var currentdate = new Date();
             var datetime = "Last Sync: " + currentdate.getDate() + "/"
                 + (currentdate.getMonth() + 1) + "/"
@@ -807,16 +845,19 @@ app.post("/Creator/Challenge", function (req, res) {
 
         const challenge = creator.GenerateChallenge();
         const requestPromises = [];
+        let index = 0;
         creator.VoterUrl.forEach(networkNodeUrl => {
             const requestOptions = {
                 uri: networkNodeUrl + "/Voter/Response",
                 method: "POST",
                 body: {
+                    index: index,
                     challenge: challenge,
                     message: tempBlock,
                 },
                 json: true
             };
+            index = index + 1;
             requestPromises.push(rp(requestOptions));
         });
     }
@@ -836,16 +877,19 @@ app.post("/Creator/Challenge", function (req, res) {
                 FirstRoundVoterNum = creator.VoterUrl.length;
 
                 const requestPromises = [];
+                let index = 0;
                     creator.VoterUrl.forEach(networkNodeUrl => {
                     const requestOptions = {
                         uri: networkNodeUrl + "/Voter/Response",
                         method: "POST",
                         body: {
+                            index: index,
                             challenge: challenge,
                             message: tempBlock,
                         },
                         json: true
                     };
+                    index = index + 1;
                     requestPromises.push(rp(requestOptions));
                 });
             }
@@ -894,6 +938,7 @@ app.post("/Voter/Response", function (req, res) {
     const isBlockValid = voter.VerifyBlock(req.body.message.merkleRoot, voter.MPT);
     if (isBlockValid) {
         const challenge = req.body.challenge;
+        const index = req.body.index;
         //console.log(challenge);
         
         const response = voter.GenerateResponse(challenge);
@@ -904,7 +949,11 @@ app.post("/Voter/Response", function (req, res) {
         const requestOptions = {
             uri: voter.CreatorUrl + "/Creator/GetResponses",
             method: "POST",
-            body: { response: response },
+            body: { 
+                response: response,
+                index: index,
+                challenge: challenge,
+             },
             json: true
         };
         requestPromises.push(rp(requestOptions));
@@ -918,25 +967,58 @@ app.post("/Voter/Response", function (req, res) {
 
 app.post("/Creator/GetResponses", function (req, res) {
     console.log("********** Creator/GetResponses start  **********");
-    const response = req.body.response;
-    creator.GetResponses(response);
+    if(req.body.challenge == creator.GetChallenge())
+    {
+        console.log("test");
+        const response = req.body.response;
+        creator.GetResponses(response);
+        creator.setVoterIndex(req.body.index);
 
-    if (creator.VoterResponse.length == FirstRoundVoterNum) {
-        console.log("there are" + creator.VoterResponse.length + " Voter now");
-        creator.AggregateResponse();
+        if (creator.VoterResponse.length == FirstRoundVoterNum) {
+            if(GetResponsesSetTimeout){
+                clearTimeout(GetResponsesSetTimeout);
+            }
+            console.log("there are" + creator.VoterResponse.length + " Voter now");
+            creator.AggregateResponse();
 
-        var seq = seqList[seqList.length - 1] + 1;
+            var seq = seqList[seqList.length - 1] + 1;
 
-        const requestPromises = [];
-        const requestOptions = {
-            uri: "http://localhost:" + creator.port + "/Creator/GetBlock",
-            method: "POST",
-            body: { seqNum: seq },
-            json: true
-        };
-        requestPromises.push(rp(requestOptions));
+            const requestPromises = [];
+            const requestOptions = {
+                uri: "http://localhost:" + creator.port + "/Creator/GetBlock",
+                method: "POST",
+                body: { seqNum: seq },
+                json: true
+            };
+            requestPromises.push(rp(requestOptions));
+        }else{
+            // if there is a Timeout before, clear it first
+            if(GetResponsesSetTimeout){
+                clearTimeout(GetResponsesSetTimeout);
+            }
+
+            // wait for 5 sec, if no voter comes, then do next step
+            GetResponsesSetTimeout = setTimeout(()=>{
+                creator.ClearResponses();
+                challenge = creator.GenerateChallengeWithIndex();
+                creator.VoterIndex.forEach(index => {
+                    const requestOptions = {
+                        uri: creator.VoterUrl[index] + "/Voter/Response",
+                        method: "POST",
+                        body: {
+                            index: index,
+                            challenge: challenge,
+                            message: tempBlock,
+                        },
+                        json: true
+                    };
+                    requestPromises.push(rp(requestOptions));
+                });
+            }, 5000);
+        }
+        res.sendStatus(200);
     }
-    res.sendStatus(200);
+
 })
 
 app.post("/Creator/GetBlock", function (req, res) {
@@ -977,8 +1059,37 @@ app.post("/Creator/GetBlock", function (req, res) {
         // console.log(tempBlock);
         console.log("push tempblock" + tempBlock.height + " into chain");
         chain.chain.push(tempBlock);
-        pending_txn_pool.clean();
-        if (newBlock.height == 4000720) pending_txn_pool.create(3);
+
+        /*pending_txn_pool.clean();
+        if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
+
+        // only delete txs which are in new block
+        console.log("before delete all tx: "+pending_txn_pool.transactions);
+        for(var i=0;i<newBlock.transactions.length;i++)
+        {
+            pending_txn_pool.transactions.forEach(function(tx,index,arr)
+            {
+                if(tx.id == newBlock.transactions[i].id)
+                {
+                    arr.splice(index, 1);
+                }
+            })
+        }
+        console.log("after delete all tx: "+pending_txn_pool.transactions);
+        console.log(pending_txn_pool.transactions.length);
+        console.log(newBlock.transactions.length)
+
+        /*console.log("new block tx:");
+        for(var i=0;i<newBlock.transactions.transactions.length;i++)
+        {
+            console.log(newBlock.transactions.transactions[i].id)
+        }
+        console.log("tx_pool tx:");
+        pending_txn_pool.transactions.forEach(function(tx,index,arr)
+        {
+            console.log(tx.id);
+        })*/
+
 
         var currentdate = new Date();
         var datetime = "Last Sync: " + currentdate.getDate() + "/"
@@ -1006,6 +1117,7 @@ app.post("/Creator/GetBlock", function (req, res) {
         FirstRoundLock = false;
         FirstRoundVoterNum = 0;
         FirstRountSetTimeout = null;
+        GetResponsesSetTimeout = null;
         res.send("Create Block Succeed.")
     } else {
         res.sendStatus(200);
