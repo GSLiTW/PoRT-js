@@ -8,7 +8,7 @@
     "3001": "nodemon --watch dev -e js src/network.js 3001 http://localhost:3001 &",
     "3002": "nodemon --watch dev -e js src/network.js 3002 http://localhost:3002 &",
     "3003": "nodemon --watch dev -e js src/network.js 3003 http://localhost:3003 &",
-    
+    "3004": "nodemon --watch dev -e js src/network.js 3004 http://localhost:3004 &",
     "3005": "nodemon --watch dev -e js src/network.js 3005 http://localhost:3005 &",
     "3006": "nodemon --watch dev -e js src/network.js 3006 http://localhost:3006 &",
     "3007": "nodemon --watch dev -e js src/network.js 3007 http://localhost:3007 &",
