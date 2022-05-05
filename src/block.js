@@ -14,7 +14,7 @@ function Block(height, pendingTransactions, previousHash, MPT) {
     this.merkleRoot = MPT.Cal_hash(),
     this.timestamp = Date.now(),
     this.height = height,
-    this.transactions = new Pending_Transaction_Pool(pendingTransactions),
+    this.transactions = pendingTransactions.slice(0),//copy whole tx array
     
     //variable area
     this.receiptTree = null,

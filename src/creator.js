@@ -32,9 +32,13 @@ Creator.prototype.IsValid = function () {
  * @return {Block} created block
  */
 Creator.prototype.Create = function (pendingTxs, height, previousHash) {
-    for (var i = 0; i < pendingTxs.length; i++) {
+    //console.log(this.MPT.Cal_hash());
+
+    /*for (var i = 0; i < pendingTxs.length; i++) {
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
-    }
+    }*/
+
+    //console.log(this.MPT.Cal_hash());
 
     this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
 
@@ -46,6 +50,7 @@ Creator.prototype.Create = function (pendingTxs, height, previousHash) {
  * @param  {string} VoterUrl - Voter's network url
  * @param  {string} VoterPubKey - Wallet public key of voter
  * @param  {string} VoterPubV - Round public V of voter
+ * @param  {int}    VoterIndex - record which Voter have attend the GetResponse with index of VoterUrl 
  */
 Creator.prototype.GetVoter = function (VoterUrl, VoterPubKey, VoterPubV) {
     if (this.VoterUrl == null) {
@@ -56,6 +61,15 @@ Creator.prototype.GetVoter = function (VoterUrl, VoterPubKey, VoterPubV) {
         this.VoterUrl.push(VoterUrl);
         this.VoterPubKey.push(VoterPubKey);
         this.VoterPubV.push(VoterPubV);
+    }
+}
+
+Creator.prototype.setVoterIndex = function (index){
+    if(this.VoterIndex == null){
+        this.VoterIndex = [index];
+    }
+    else{
+        this.VoterIndex.push(index);
     }
 }
 
@@ -74,6 +88,25 @@ Creator.prototype.GenerateChallenge = function() {
     
 }
 
+Creator.prototype.GenerateChallengeWithIndex = function() {
+    this.V0_aggr = this.VoterPubV[this.VoterIndex[0]];
+    for(var i = 1; i < this.VoterIndex.length; i++) {
+        this.V0_aggr = this.V0_aggr.add(this.VoterPubV[this.VoterIndex[i]]);
+    }
+
+    // console.log("\nV0_aggr: " + this.V0_aggr.encode('hex'));
+
+    hash.update(this.V0_aggr.encode('hex') + this.block);
+    this.challenge = new BN(hash.copy().digest('hex'), 'hex');
+
+    return this.challenge.toString('hex');
+    
+}
+
+Creator.prototype.GetChallenge = function() {
+    return this.challenge.toString('hex');
+}
+
 Creator.prototype.GetResponses = function (VoterResponseHex) {
     const VoterResponse = new BN(VoterResponseHex, 'hex');
     // console.log(VoterResponse);
@@ -83,6 +116,11 @@ Creator.prototype.GetResponses = function (VoterResponseHex) {
         this.VoterResponse.push(VoterResponse);
     }
 }
+
+Creator.prototype.ClearResponses = function () {
+    this.VoterResponse = null
+}
+
 
 Creator.prototype.AggregateResponse = function() {
     this.r0_aggr = this.VoterResponse[0];
@@ -135,11 +173,11 @@ Creator.prototype.GetCoSig = function () {
  * @param  {string} previousHash - hash value of the last block
  * @return the completed new block
  */
-Creator.prototype.GetBlock = function (previousHash) {
-    var creatorPoRT = new PoRT(this.pubKey, this.MPT, 1);
+Creator.prototype.GetBlock = function (previousHash,lastBlock) {
+    var creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, 1);
     this.block.nextCreator = creatorPoRT.next_maintainer[1];
-    for (var i = 0; i < this.VoterPubKey.length; i++) {
-        var voterPoRT = new PoRT(this.VoterPubKey[i].encode('hex'), this.MPT, 2);
+    for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+        var voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, 2);
         this.block.nextVoters.push(voterPoRT.next_maintainer[1]);
     }
     this.block.hash = this.block.hashBlock(previousHash, this.block);
