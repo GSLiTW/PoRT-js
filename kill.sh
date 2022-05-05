@@ -7,5 +7,5 @@ do
 done
 
 killall /usr/local/bin/node
-rm out*
+rm *.out
  
