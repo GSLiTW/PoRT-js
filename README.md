@@ -4,8 +4,9 @@ A doubly-linked PoRT Blockchain approach
 # Usage
 1. Use Node.js version >= v14.
 2. run ```npm i``` first.
-3. run ```./run.sh``` to start running.
-4. run ```./kill.sh``` to stop testing.
+3. run ```npm audit fix``` to update some packages.
+4. run ```./run.sh``` to start running.
+5. run ```./kill.sh``` to stop testing.
 
 # Run some test
 **實驗環境**
