@@ -43,14 +43,19 @@ npm run 3008 > out3008
 ![](https://i.imgur.com/IKlXtQi.png)
 
 
-2.首先我在MPT裡指派了3002這個port來當作C2，以及3004、3006、3008這3個port來當作V2，接著透過(http://localhost:3002/Creator)讓3002這個port去create block 2，同時3004、3006、3008這3個port也會去verify block 1，接著當block 2 create成功後，3002會把block 2 broadcast出去，每個node在收到block 2後會把block 1(temporary block)上鍊，最後把block 2設為新的temporary block
+2.首先我在MPT裡指派了3002這個port來當作C2，以及3004、3006、3008這3個port來當作V2，接著透過(http://localhost:3002/Creator)
+讓3002這個port去create block 2，同時3004、3006、3008這3個port也會去verify block 1，接著當block 2 create成功後，3002會把block 2 broadcast出去，每個node在收到block 2後會把block 1(temporary block)上鍊，最後把block 2設為新的temporary block
 
-3.此時可以再透過(http://localhost:3000/blockchain)來查看目前的區塊鍊，這時候鍊上應該要有2個block(block0、block1)
-![](https://i.imgur.com/LgYxta3.png)
+3.此時可以再透過(http://localhost:3000/blockchain)
+來查看目前的區塊鍊，這時候鍊上應該要有2個block(block0、block1)!
+[](https://i.imgur.com/LgYxta3.png)
 
-4.接著執行下一輪，下一輪的creator和voter為C3、V3，也就是block 1裡面紀錄的next creator和next voter，而在這裡我把C3設定成port 3001，V3設定成3003、3005、3007，因此現在可以透過(http://localhost:3001/Creator)讓3001 create block 3，同時3003、3005、3007會verify block 2，接著3001把block 3 broadcast出去後，每個node便會把block 2上鍊並將temporary block設為block 3
+4.接著執行下一輪，下一輪的creator和voter為C3、V3，也就是block 1裡面紀錄的next creator和next voter，而在這裡我把C3設定成port 3001，V3設定成3003、3005、3007，因此現在可以透過(http://localhost:3001/Creator)
+讓3001 create block 3，同時3003、3005、3007會verify block 2，接著3001把block 3 broadcast出去後，每個node便會把block 2上鍊並將temporary block設為block 3
 
-5.再執行一次(http://localhost:3000/blockchain)可以發現目前區塊鍊上確實有3個block了![](https://i.imgur.com/qEtTAMU.png)
+5.再執行一次(http://localhost:3000/blockchain)
+可以發現目前區塊鍊上確實有3個block了!
+[](https://i.imgur.com/qEtTAMU.png)
 
 6.接著再下一輪的C4、V4是block 2裡面紀錄的next creator和next voter，這裡我查表的結果是C4是3149這個port，而V4分別為3141、3139、3022這3個port，但因為我目前電腦無法同時開啟這麼多port，因此我沒有繼續做這一輪。
 
