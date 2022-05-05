@@ -2,9 +2,9 @@
 .vscode/
 
 # testing files
-*out
-
+*.out
 *.doc
 
 # dependencies
-node_modules
+node_modules/
+
