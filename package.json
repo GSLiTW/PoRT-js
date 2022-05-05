@@ -199,15 +199,19 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "jsdoc-to-markdown": "^7.0.0"
+    "jsdoc-to-markdown": "^7.1.1"
+  },
+  "engines" : { 
+    "npm" : ">=7.0.0",
+    "node" : ">=16.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ytwang3579/PoRT-Blockchain.git"
+    "url": "git+https://github.com/GSLiTW/PoRT-Blockchain.git"
   },
   "keywords": [],
   "bugs": {
-    "url": "https://github.com/ytwang3579/PoRT-Blockchain/issues"
+    "url": "https://github.com/GSLiTW/PoRT-Blockchain/issues"
   },
-  "homepage": "https://github.com/ytwang3579/PoRT-Blockchain#readme"
+  "homepage": "https://github.com/GSLiTW/PoRT-Blockchain#readme"
 }
