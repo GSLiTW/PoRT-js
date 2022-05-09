@@ -9,9 +9,9 @@ A doubly-linked PoRT Blockchain approach
 5. run ```./kill.sh``` to stop testing.
 
 # Run some test
-**實驗環境**
+**./run.sh**
 
-由於有可能沒有辦法執行以下腳本
+由於有可能沒有辦法執行Script```./run.sh```：
 ```
 #!/bin/bash
 for i in {3000..3008}
@@ -21,7 +21,7 @@ do
 done
 ```
 
-可以另外寫以下腳本來同時開啟3000-3008的port
+也可以自己寫另外的Script來開啟3000-3008的port
 
 ```
 #!/bin/bash
@@ -60,12 +60,9 @@ npm run 3008 > out3008
 
 6.接著再下一輪的C4、V4是block 2裡面紀錄的next creator和next voter，這裡我查表的結果是C4是3149這個port，而V4分別為3141、3139、3022這3個port，但因為我目前電腦無法同時開啟這麼多port，因此我沒有繼續做這一輪。
 
-在每次實驗後，我們會透過執行kill.sh腳本來把所有port關掉。
+在每次實驗後，我們會透過執行```./kill.sh```來把所有port關掉。
 
-**實驗環境**
+**補充**
 
-我們在新的版本中處理了Voter掉線的問題，測試方法一開始一樣是透過
-```
-./run.sh
-```
+測試Voter掉線的問題，測試方法一開始一樣是透過```./run.sh```
 來開啟這些PORT。而在開啟後，我們會透過CMD把3004這個PORT(Voter之一)關掉，並透過和以上一樣的流程來檢查少了一個Voter後是否還能正常運作。
