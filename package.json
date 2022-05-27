@@ -162,7 +162,8 @@
     "3155": "nodemon --watch dev -e js src/network.js 3155 http://localhost:3155 &",
     "3156": "nodemon --watch dev -e js src/network.js 3156 http://localhost:3156 &",
     "3157": "nodemon --watch dev -e js src/network.js 3157 http://localhost:3157 &",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "jest_test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -175,7 +176,7 @@
     "elliptic": ">=6.5.4",
     "esm": "^3.2.25",
     "eth-crypto": "^1.8.0",
-    "express": "^4.17.1",
+    "express": "^4.18.1",
     "json2csv": "^5.0.3",
     "keccak256": "^1.0.1",
     "lodash": ">=4.17.21",
@@ -197,6 +198,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "jest": "^28.1.0",
     "jsdoc-to-markdown": "^7.1.1"
   },
   "engines": {
