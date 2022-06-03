@@ -280,12 +280,48 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
 };
 
 /**
- * Search for current status of the input address, or check if a transaction can be successfully processed
- * @param  {string} key - public key of the wallet 
- * @param  {char={'+','-'}} [Update_flag=null] - specify transaction type (send or receive)
- * @param  {Number} [Update_value=null] - specify transaction value
- */
-MPT.prototype.Search = function (key, Update_flag = null, Update_value = null) {
+* Search for current status of the input address, or check if a transaction can be successfully processed
+* @param  {string} key - public key of the wallet 
+*/
+
+MPT.prototype.Search = function (key) {
+   if (this.type == 'account') {
+       if (this.mode == 'leaf') {
+           if (this.key == key) {
+                return this.value;
+           }
+       } else if (this.mode == 'extension') {
+           var i = 0;
+           while (key[i] == this.key[i]) {
+               i++;
+               if (i == this.key.length)
+                   break;
+           }
+           if (i == this.key.length) {
+               return this.next.Search(key.substr(i));
+           } else {
+               return null;
+           }
+       } else if (this.mode == 'branch') {
+           if (this.branch[parseInt(key[0], 16)] != null) {
+               return this.branch[parseInt(key[0], 16)].Search(key.substr(1));
+           } else {
+               return null;
+           }
+       }
+   } else if (this.type == 'receipt') {
+       return null;
+   }
+};
+
+/**
+* Search for current status of the input address, or check if a transaction can be successfully processed
+* @param  {string} key - public key of the wallet 
+* @param  {char={'+','-'}} [Update_flag=null] - specify transaction type (send or receive)
+* @param  {Number} [Update_value=null] - specify transaction value
+*/
+
+MPT.prototype.ModifyValue = function (key, Update_flag = null, Update_value = null) {
     if (this.type == 'account') {
         if (this.mode == 'leaf') {
             if (this.key == key) {
@@ -301,7 +337,7 @@ MPT.prototype.Search = function (key, Update_flag = null, Update_value = null) {
                     this.value[0] += Update_value;
                     return this.value[0];
                 } else {
-                    return this.value;
+                    console.log(">An error has happened when modifying value")
                 }
             }
         } else if (this.mode == 'extension') {
@@ -312,13 +348,13 @@ MPT.prototype.Search = function (key, Update_flag = null, Update_value = null) {
                     break;
             }
             if (i == this.key.length) {
-                return this.next.Search(key.substr(i), Update_flag, Update_value);
+                return this.next.ModifyValue(key.substr(i), Update_flag, Update_value);
             } else {
                 return null;
             }
         } else if (this.mode == 'branch') {
             if (this.branch[parseInt(key[0], 16)] != null) {
-                return this.branch[parseInt(key[0], 16)].Search(key.substr(1), Update_flag, Update_value);
+                return this.branch[parseInt(key[0], 16)].ModifyValue(key.substr(1), Update_flag, Update_value);
             } else {
                 return null;
             }
@@ -326,7 +362,7 @@ MPT.prototype.Search = function (key, Update_flag = null, Update_value = null) {
     } else if (this.type == 'receipt') {
         return null;
     }
-};
+ };
 
 /**
  * Verify the dirty bit of the input address
@@ -370,7 +406,7 @@ MPT.prototype.Verify = function (key) {
  * @param  {Number} [value=0] - amount to refund
  */
 MPT.prototype.RefundTax = function (to, value = 0) {
-    var val1 = this.Search(to, '+', value);
+    var val1 = this.ModifyValue(to, '+', value);
     if (val1 == null) {
         console.log("> An error occurred when updating " + to + "'s value.");
         return;
@@ -390,13 +426,13 @@ MPT.prototype.UpdateValue = function (from, to, value = 0) {
             return;
         }
 
-        var val1 = this.Search(from, '-', value);
+        var val1 = this.ModifyValue(from, '-', value);
         if (val1 == null) {
             console.log("> An error occurred when updating " + from + "'s value.");
             return;
         }
 
-        var val2 = this.Search(to, '+', value);
+        var val2 = this.ModifyValue(to, '+', value);
         if (val2 == null) {
             console.log("> An error occurred when updating " + to + "'s value.");
             return;
