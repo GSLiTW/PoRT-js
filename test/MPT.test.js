@@ -511,4 +511,35 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     ]); 
 });
 
-
+test('MPT.Search()', () => {
+    // test case for search
+    // extension (1) -> branch
+    //                   [2] -> extension (3) -> branch
+    //                                             [4] -> leaf (5)
+    //                                             [7] -> leaf (8)
+    //                   [4] -> leaf (567)
+    // Search for 
+    //      12345
+    //      12378
+    //      14567
+    //
+    //      12245 (should return Null)
+    //      13456 (should return Null)
+    //      14577 (should return Null)
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7);
+    testingMPT.Insert('12378', 11);
+    testingMPT.Insert('14567', 15);
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 0, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 0, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 0, 0
+    ]);
+    expect(testingMPT.Search('12245')).toBeNull();
+    expect(testingMPT.Search('13456')).toBeNull();
+    expect(testingMPT.Search('14577')).toBeNull();
+});
