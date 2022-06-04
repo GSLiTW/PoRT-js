@@ -342,6 +342,7 @@ MPT.prototype.ModifyValue = function (key, Update_flag = null, Update_value = nu
                     return this.value[0];
                 } else {
                     console.log(">An error has happened when modifying value")
+                    return null;
                 }
             }
         } else if (this.mode == 'extension') {

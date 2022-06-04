@@ -2,6 +2,7 @@ const MPT = require('../src/MPT')   // include MPT as DUT
 const BRANCH = 'branch';
 const EXTENSION = 'extension'
 const LEAF = 'leaf'
+const TAX_RATIO = 0.0001
 
 test('constructor with default parameters', () => {
     let testingMPT = new MPT();
@@ -543,3 +544,99 @@ test('MPT.Search()', () => {
     expect(testingMPT.Search('13456')).toBeNull();
     expect(testingMPT.Search('14577')).toBeNull();
 });
+
+test('MPT.ModifyValue()', () => {
+    // test case for search
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7)
+    //                                             [7] -> leaf [8] (11)
+    //                   [4] -> leaf [567] (15)
+    // Try increase (should success)
+    //      12345 +(17)
+    //      12378 + (2)
+    //      14567 + (5)
+    //
+    // Try decrease (should success)
+    //      12345 - (5)
+    //      12378 - (2)
+    //      14567 - (1)
+    // Try decrease (should fail)
+    //      12345 -(31)
+    //      12378 -(25)
+    //      14567 -(19)
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7);
+    testingMPT.Insert('12378', 11);
+    testingMPT.Insert('14567', 15);
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 0, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 0, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 0, 0
+    ]);
+
+    // Try increas (should success)
+    expect(testingMPT.ModifyValue('12345', '+', 17)).not.toBeNull();
+    expect(testingMPT.ModifyValue('12378', '+', 2)).not.toBeNull();
+    expect(testingMPT.ModifyValue('14567', '+', 5)).not.toBeNull();
+    expect(testingMPT.Search('12345')).toEqual([
+        24, 0, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        13, 0, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        20, 0, 0
+    ]);
+    // Try decrease (should success)
+    expect(testingMPT.ModifyValue('12345', '-', 5)).not.toBeNull();
+    expect(testingMPT.ModifyValue('12378', '-', 2)).not.toBeNull();
+    expect(testingMPT.ModifyValue('14567', '-', 1)).not.toBeNull();
+    expect(testingMPT.Search('12345')).toEqual([
+        24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
+    ]);
+
+    // Try decrease (should fail)
+    expect(testingMPT.ModifyValue('12345', '-', 31)).toBeNull();
+    expect(testingMPT.ModifyValue('12378', '-', 25)).toBeNull();
+    expect(testingMPT.ModifyValue('14567', '-', 19)).toBeNull();
+    // After Failure, value should not be changed
+    expect(testingMPT.Search('12345')).toEqual([
+        24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
+    ]);
+
+
+});
+
+
+    // Try tx (source & destination exist, should success)
+    //      12345 ---(3)---> 12478
+    //      12378 ---(8)---> 14567
+    //      14567 ---(9)---> 12345
+    //
+    // Test in future
+        // Try tx (destination doesn't exist, should success)
+        //      12345 ---(1)---> 16789
+    //
+    // Try tx (source not enough balance, should fail)
+    //      12345 ---(20)--> 12478
+    //
+    // Try tx (source doesn't exist, should fail)
+    //      12245 ---(15)--> 12345
