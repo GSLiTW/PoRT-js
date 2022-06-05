@@ -625,6 +625,51 @@ test('MPT.ModifyValue()', () => {
 
 });
 
+test('MPT.Verify()', () => {
+    // test case for Verify()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7)
+    //                                             [7] -> leaf [8] (11)
+    //                   [4] -> leaf [567] (15)
+    // Try verify (should success)
+    //      12345
+    //      12378
+    //      14567
+    //
+    // Try verify (should fail)
+    //      12346 (wrong leaf key)
+    //      12356 (branch doesn't exist)
+    //      14568 (extension partially matches)
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7);
+    testingMPT.Insert('12378', 11);
+    testingMPT.Insert('14567', 15);
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 0, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 0, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 0, 0
+    ]);
+
+    // Try verify (should success)
+    expect(testingMPT.Verify('12345')).toBeGreaterThanOrEqual(0);
+    expect(testingMPT.Verify('12378')).toBeGreaterThanOrEqual(0);
+    expect(testingMPT.Verify('14567')).toBeGreaterThanOrEqual(0);
+    
+    // Try verify (should fail)
+    expect(testingMPT.Verify('12346')).not.toBeGreaterThanOrEqual(0);
+    expect(testingMPT.Verify('12356')).not.toBeGreaterThanOrEqual(0);
+    expect(testingMPT.Verify('14568')).not.toBeGreaterThanOrEqual(0);
+
+
+});
+
+
 
     // Try tx (source & destination exist, should success)
     //      12345 ---(3)---> 12478

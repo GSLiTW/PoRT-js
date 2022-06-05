@@ -380,6 +380,9 @@ MPT.prototype.Verify = function (key) {
             if (this.key == key) {
                 return this.value[2];
             }
+            else {
+                return -1;
+            }
         } else if (this.mode == 'extension') {
             var i = 0;
             while (key[i] == this.key[i]) {
