@@ -468,6 +468,9 @@ MPT.prototype.UpdateTax = function (key, Update_value) {
                 return -1;
             }
         }
+        else {
+            return null;
+        }
     } else if (this.mode == 'extension') {
         var i = 0;
         while (key[i] == this.key[i]) {

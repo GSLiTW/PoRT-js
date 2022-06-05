@@ -669,7 +669,59 @@ test('MPT.Verify()', () => {
 
 });
 
+test('MPT.UpdateTax()', () => {
+    // test case for UpdateTax()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7, 2, 0)
+    //                                             [7] -> leaf [8] (11, 1, 0)
+    //                   [4] -> leaf [567] (15, 3, 0)
+    // Try updating (should success)
+    //      12345 + (2)
+    //      12378 - (1)
+    //      14567 + (1)
+    //
+    // Try refunding (should fail)
+    //      12345 - (5) (smaller than 0)
+    //      12378 - (1) (smaller than 0)
+    //      14568 + (1) (address doesn't exist)
 
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7, 2);
+    testingMPT.Insert('12378', 11, 1);
+    testingMPT.Insert('14567', 15, 3);
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 2, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 1, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 3, 0
+    ]);
+
+    // Update tax (should success)
+    expect(testingMPT.UpdateTax('12345', 2)).toBeGreaterThanOrEqual(0);
+    expect(testingMPT.UpdateTax('12378', -1)).toBeGreaterThanOrEqual(0);
+    expect(testingMPT.UpdateTax('14567', 1)).toBeGreaterThanOrEqual(0);
+
+    // Update tax (should fail)
+    expect(testingMPT.UpdateTax('12345', -5)).not.toBeGreaterThanOrEqual(0);
+    expect(testingMPT.UpdateTax('12378', -1)).not.toBeGreaterThanOrEqual(0);
+    expect(testingMPT.UpdateTax('14568', 1)).toBeNull();
+
+    // Search value, tax should not change after failed update
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 4, 0
+    ])
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 0, 0
+    ])
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 4, 0
+    ])
+
+});
 
     // Try tx (source & destination exist, should success)
     //      12345 ---(3)---> 12478
