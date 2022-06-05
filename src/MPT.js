@@ -500,11 +500,15 @@ MPT.prototype.UpdateTax = function (key, Update_value) {
 MPT.prototype.UpdateDbit = function (key, dbit = 0) {
     if (dbit != 0 && dbit != 1 && dbit != 2) {
         console.error("Error: dbit should be 0, 1 or 2.");
-        return;
+        return null;
     }
     if (this.mode == 'leaf') {
         if (this.key == key) {
             this.value[2] = dbit;
+            return 0;
+        }
+        else {
+            return null;
         }
     } else if (this.mode == 'extension') {
         var i = 0;

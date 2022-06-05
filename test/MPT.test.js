@@ -723,17 +723,77 @@ test('MPT.UpdateTax()', () => {
 
 });
 
-    // Try tx (source & destination exist, should success)
-    //      12345 ---(3)---> 12478
-    //      12378 ---(8)---> 14567
-    //      14567 ---(9)---> 12345
+test('MPT.UpdateDbit()', () => {
+    // test case for UpdateDbit()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7, 2, 0)
+    //                                             [7] -> leaf [8] (11, 1, 0)
+    //                   [4] -> leaf [567] (15, 3, 0)
+    // Try updating (should success)
+    //      12345 ->1
+    //      12378 ->1
+    //      14567 ->2
     //
-    // Test in future
-        // Try tx (destination doesn't exist, should success)
-        //      12345 ---(1)---> 16789
-    //
-    // Try tx (source not enough balance, should fail)
-    //      12345 ---(20)--> 12478
-    //
-    // Try tx (source doesn't exist, should fail)
-    //      12245 ---(15)--> 12345
+    // Try refunding (should fail)
+    //      12345 ->3   (not in enum)
+    //      12378 ->-1  (not in enum)
+    //      14567 ->5   (not in enum)
+    //      12356 ->1   (DNE)
+    //      12349 ->1   (DNE)
+    //      12349 ->3   (DNE, not in enum)
+    //      13456 ->1   (DNE)
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7, 2);
+    testingMPT.Insert('12378', 11, 1);
+    testingMPT.Insert('14567', 15, 3);
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 2, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 1, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 3, 0
+    ]);
+
+    // Update Dbit (should success)
+    expect(testingMPT.UpdateDbit('12345', 1)).not.toBeNull();
+    expect(testingMPT.UpdateDbit('12378', 1)).not.toBeNull();
+    expect(testingMPT.UpdateDbit('14567', 2)).not.toBeNull();
+
+    // Verify successful update
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 2, 1
+    ])
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 1, 1
+    ])
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 3, 2
+    ])
+
+    // Update Dbit (should fail)
+    expect(testingMPT.UpdateDbit('12345', 3)).toBeNull();
+    expect(testingMPT.UpdateDbit('12378', -1)).toBeNull();
+    expect(testingMPT.UpdateDbit('14567', 5)).toBeNull();
+    expect(testingMPT.UpdateDbit('12356', 1)).toBeNull();
+    expect(testingMPT.UpdateDbit('12349', 1)).toBeNull();
+    expect(testingMPT.UpdateDbit('12349', 3)).toBeNull();
+    expect(testingMPT.UpdateDbit('13456', 1)).toBeNull();
+
+    // Search value, Dbit should not change after failed update
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 2, 1
+    ])
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 1, 1
+    ])
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 3, 2
+    ])
+});
+
+
+
