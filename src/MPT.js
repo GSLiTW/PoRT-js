@@ -80,7 +80,7 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
         if (this.mode != null) {
             if (key == this.key) {
                 console.log(">Weird request. User already exist");
-                return;
+                return null;
             }
         }
         if (this.mode == null) {
