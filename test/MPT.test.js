@@ -886,6 +886,23 @@ test('MPT.UpdateDbit()', () => {
     ])
 });
 
+test('MPT.Cal_old_hash()', () => {
+    // test case for Cal_old_hash()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7, 2, 0)
+    //                                             [7] -> leaf [8] (11, 1, 0)
+    //                   [4] -> leaf [567] (15, 3, 0)
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7, 2);
+    testingMPT.Insert('12378', 11, 1);
+    testingMPT.Insert('14567', 15, 3);
+    testingMPT.Cal_old_hash();
+    expect(testingMPT.saved).toBeTruthy();
+    
+});
+
 test('MPT.TotalTax()', () => {
     // test case for UpdateDbit()
     // extension (1) -> branch
