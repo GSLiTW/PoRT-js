@@ -723,7 +723,8 @@ test('MPT.Verify()', () => {
     // Try verify (should fail)
     //      12346 (wrong leaf key)
     //      12356 (branch doesn't exist)
-    //      14568 (extension partially matches)
+    //      14568 (leaf partially matches)
+    //      12145 (extension partially matches)
 
     let testingMPT = new MPT(true, 'account');
     testingMPT.Insert('12345', 7);
@@ -748,6 +749,7 @@ test('MPT.Verify()', () => {
     expect(testingMPT.Verify('12346')).not.toBeGreaterThanOrEqual(0);
     expect(testingMPT.Verify('12356')).not.toBeGreaterThanOrEqual(0);
     expect(testingMPT.Verify('14568')).not.toBeGreaterThanOrEqual(0);
+    expect(testingMPT.Verify('12145')).not.toBeGreaterThanOrEqual(0);
 
 
 });
