@@ -618,6 +618,7 @@ test('MPT.ModifyValue()', () => {
     // Try decrease inexisted address (should fail)
     //      13456 - (5)
     //      12357 - (7)
+    //      12257 - (7)
 
     let testingMPT = new MPT(true, 'account');
     testingMPT.Insert('12345', 7);
@@ -693,6 +694,7 @@ test('MPT.ModifyValue()', () => {
     // Try decrease inexisted address (should fail)
     expect(testingMPT.ModifyValue('13456', '-', 5)).toBeNull();
     expect(testingMPT.ModifyValue('12357', '-', 7)).toBeNull();
+    expect(testingMPT.ModifyValue('12257', '-', 7)).toBeNull();
     // After Failure, value should not be changed
     expect(testingMPT.Search('12345')).toEqual([
         24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
