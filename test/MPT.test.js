@@ -832,6 +832,7 @@ test('MPT.UpdateDbit()', () => {
     //      12349 ->1   (DNE)
     //      12349 ->3   (DNE, not in enum)
     //      13456 ->1   (DNE)
+    //      12234 ->1   (DNE)
 
     let testingMPT = new MPT(true, 'account');
     testingMPT.Insert('12345', 7, 2);
@@ -871,6 +872,7 @@ test('MPT.UpdateDbit()', () => {
     expect(testingMPT.UpdateDbit('12349', 1)).toBeNull();
     expect(testingMPT.UpdateDbit('12349', 3)).toBeNull();
     expect(testingMPT.UpdateDbit('13456', 1)).toBeNull();
+    expect(testingMPT.UpdateDbit('12234', 1)).toBeNull();
 
     // Search value, Dbit should not change after failed update
     expect(testingMPT.Search('12345')).toEqual([
