@@ -534,7 +534,7 @@ test('MPT.Insert() insert with type = tx', () => {
     
 });
 
-test('MPT.Search()', () => {
+test('MPT.Search() with type = account', () => {
     // test case for search
     // extension (1) -> branch
     //                   [2] -> extension (3) -> branch
@@ -565,6 +565,30 @@ test('MPT.Search()', () => {
     expect(testingMPT.Search('12245')).toBeNull();
     expect(testingMPT.Search('13456')).toBeNull();
     expect(testingMPT.Search('14577')).toBeNull();
+});
+
+test('MPT.Search() with type = receipt', () => {
+    // test case for search
+    // extension (1) -> branch
+    //                   [2] -> extension (3) -> branch
+    //                                             [4] -> leaf (5)
+    //                                             [7] -> leaf (8)
+    //                   [4] -> leaf (567)
+    // Search for 
+    //      12345
+    //      12378
+    //      14567
+    //
+    //      12345 (should return Null)
+    //      12378 (should return Null)
+    //      14567 (should return Null)
+    let testingMPT = new MPT(true, 'receipt');
+    testingMPT.Insert('12345', 7);
+    testingMPT.Insert('12378', 11);
+    testingMPT.Insert('14567', 15);
+    expect(testingMPT.Search('12345')).toBeNull();
+    expect(testingMPT.Search('12378')).toBeNull();
+    expect(testingMPT.Search('14567')).toBeNull();
 });
 
 test('MPT.ModifyValue()', () => {
