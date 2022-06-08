@@ -770,6 +770,7 @@ test('MPT.UpdateTax()', () => {
     //      12345 - (5) (smaller than 0)
     //      12378 - (1) (smaller than 0)
     //      14568 + (1) (address doesn't exist)
+    //      12245 + (1) (address doesn't exist)
 
     let testingMPT = new MPT(true, 'account');
     testingMPT.Insert('12345', 7, 2);
@@ -794,6 +795,7 @@ test('MPT.UpdateTax()', () => {
     expect(testingMPT.UpdateTax('12345', -5)).not.toBeGreaterThanOrEqual(0);
     expect(testingMPT.UpdateTax('12378', -1)).not.toBeGreaterThanOrEqual(0);
     expect(testingMPT.UpdateTax('14568', 1)).toBeNull();
+    expect(testingMPT.UpdateTax('12245', 1)).toBeNull();
 
     // Search value, tax should not change after failed update
     expect(testingMPT.Search('12345')).toEqual([
