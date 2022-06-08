@@ -176,12 +176,13 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
             }
         }
     } else if (this.type == 'tx') {
+        return null;
         // Omitted
     } else if (this.type == 'receipt') {
         if (this.mode != null) {
             if (key == this.key) {
                 console.log(">Weird request. User already exist");
-                return;
+                return null;
             }
         }
         if (this.mode == null) {

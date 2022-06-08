@@ -44,31 +44,6 @@ test('MPT.Insert() insert existed key', () => {
     //                              branch[8]
     let testingMPT = new MPT(true, 'account');
     testingMPT.Insert('12345', 0);
-    testingMPT.Insert('12348', 0);
-    expect(testingMPT.mode).toEqual(EXTENSION);
-    expect(testingMPT.key).toEqual('1234');
-    expect(testingMPT.value).toEqual(null);
-    expect(testingMPT.next).not.toBeNull();         // shall exists
-
-    nextNode = testingMPT.next;
-    expect(nextNode.mode).toEqual(BRANCH);
-    expect(nextNode.branch[5]).not.toBeNull();      // for h12345
-    expect(nextNode.branch[8]).not.toBeNull();      // for h12348
-
-    Node_h12345 = nextNode.branch[5];
-    Node_h12348 = nextNode.branch[8];
-
-    expect(Node_h12345.mode).toEqual(LEAF);
-    expect(Node_h12345.key).toEqual('');
-    expect(Node_h12345.value).toEqual([
-        0, 0, 0
-    ]);
-    expect(Node_h12348.mode).toEqual(LEAF);
-    expect(Node_h12348.key).toEqual('');
-    expect(Node_h12348.value).toEqual([
-        0, 0, 0
-    ]);
-
     expect(testingMPT.Insert('12345', 0)).toBeNull();   // insert existed key
 
     
@@ -546,6 +521,17 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     expect(Node_LE_456.value).toEqual([
         11, 0, 0
     ]); 
+});
+
+test('MPT.Insert() insert with type = tx', () => {
+    // (before insert:) leaf
+    // (after insert:) extension -> branch[5]
+    //                              branch[8]
+    let testingMPT = new MPT(true, 'tx');
+    testingMPT.Insert('12345', 0);
+    expect(testingMPT.Insert('12345', 1)).toBeNull();
+
+    
 });
 
 test('MPT.Search()', () => {
