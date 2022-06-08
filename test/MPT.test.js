@@ -611,6 +611,10 @@ test('MPT.ModifyValue()', () => {
     //      12345 -(31)
     //      12378 -(25)
     //      14567 -(19)
+    // Try invalid modify flag (should fail)
+    //      12345 * (17)
+    //      12345 k (15)
+    //      12345 ! (3)
 
     let testingMPT = new MPT(true, 'account');
     testingMPT.Insert('12345', 7);
@@ -626,7 +630,7 @@ test('MPT.ModifyValue()', () => {
         15, 0, 0
     ]);
 
-    // Try increas (should success)
+    // Try increase (should success)
     expect(testingMPT.ModifyValue('12345', '+', 17)).not.toBeNull();
     expect(testingMPT.ModifyValue('12378', '+', 2)).not.toBeNull();
     expect(testingMPT.ModifyValue('14567', '+', 5)).not.toBeNull();
@@ -668,6 +672,20 @@ test('MPT.ModifyValue()', () => {
         20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
     ]);
 
+    // Try invalid modify flag (should fail) 
+    expect(testingMPT.ModifyValue('12345', '*', 17)).toBeNull();
+    expect(testingMPT.ModifyValue('12345', 'k', 15)).toBeNull();
+    expect(testingMPT.ModifyValue('12345', '!', 3)).toBeNull();
+    // After Failure, value should not be changed
+    expect(testingMPT.Search('12345')).toEqual([
+        24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
+    ]);
 
 });
 
