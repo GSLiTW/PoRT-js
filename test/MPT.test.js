@@ -929,3 +929,50 @@ test('MPT.TotalTax()', () => {
     expect(testingMPT.TotalTax()).toEqual(6)
 });
 
+test('MPT.Select()', () => {
+    // test case for Select()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7, 2, 0)
+    //                                             [7] -> leaf [8] (11, 1, 0)
+    //                   [4] -> leaf [567] (15, 3, 0)
+    // select with h=5 should return '14567'
+    // select with h=4 should return '14567'
+    // select with h=3 should return '14567'
+    // select with h=2 should return '12378'
+    // select with h=1 should return '12378'
+    // select with h=0 should return '12378'
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7, 2);
+    testingMPT.Insert('12378', 11, 1);
+    testingMPT.Insert('14567', 15, 3);
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 2, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 1, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 3, 0
+    ]);
+
+    expect(testingMPT.Select(5, 0, 0)).toEqual([
+        1, '14567'
+    ])
+    expect(testingMPT.Select(4, 0, 0)).toEqual([
+        1, '14567'
+    ])
+    expect(testingMPT.Select(3, 0, 0)).toEqual([
+        1, '14567'
+    ])
+    expect(testingMPT.Select(2, 0, 0)).toEqual([
+        1, '12378'
+    ])
+    expect(testingMPT.Select(1, 0, 0)).toEqual([
+        1, '12345'
+    ])
+    expect(testingMPT.Select(0, 0, 0)).toEqual([
+        1, '12345'
+    ])
+});
