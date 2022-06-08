@@ -904,7 +904,7 @@ test('MPT.Cal_old_hash()', () => {
 });
 
 test('MPT.TotalTax()', () => {
-    // test case for UpdateDbit()
+    // test case for TotalTax()
     // extension (1) -> branch
     //                   [2] -> extension [3] -> branch
     //                                             [4] -> leaf [5] (7, 2, 0)
