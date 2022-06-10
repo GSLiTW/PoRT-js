@@ -1,8 +1,11 @@
+/* eslint-disable max-len */
 const Block = require('./block.js');
 const PoRT = require('./PoRT.js');
+const Cosig = require('./cosig.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
+
 
 /**
  * Generate & Initialize Creator Class
@@ -39,7 +42,7 @@ Creator.prototype.Create = function(pendingTxs, height, previousHash) {
     }*/
 
   // console.log(this.MPT.Cal_hash());
-
+  this.cosig = new Cosig();
   this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
 
   return this.block;
@@ -73,17 +76,15 @@ Creator.prototype.setVoterIndex = function(index) {
 };
 
 Creator.prototype.GenerateChallenge = function() {
+  this.challenge = this.cosig.generateChallenge(this.VoterPubV, this.block);
+
+  //TODO: later to remove, wait verifyCoSig function porting finish
   this.V0_aggr = this.VoterPubV[0];
   for (let i = 1; i < this.VoterPubV.length; i++) {
     this.V0_aggr = this.V0_aggr.add(this.VoterPubV[i]);
   }
 
-  // console.log("\nV0_aggr: " + this.V0_aggr.encode('hex'));
-
-  hash.update(this.V0_aggr.encode('hex') + this.block);
-  this.challenge = new BN(hash.copy().digest('hex'), 'hex');
-
-  return this.challenge.toString('hex');
+  return this.challenge;
 };
 
 Creator.prototype.GenerateChallengeWithIndex = function() {
