@@ -78,7 +78,7 @@ Creator.prototype.setVoterIndex = function(index) {
 Creator.prototype.GenerateChallenge = function() {
   this.challenge = this.cosig.generateChallenge(this.VoterPubV, this.block);
 
-  //TODO: later to remove, wait verifyCoSig function porting finish
+  // TODO: later to remove, wait verifyCoSig function porting finish
   this.V0_aggr = this.VoterPubV[0];
   for (let i = 1; i < this.VoterPubV.length; i++) {
     this.V0_aggr = this.V0_aggr.add(this.VoterPubV[i]);
