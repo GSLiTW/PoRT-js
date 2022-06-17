@@ -1,14 +1,19 @@
+/* eslint-disable camelcase */
+/* eslint-disable new-cap */
+/* eslint-disable max-len */
 const Block = require('./block.js');
 const PoRT = require('./PoRT.js');
+const Cosig = require('./cosig.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
 
+
 /**
- * Generate & Initialize Creator Class
- * @class Creater is responsible for creating blocks and communicate with voter to generate cosignature
+ * Creater is responsible for creating blocks and communicate with voter to generate cosignature
+ * @class
  * @param  {string} port - Network port number of the creator
- * @param  {string} pubKey - Wallet public key of the creator
+ * @param  {string} wallet - Wallet public key of the creator
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the creator
  */
 function Creator(port, wallet, MPT) {
@@ -39,7 +44,7 @@ Creator.prototype.Create = function(pendingTxs, height, previousHash) {
     }*/
 
   // console.log(this.MPT.Cal_hash());
-
+  this.cosig = new Cosig();
   this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
 
   return this.block;
@@ -73,17 +78,15 @@ Creator.prototype.setVoterIndex = function(index) {
 };
 
 Creator.prototype.GenerateChallenge = function() {
+  this.challenge = this.cosig.generateChallenge(this.VoterPubV, this.block);
+
+  // TODO: later to remove, wait verifyCoSig function porting finish
   this.V0_aggr = this.VoterPubV[0];
   for (let i = 1; i < this.VoterPubV.length; i++) {
     this.V0_aggr = this.V0_aggr.add(this.VoterPubV[i]);
   }
 
-  // console.log("\nV0_aggr: " + this.V0_aggr.encode('hex'));
-
-  hash.update(this.V0_aggr.encode('hex') + this.block);
-  this.challenge = new BN(hash.copy().digest('hex'), 'hex');
-
-  return this.challenge.toString('hex');
+  return this.challenge;
 };
 
 Creator.prototype.GenerateChallengeWithIndex = function() {
@@ -166,7 +169,8 @@ Creator.prototype.GetCoSig = function() {
 /**
  * Complete the generation of current new block
  * @param  {string} previousHash - hash value of the last block
- * @return the completed new block
+ * @param {Block} lastBlock - last block
+ * @return {Block} the completed new block
  */
 Creator.prototype.GetBlock = function(previousHash, lastBlock) {
   const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, 1);
