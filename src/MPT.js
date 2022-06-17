@@ -466,24 +466,35 @@ MPT.prototype.RefundTax = function (to, value = 0, forced = false) {
 MPT.prototype.UpdateValue = function (from, to, value = 0) {
     if (this.type == 'account') {
         if (value <= 0) {
-            return;
+            console.log("> UpdateValue with invalid value input");
+            return null;
+        }
+        if (this.Search(from) == null) {
+            console.log("> Error, UpdateValue with inexisted source address");
+            return null;
+        }
+        if (this.Search(to) == null) {
+            console.log("> Warning, destination address does not exist, now created");
+            this.Insert(to, 0);
         }
 
         var val1 = this.ModifyValue(from, '-', value);
         if (val1 == null) {
             console.log("> An error occurred when updating " + from + "'s value.");
-            return;
+            return null;
         }
 
         var val2 = this.ModifyValue(to, '+', value);
         if (val2 == null) {
             console.log("> An error occurred when updating " + to + "'s value.");
-            return;
+            this.ModifyValue(from, '+', value);
+            return null;
         }
 
-        return;
+        return 0;
     } else if (this.type == 'receipt') {
         console.log("Error: A node in receipt tree should not be updated once inserted.");
+        return null;
     }
 };
 
