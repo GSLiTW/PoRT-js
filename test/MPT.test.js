@@ -932,7 +932,7 @@ test('MPT.TotalTax()', () => {
 test('MPT.Select()', () => {
     // test case for Select()
     // extension (1) -> branch
-    //                   [2] -> extension [3] -> branch
+    //                   [2] -> extension [3] -> branch (5, 4, 0)
     //                                             [4] -> leaf [5] (7, 2, 0)
     //                                             [7] -> leaf [8] (11, 1, 0)
     //                   [4] -> leaf [567] (15, 3, 0)
@@ -947,6 +947,8 @@ test('MPT.Select()', () => {
     testingMPT.Insert('12345', 7, 2);
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
+    console.log('start now')
+    testingMPT.Insert('123', 5, 4);
     expect(testingMPT.Search('12345')).toEqual([
         7, 2, 0
     ]);
@@ -956,23 +958,38 @@ test('MPT.Select()', () => {
     expect(testingMPT.Search('14567')).toEqual([
         15, 3, 0
     ]);
+    expect(testingMPT.Search('123')).toEqual([
+        5, 4, 0
+    ]);
 
-    expect(testingMPT.Select(5, 0, 0)).toEqual([
+    expect(testingMPT.Select(9, 0, 0)).toEqual([
         1, '14567'
-    ])
-    expect(testingMPT.Select(4, 0, 0)).toEqual([
+    ]);
+    expect(testingMPT.Select(8, 0, 0)).toEqual([
         1, '14567'
-    ])
-    expect(testingMPT.Select(3, 0, 0)).toEqual([
+    ]);
+    expect(testingMPT.Select(7, 0, 0)).toEqual([
         1, '14567'
-    ])
-    expect(testingMPT.Select(2, 0, 0)).toEqual([
+    ]);
+    expect(testingMPT.Select(6, 0, 0)).toEqual([
         1, '12378'
-    ])
+    ]);
+    expect(testingMPT.Select(5, 0, 0)).toEqual([
+        1, '12345'
+    ]);
+    expect(testingMPT.Select(4, 0, 0)).toEqual([
+        1, '12345'
+    ]);
+    expect(testingMPT.Select(3, 0, 0)).toEqual([
+        1, '123'
+    ]);
+    expect(testingMPT.Select(2, 0, 0)).toEqual([
+        1, '123'
+    ]);
     expect(testingMPT.Select(1, 0, 0)).toEqual([
-        1, '12345'
-    ])
+        1, '123'
+    ]);
     expect(testingMPT.Select(0, 0, 0)).toEqual([
-        1, '12345'
-    ])
+        1, '123'
+    ]);
 });

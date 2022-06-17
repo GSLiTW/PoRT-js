@@ -77,8 +77,10 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
     /* FOR DEBUGGING*/
 
     if (this.type == 'account') {
-        if (this.mode != null) {
+        if (this.mode == 'leaf') {
             if (key == this.key) {
+                console.log(this.mode);
+                console.log(key);
                 console.log(">Weird request. User already exist");
                 return null;
             }
@@ -90,8 +92,10 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
         } else if (this.mode == 'branch') {
             if (key.length == 0) {
                 this.value = [value, tax, dbit];
+                console.log('inserted check')
             } else {
                 this.value = null;
+                //this.key = null;
                 ch = parseInt(key[0], 16);
                 if (this.branch[ch] == null) {
                     this.branch[ch] = new MPT();
@@ -123,6 +127,8 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                     this.branch[parseInt(this.key[0], 16)] = NewNode;
                 }
             } else if (i == this.key.length) {
+                console.log('entering branch');
+                console.log(key.substr(i));
                 this.next.Insert(key.substr(i), value, tax, dbit);
             } else {
                 if (i == (this.key.length - 1)) {
@@ -308,6 +314,10 @@ MPT.prototype.Search = function (key) {
                return null;
            }
        } else if (this.mode == 'branch') {
+           if (key.length == 0) {
+               console.log('returned this value')
+               return this.value;
+           }
            if (this.branch[parseInt(key[0], 16)] != null) {
                return this.branch[parseInt(key[0], 16)].Search(key.substr(1));
            } else {
