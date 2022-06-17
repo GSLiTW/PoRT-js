@@ -13,7 +13,11 @@ const randomBytes = require('random-bytes');
 /**
  * Cosig class is responsible for do cosig algorithm calculation
  * @class
+<<<<<<< HEAD
  * @param  {String} challenge - creator generate challenge
+=======
+ * @param  {number} challenge - creator generate challenge
+>>>>>>> develop
  * @param  {number} r0 - gather all response from voter and calculate final result
  */
 function Cosig() {
