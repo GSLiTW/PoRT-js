@@ -121,49 +121,27 @@ Creator.prototype.ClearResponses = function() {
 
 
 Creator.prototype.AggregateResponse = function() {
-  this.r0_aggr = this.VoterResponse[0];
-  for (let i = 1; i < this.VoterResponse.length; i++) {
-    this.r0_aggr = this.r0_aggr.add(this.VoterResponse[i]);
-  }
-  // console.log(this.r0_aggr.toString(16));
+  this.r0_aggr = this.cosig.aggregateResponse(this.VoterResponse);
 
-  if (this.VerifyCoSig()) {
-    this.GetCoSig();
+  if (this.verifyCoSig()) {
+    this.block.Cosig = this.cosig();
   }
 };
 
-Creator.prototype.VerifyCoSig = function() {
-  const keys = this.wallet.NewKeyPair(this.r0_aggr.toString(16));
-  const G_r0 = keys[1];
-  // console.log("\nG_r0:" + G_r0.encode('hex'));
-
-  let X0 = this.VoterPubKey[0];
-  for (let i = 1; i < this.VoterPubKey.length; i++) {
-    X0 = X0.add(this.VoterPubKey[i]);
-  }
-  // console.log("\nX0: " + X0.encode('hex'));
-
-  const X0_c = X0.mul(this.challenge);
-
-  if (this.V0_aggr.eq(G_r0.add(X0_c))) {
+Creator.prototype.verifyCoSig = function() {
+  const responseKeypair = this.wallet.NewKeyPair(this.r0_aggr.toString(16));
+  const G_r0 = responseKeypair[1];
+  const X0_c = this.cosig.compute_Pubkey_Mul_With_Challenge(this.VoterPubKey, this.challenge);
+  const checkResult = this.cosig.verifyCosig(G_r0, X0_c, this.challenge, this.block);
+  if (checkResult) {
     console.log('%c\nCosig Verify Result: Passed :)', 'color:green;');
   } else {
     console.log('%c\nCosig Verify Result: Failed :(', 'color:red;');
   }
 
-  return this.V0_aggr.eq(G_r0.add(X0_c));
+  return checkResult;
 };
 
-/**
- * The final step of communication: store cosignature in the block
- * @param  {string} cosig - cosignature generated from voter.combinepartialsign
- */
-Creator.prototype.GetCoSig = function() {
-  this.block.CoSig = {
-    c: this.challenge,
-    r0_aggr: this.r0_aggr,
-  };
-};
 /**
  * Complete the generation of current new block
  * @param  {string} previousHash - hash value of the last block
