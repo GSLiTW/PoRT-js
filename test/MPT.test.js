@@ -754,6 +754,91 @@ test('MPT.Verify()', () => {
 
 });
 
+test('MPT.RefundTax()', () => {
+    // test case for UpdateTax()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7, 2, 0)
+    //                                             [7] -> leaf [8] (11, 1, 0)
+    //                   [4] -> leaf [567] (15, 3, 0)
+    // Try updating (should success)
+    //      12345 + (2)
+    //      12378 + (1)
+    //      14567 + (1)
+    //      14568 + (1) forced (address doesn't exist)
+    //      12245 + (1) forced (address doesn't exist)
+
+    //
+    // Try refunding (should fail)
+    //      14569 + (1) (address doesn't exist)
+    //      12247 + (1) (address doesn't exist)
+    //      13459 + (1) (address doesn't exist)
+    //      12245 + (1) (not enough tax to deduct)
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7, 2);
+    testingMPT.Insert('12378', 11, 1);
+    testingMPT.Insert('14567', 15, 3);
+    expect(testingMPT.Search('12345')).toEqual([
+        7, 2, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        11, 1, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        15, 3, 0
+    ]);
+
+    // Update tax (should success)
+    expect(testingMPT.RefundTax('12345', 2)).not.toBeNull();
+    expect(testingMPT.RefundTax('12378', 1)).not.toBeNull();
+    expect(testingMPT.RefundTax('14567', 1)).not.toBeNull();
+    expect(testingMPT.RefundTax('14568', 1, true)).not.toBeNull();
+    expect(testingMPT.RefundTax('12245', 1, true)).not.toBeNull();
+
+    // Check updated tax
+    expect(testingMPT.Search('12345')).toEqual([
+        9, 0, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        12, 0, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        16, 2, 0
+    ]);
+    expect(testingMPT.Search('14568')).toEqual([
+        1, 0, 0
+    ]);
+    expect(testingMPT.Search('12245')).toEqual([
+        1, 0, 0
+    ]);
+
+    // Update tax (should fail)
+    expect(testingMPT.RefundTax('14569', 1)).toBeNull();
+    expect(testingMPT.RefundTax('12247', 1)).toBeNull();
+    expect(testingMPT.RefundTax('13459', 1)).toBeNull();
+    expect(testingMPT.RefundTax('12245', 1)).toBeNull();
+
+
+    // Search value, tax should not change after failed update
+    expect(testingMPT.Search('12345')).toEqual([
+        9, 0, 0
+    ]);
+    expect(testingMPT.Search('12378')).toEqual([
+        12, 0, 0
+    ]);
+    expect(testingMPT.Search('14567')).toEqual([
+        16, 2, 0
+    ]);
+    expect(testingMPT.Search('14568')).toEqual([
+        1, 0, 0
+    ]);
+    expect(testingMPT.Search('12245')).toEqual([
+        1, 0, 0
+    ]);
+
+});
+
 test('MPT.UpdateTax()', () => {
     // test case for UpdateTax()
     // extension (1) -> branch

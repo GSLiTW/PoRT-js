@@ -423,14 +423,38 @@ MPT.prototype.Verify = function (key) {
  * Refund taxes for creator/voter.
  * @param  {String} to - public key/ address to refund
  * @param  {Number} [value=0] - amount to refund
+ * @param  {Boolean} forced - force refund if destination does not originally exist
  */
-MPT.prototype.RefundTax = function (to, value = 0) {
+MPT.prototype.RefundTax = function (to, value = 0, forced = false) {
+    // check refund value > 0
+    if (value < 0) {
+        console.log("> Warning, refunding negative tax");
+    }
+    // check destination exist
+    if (this.Search(to) == null) {
+        console.log("> Refund destination does not exist");
+        if (forced) {
+            this.Insert(to, value);
+            console.log("> Inserted new node with starting balance = " + value);
+            return 0;
+        }
+        return null;
+    }
+    // check enough tax to deduct
+    if (value > this.Search(to)[1]) {
+        console.log("> Not enough tax to deduct from " + to);
+        return null;
+    }
     var val1 = this.ModifyValue(to, '+', value);
     if (val1 == null) {
         console.log("> An error occurred when updating " + to + "'s value.");
-        return;
+        return null;
     }
-    this.UpdateTax(to, -value);
+    if (this.UpdateTax(to, -value) == null) {
+        console.log("> An error happened in UpdatedTax of RefundTax");
+        return null;
+    }
+    return 0;
 }
 
 /**
