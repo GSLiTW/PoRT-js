@@ -9,8 +9,8 @@ const schnorr = require('bip-schnorr');
 const randomBytes = require('random-bytes');
 
 /**
- * Generate & Initialize Cosig Class
- * @class Cosig class is responsible for do cosig algorithm calculation
+ * Cosig class is responsible for do cosig algorithm calculation
+ * @class
  * @param  {number} challenge - creator generate challenge
  * @param  {number} r0 - gather all response from voter and calculate final result
  */
