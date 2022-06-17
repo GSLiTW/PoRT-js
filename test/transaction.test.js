@@ -1,5 +1,5 @@
-const Txn_Pool = require('./pending_transaction_pool');
-const Txn = require('./transaction')
+const Txn_Pool = require('../src/pending_transaction_pool');
+const Txn = require('../src/transaction')
 
 test('test tx 1', () => {
     var txpool = new Txn_Pool();
