@@ -95,7 +95,7 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                 console.log('inserted check')
             } else {
                 this.value = null;
-                //this.key = null;
+                this.key = null;
                 ch = parseInt(key[0], 16);
                 if (this.branch[ch] == null) {
                     this.branch[ch] = new MPT();
