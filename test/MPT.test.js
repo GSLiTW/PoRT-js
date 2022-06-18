@@ -17,6 +17,40 @@ test('constructor with custom parameters', () => {
     expect(testingMPT.type).toEqual('receipt');
 });
 
+test('MPT.KeyExist()', () => {
+    // test case for search
+    // extension (1) -> branch
+    //                   [2] -> extension (3) -> branch
+    //                                             [4] -> leaf (5)
+    //                                             [7] -> leaf (8)
+    //                   [4] -> leaf (567)
+    // Search for 
+    //      12345
+    //      12378
+    //      14567
+    //
+    //      12345 (should return Null)
+    //      12378 (should return Null)
+    //      14567 (should return Null)
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7);
+    testingMPT.Insert('12378', 11);
+    testingMPT.Insert('14567', 15);
+    testingMPT.Insert('123', 1);
+    expect(testingMPT.KeyExist('12345')).toBe(true);
+    expect(testingMPT.KeyExist('12378')).toBe(true);
+    expect(testingMPT.KeyExist('14567')).toBe(true);
+    expect(testingMPT.KeyExist('123')).toBe(true);
+
+    expect(testingMPT.KeyExist('14568')).toBe(false);
+    expect(testingMPT.KeyExist('12267')).toBe(false);
+    expect(testingMPT.KeyExist('13567')).toBe(false);
+
+    let testingMPTaccount = new MPT(true, 'receipt');
+    testingMPTaccount.Insert('12345', 7);
+    expect(testingMPTaccount.KeyExist('12345')).toBeNull();
+});
+
 test('MPT.Insert() root -> leaf with default parameters', () => {
     let testingMPT = new MPT(true, 'account');
     testingMPT.Insert('h12345', 0);

@@ -288,6 +288,48 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
 };
 
 /**
+* Check if a node with input address (key) exist
+* @param  {string} key - public key of the wallet 
+*/
+MPT.prototype.KeyExist = function (key) {
+    if (this.type == 'account') {
+        if (this.mode == 'leaf') {
+            if (this.key == key) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        } else if (this.mode == 'extension') {
+            var i = 0;
+            while (key[i] == this.key[i]) {
+                i++;
+                if (i == this.key.length)
+                    break;
+            }
+            if (i == this.key.length) {
+                return this.next.KeyExist(key.substr(i));
+            } else {
+                return false;
+            }
+        } else if (this.mode == 'branch') {
+            if (key.length == 0) {
+                return true;
+            }
+            if (this.branch[parseInt(key[0], 16)] != null) {
+                return this.branch[parseInt(key[0], 16)].KeyExist(key.substr(1));
+            } else {
+                return false;
+            }
+        }
+    } else if (this.type == 'receipt') {
+        return null;
+    }
+}
+
+
+
+/**
 * Search for current status of the input address, or check if a transaction can be successfully processed
 * @param  {string} key - public key of the wallet 
 */
