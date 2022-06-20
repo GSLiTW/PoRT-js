@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-/* eslint-disable new-cap */
 /* eslint-disable max-len */
 /* From creator.js*/
 const crypto = require('crypto');
@@ -13,11 +11,7 @@ const randomBytes = require('random-bytes');
 /**
  * Cosig class is responsible for do cosig algorithm calculation
  * @class
-<<<<<<< HEAD
- * @param  {String} challenge - creator generate challenge
-=======
  * @param  {number} challenge - creator generate challenge
->>>>>>> develop
  * @param  {number} r0 - gather all response from voter and calculate final result
  */
 function Cosig() {
@@ -27,43 +21,43 @@ function Cosig() {
 
 /**
  *
- * @param {*} VoterPubV - string of all voter PublicV
- * @param {Block} Block - whole new Block
+ * @param {*} voterPubV - string of all voter PublicV
+ * @param {Block} block - whole new Block
  * @return {string} - challenge(hex type)
  */
-Cosig.prototype.generateChallenge = function(VoterPubV, Block) {
-  this.V0_aggr = VoterPubV[0];
-  for (let i = 1; i < VoterPubV.length; i++) {
-    this.V0_aggr = this.V0_aggr.add(VoterPubV[i]);
+Cosig.prototype.generateChallenge = function(voterPubV, block) {
+  this.v0Aggr = voterPubV[0];
+  for (let i = 1; i < voterPubV.length; i++) {
+    this.v0Aggr = this.v0Aggr.add(voterPubV[i]);
   }
 
-  hash.update(this.V0_aggr.encode('hex') + Block);
+  hash.update(this.v0Aggr.encode('hex') + block);
   this.challenge = new BN(hash.copy().digest('hex'), 'hex');
   this.challenge = this.challenge.toString('hex');
 
   return this.challenge;
 };
 
-Cosig.prototype.AggregateResponse = function(VoterResponse) {
-  this.r0_aggr = VoterResponse[0];
-  for (let i = 1; i < VoterResponse.length; i++) {
-    this.r0_aggr = this.r0_aggr.add(VoterResponse[i]);
+Cosig.prototype.aggregateResponse = function(voterResponse) {
+  this.r0Aggr = voterResponse[0];
+  for (let i = 1; i < voterResponse.length; i++) {
+    this.r0Aggr = this.r0Aggr.add(voterResponse[i]);
   }
-  this.r0 = this.r0_aggr;
-  return this.r0_aggr;
+  this.r0 = this.r0Aggr;
+  return this.r0Aggr;
 };
 
-Cosig.prototype.verifyCosig = function(G_r0, X0_c, challenge, Block) {
-  const newpubV = G_r0.add(X0_c);
+Cosig.prototype.verifyCosig = function(gr0, x0c, challenge, Block) {
+  const newpubV = gr0.add(x0c);
   const newchallenge = hash.update(newpubV.encode('hex') + Block);
   const result = newchallenge.eq(challenge);
   return result;
 };
 
-Cosig.prototype.compute_Pubkey_Mul_With_Challenge = function(VoterPubKey, challenge) {
-  const X0 = VoterPubKey[0];
-  for (let i = 1; i < VoterPubKey.length; i++) {
-    X0.add(VoterPubKey[i]);
+Cosig.prototype.computePubkeyMulWithChallenge = function(voterPubKey, challenge) {
+  const X0 = voterPubKey[0];
+  for (let i = 1; i < voterPubKey.length; i++) {
+    X0.add(voterPubKey[i]);
   }
   X0.mul(challenge);
 }
