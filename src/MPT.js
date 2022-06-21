@@ -67,11 +67,11 @@ MPT.prototype.Display = function (level) {
 /**
  * Insert new data to MPT
  * @param  {String} key - public key of the inserted wallet
- * @param  {Number} value - initial wallet balance
+ * @param  {Number} balance - initial wallet balance
  * @param  {Number} [tax=0] - initial tax value
  * @param  {integer={0,1,2}} [dbit=0] - initial dirty bit value
  */
-MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
+MPT.prototype.Insert = function (key, balance, tax = 0, dbit = 0) {
     /* FOR DEBUGGING: TAX = 0.1 * VALUE */
     // tax = 0.1 * value;
     /* FOR DEBUGGING*/
@@ -86,10 +86,10 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
         if (this.mode == null) {
             this.mode = 'leaf';
             this.key = key;
-            this.value = [value, tax, dbit];
+            this.value = [balance, tax, dbit];
         } else if (this.mode == 'branch') {
             if (key.length == 0) {
-                this.value = [value, tax, dbit];
+                this.value = [balance, tax, dbit];
             } else {
                 this.value = null;
                 this.key = null;
@@ -97,7 +97,7 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                 if (this.branch[ch] == null) {
                     this.branch[ch] = new MPT();
                 }
-                this.branch[ch].Insert(key.substr(1), value, tax, dbit);
+                this.branch[ch].Insert(key.substr(1), balance, tax, dbit);
             }
 
         } else if (this.mode == 'extension') {
@@ -112,11 +112,11 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                 this.value = null;
                 if (this.key.length == 1) {
                     this.branch[parseInt(key[0], 16)] = new MPT();
-                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), value, tax, dbit);
+                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance, tax, dbit);
                     this.branch[parseInt(this.key[0], 16)] = this.next;
                 } else {
                     this.branch[parseInt(key[0], 16)] = new MPT();
-                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), value, tax, dbit);
+                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance, tax, dbit);
                     var NewNode = new MPT()
                     NewNode.mode = 'extension';
                     NewNode.key = this.key.substr(1);
@@ -124,13 +124,13 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                     this.branch[parseInt(this.key[0], 16)] = NewNode;
                 }
             } else if (i == this.key.length) {
-                this.next.Insert(key.substr(i), value, tax, dbit);
+                this.next.Insert(key.substr(i), balance, tax, dbit);
             } else {
                 if (i == (this.key.length - 1)) {
                     var NewNode = new MPT();
                     NewNode.mode = 'branch';
                     NewNode.branch[parseInt(key[i], 16)] = new MPT();
-                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), value, tax, dbit);
+                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance, tax, dbit);
                     NewNode.branch[parseInt(this.key[i], 16)] = this.next;
                     this.key = key.substr(0, i);
                     this.value = null;
@@ -139,7 +139,7 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                     var NewNode = new MPT();
                     NewNode.mode = 'branch';
                     NewNode.branch[parseInt(key[i], 16)] = new MPT();
-                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), value, tax, dbit);
+                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance, tax, dbit);
                     NewNode.branch[parseInt(this.key[i], 16)] = new MPT();
                     NewNode.branch[parseInt(this.key[i], 16)].mode = 'extension';
                     NewNode.branch[parseInt(this.key[i], 16)].key = this.key.substr(i + 1);
@@ -159,7 +159,7 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
             if (i == 0) {
                 this.mode = 'branch';
                 this.branch[parseInt(key[0], 16)] = new MPT();
-                this.branch[parseInt(key[0], 16)].Insert(key.substr(1), value, tax, dbit);
+                this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance, tax, dbit);
                 this.branch[parseInt(this.key[i], 16)] = new MPT();
                 this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.value[0], this.value[1], this.value[2]);
                 this.value = null;
@@ -168,7 +168,7 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                 var NewNode = new MPT();
                 NewNode.mode = 'branch';
                 NewNode.branch[parseInt(key[i], 16)] = new MPT();
-                NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), value, tax, dbit);
+                NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance, tax, dbit);
                 NewNode.branch[parseInt(this.key[i], 16)] = new MPT();
                 NewNode.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(i + 1), this.value[0], this.value[1], this.value[2]);
                 this.key = key.substr(0, i);
@@ -189,17 +189,17 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
         if (this.mode == null) {
             this.mode = 'leaf';
             this.key = key;
-            this.value = value;
+            this.value = balance;
         } else if (this.mode == 'branch') {
             if (key.length == 0) {
-                this.value = value;
+                this.value = balance;
             } else {
                 this.value = null;
                 ch = parseInt(key[0], 16);
                 if (this.branch[ch] == null) {
                     this.branch[ch] = new MPT();
                 }
-                this.branch[ch].Insert(key.substr(1), value);
+                this.branch[ch].Insert(key.substr(1), balance);
             }
 
         } else if (this.mode == 'extension') {
@@ -226,13 +226,13 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                     this.branch[parseInt(this.key[0], 16)] = NewNode;
                 }
             } else if (i == this.key.length) {
-                this.next.Insert(key.substr(i), value, tax);
+                this.next.Insert(key.substr(i), balance, tax);
             } else {
                 if (i == (this.key.length - 1)) {
                     var NewNode = new MPT();
                     NewNode.mode = 'branch';
                     NewNode.branch[parseInt(key[i], 16)] = new MPT();
-                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), value);
+                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance);
                     NewNode.branch[parseInt(this.key[i], 16)] = this.next;
                     this.key = key.substr(0, i);
                     this.next = NewNode;
@@ -240,7 +240,7 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
                     var NewNode = new MPT();
                     NewNode.mode = 'branch';
                     NewNode.branch[parseInt(key[i], 16)] = new MPT();
-                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), value);
+                    NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance);
                     NewNode.branch[parseInt(this.key[i], 16)] = new MPT();
                     NewNode.branch[parseInt(this.key[i], 16)].mode = 'extension';
                     NewNode.branch[parseInt(this.key[i], 16)].key = this.key.substr(i + 1);
@@ -259,18 +259,18 @@ MPT.prototype.Insert = function (key, value, tax = 0, dbit = 0) {
             if (i == 0) {
                 this.mode = 'branch';
                 this.branch[parseInt(key[0], 16)] = new MPT();
-                this.branch[parseInt(key[0], 16)].Insert(key.substr(1), value);
+                this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance);
                 this.branch[parseInt(this.key[i], 16)] = new MPT();
-                this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.value);
+                this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.balance);
 
             } else {
                 this.mode = 'extension';
                 var NewNode = new MPT();
                 NewNode.mode = 'branch';
                 NewNode.branch[parseInt(key[i], 16)] = new MPT();
-                NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), value);
+                NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance);
                 NewNode.branch[parseInt(this.key[i], 16)] = new MPT();
-                NewNode.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(i + 1), this.value);
+                NewNode.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(i + 1), this.balance);
                 this.key = key.substr(0, i);
                 this.next = NewNode;
             }
