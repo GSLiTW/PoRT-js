@@ -23,6 +23,10 @@ NodeVal.prototype.Dbit = function() {
     return this.DirtyBit;
 };
 
+NodeVal.prototype.Value = function() {
+    return [this.balance, this.tax, this.DirtyBit];
+}
+
 NodeVal.prototype.SetBalance = function(balance) {
     this.balance = balance;
 };

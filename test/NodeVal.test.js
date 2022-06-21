@@ -19,4 +19,7 @@ test('setter', () => {
     expect(testingNode.Balance()).toEqual(2);
     expect(testingNode.Tax()).toEqual(1);
     expect(testingNode.Dbit()).toEqual(0);
+    expect(testingNode.Value()).toEqual([
+        2, 1, 0
+    ])
 });
