@@ -86,10 +86,10 @@ MPT.prototype.Insert = function (key, balance, tax = 0, dbit = 0) {
         if (this.mode == null) {
             this.mode = 'leaf';
             this.key = key;
-            this.value = [balance, tax, dbit];
+            this.value = new NodeVal(balance, tax, dbit);
         } else if (this.mode == 'branch') {
             if (key.length == 0) {
-                this.value = [balance, tax, dbit];
+                this.value = new NodeVal(balance, tax, dbit);
             } else {
                 this.value = null;
                 this.key = null;
@@ -161,7 +161,7 @@ MPT.prototype.Insert = function (key, balance, tax = 0, dbit = 0) {
                 this.branch[parseInt(key[0], 16)] = new MPT();
                 this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance, tax, dbit);
                 this.branch[parseInt(this.key[i], 16)] = new MPT();
-                this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.value[0], this.value[1], this.value[2]);
+                this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.value.Balance(), this.value.Tax(), this.value.Dbit());
                 this.value = null;
             } else {
                 this.mode = 'extension';
@@ -170,7 +170,7 @@ MPT.prototype.Insert = function (key, balance, tax = 0, dbit = 0) {
                 NewNode.branch[parseInt(key[i], 16)] = new MPT();
                 NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance, tax, dbit);
                 NewNode.branch[parseInt(this.key[i], 16)] = new MPT();
-                NewNode.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(i + 1), this.value[0], this.value[1], this.value[2]);
+                NewNode.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(i + 1), this.value.Balance(), this.value.Tax(), this.value.Dbit());
                 this.key = key.substr(0, i);
                 this.next = NewNode;
                 this.value = null;
@@ -214,11 +214,11 @@ MPT.prototype.Insert = function (key, balance, tax = 0, dbit = 0) {
                 this.value = null;
                 if (this.key.length == 1) {
                     this.branch[parseInt(key[0], 16)] = new MPT();
-                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), value);
+                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance);
                     this.branch[parseInt(this.key[0], 16)] = this.next;
                 } else {
                     this.branch[parseInt(key[0], 16)] = new MPT();
-                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), value);
+                    this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance);
                     var NewNode = new MPT()
                     NewNode.mode = 'extension';
                     NewNode.key = this.key.substr(1);
@@ -377,16 +377,16 @@ MPT.prototype.ModifyValue = function (key, Update_flag = null, Update_value = nu
         if (this.mode == 'leaf') {
             if (this.key == key) {
                 if (Update_flag == '-') {
-                    if (this.value[0] >= Update_value) {
-                        this.value[0] -= Update_value * 1.0001;
-                        this.value[1] += Update_value * 0.0001;
-                        return this.value[0];
+                    if (this.value.balance >= Update_value) {
+                        this.value.balance -= Update_value * 1.0001;
+                        this.value.tax += Update_value * 0.0001;
+                        return this.value.balance;
                     } else {
                         return null;
                     }
                 } else if (Update_flag == '+') {
-                    this.value[0] += Update_value;
-                    return this.value[0];
+                    this.value.balance += Update_value;
+                    return this.value.balance;
                 } else {
                     console.log(">An error has happened when modifying value")
                     return null;
@@ -425,7 +425,7 @@ MPT.prototype.Verify = function (key) {
     if (this.type == 'account') {
         if (this.mode == 'leaf') {
             if (this.key == key) {
-                return this.value[2];
+                return this.value.DirtyBit;
             }
             else {
                 return -1;
@@ -477,7 +477,7 @@ MPT.prototype.RefundTax = function (to, refund = 0, forced = false) {
         return null;
     }
     // check enough tax to deduct
-    if (refund > this.Search(to)[1]) {
+    if (refund > this.Search(to).tax) {
         console.log("> Not enough tax to deduct from " + to);
         return null;
     }
@@ -542,9 +542,9 @@ MPT.prototype.UpdateValue = function (from, to, value = 0) {
 MPT.prototype.UpdateTax = function (key, Update_value) {
     if (this.mode == 'leaf') {
         if (this.key == key) {
-            if (this.value[1] + Update_value >= 0) {
-                this.value[1] += Update_value;
-                return this.value[1];
+            if (this.value.tax + Update_value >= 0) {
+                this.value.tax += Update_value;
+                return this.value.tax;
             } else {
                 console.log("Error: Updated Tax should not be negative.");
                 return -1;
@@ -586,7 +586,7 @@ MPT.prototype.UpdateDbit = function (key, dbit = 0) {
     }
     if (this.mode == 'leaf') {
         if (this.key == key) {
-            this.value[2] = dbit;
+            this.value.DirtyBit = dbit;
             return 0;
         }
         else {
@@ -690,10 +690,10 @@ MPT.prototype.Cal_hash = function () {
 MPT.prototype.Select = function (h, flag, taxcnt) {
 
     if (this.mode == 'leaf') {
-        if ((h - taxcnt) < this.value[1]) {
+        if ((h - taxcnt) < this.value.tax) {
             return [1, this.key];
         } else {
-            return [0, (taxcnt + this.value[1])];
+            return [0, (taxcnt + this.value.tax)];
         }
     } else if (this.mode == 'extension') {
         [flag, taxcnt] = this.next.Select(h, flag, taxcnt);
@@ -704,10 +704,10 @@ MPT.prototype.Select = function (h, flag, taxcnt) {
         }
     } else if (this.mode == 'branch') {
         if (this.value != null) {
-            if ((h - taxcnt) < this.value[1]) {
+            if ((h - taxcnt) < this.value.tax) {
                 return [1, ""];
             } else {
-                taxcnt += this.value[1];
+                taxcnt += this.value.tax;
             }
         }
         for (var i in this.branch) {
@@ -734,7 +734,7 @@ MPT.prototype.TotalTax = function () {
     if (this.mode == null) {
         return -1;
     } else if (this.mode == 'leaf') {
-        return this.value[1];
+        return this.value.tax;
     } else if (this.mode == 'extension') {
         return this.next.TotalTax();
     } else if (this.mode == 'branch') {
@@ -745,7 +745,7 @@ MPT.prototype.TotalTax = function () {
             }
         }
         if (this.value != null) {
-            taxcnt += this.value[1];
+            taxcnt += this.value.tax;
         }
         return taxcnt;
     }

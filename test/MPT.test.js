@@ -57,7 +57,7 @@ test('MPT.Insert() root -> leaf with default parameters', () => {
     expect(testingMPT.root).toEqual(true);
     expect(testingMPT.type).toEqual('account');
     expect(testingMPT.key).toEqual('h12345');
-    expect(testingMPT.value).toEqual([
+    expect(testingMPT.value.Value()).toEqual([
         0, 0, 0
     ]);
 });
@@ -68,7 +68,7 @@ test('MPT.Insert() root -> leaf with custom parameters', () => {
     expect(testingMPT.root).toEqual(true);
     expect(testingMPT.type).toEqual('account');
     expect(testingMPT.key).toEqual('h12345');
-    expect(testingMPT.value).toEqual([
+    expect(testingMPT.value.Value()).toEqual([
         0, 3, 1
     ]);
 });
@@ -106,12 +106,12 @@ test('MPT.Insert() leaf -> extension with default parameters', () => {
 
     expect(Node_h12345.mode).toEqual(LEAF);
     expect(Node_h12345.key).toEqual('');
-    expect(Node_h12345.value).toEqual([
+    expect(Node_h12345.value.Value()).toEqual([
         0, 0, 0
     ]);
     expect(Node_h12348.mode).toEqual(LEAF);
     expect(Node_h12348.key).toEqual('');
-    expect(Node_h12348.value).toEqual([
+    expect(Node_h12348.value.Value()).toEqual([
         0, 0, 0
     ]);
 
@@ -133,12 +133,12 @@ test('MPT.Insert() leaf -> branch with default parameters', () => {
     Node_22345 = testingMPT.branch[2];
     expect(Node_12345.mode).toEqual(LEAF);
     expect(Node_12345.key).toEqual('2345');
-    expect(Node_12345.value).toEqual([
+    expect(Node_12345.value.Value()).toEqual([
         7, 0, 0
     ]);
     expect(Node_22345.mode).toEqual(LEAF);
     expect(Node_22345.key).toEqual('2345');
-    expect(Node_22345.value).toEqual([
+    expect(Node_22345.value.Value()).toEqual([
         11, 0, 0
     ]);
     
@@ -162,7 +162,7 @@ test('MPT.Insert() branch -> ... with default parameters', () => {
     
     expect(Node_33456.mode).toEqual(LEAF);
     expect(Node_33456.key).toEqual('3456');
-    expect(Node_33456.value).toEqual([
+    expect(Node_33456.value.Value()).toEqual([
         13, 0, 0
     ]);
     
@@ -188,7 +188,7 @@ test('MPT.Insert() branch -> ... with default parameters', () => {
     Node_2 = testingMPT.branch[2];                  // Node_2 should be branch
 
     expect(Node_2.mode).toEqual(BRANCH);
-    expect(Node_2.value).toEqual([
+    expect(Node_2.value.Value()).toEqual([
         15, 0, 0
     ]);
     
@@ -226,7 +226,7 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     // test Node_LE_3456
     expect(Node_LE_3456.mode).toEqual(LEAF);
     expect(Node_LE_3456.key).toEqual('3456');
-    expect(Node_LE_3456.value).toEqual([
+    expect(Node_LE_3456.value.Value()).toEqual([
         15, 0, 0
     ]);
 
@@ -240,12 +240,12 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
 
     expect(Node_LE_5.mode).toEqual(LEAF);
     expect(Node_LE_5.key).toEqual('5');
-    expect(Node_LE_5.value).toEqual([
+    expect(Node_LE_5.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_8.mode).toEqual(LEAF);
     expect(Node_LE_8.key).toEqual('8');
-    expect(Node_LE_8.value).toEqual([
+    expect(Node_LE_8.value.Value()).toEqual([
         11, 0, 0
     ])
 
@@ -279,12 +279,12 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     Node_LE_8 = Node_BR_123.branch[7];
     expect(Node_LE_5.mode).toEqual(LEAF)
     expect(Node_LE_5.key).toEqual('5')
-    expect(Node_LE_5.value).toEqual([
+    expect(Node_LE_5.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_8.mode).toEqual(LEAF)
     expect(Node_LE_8.key).toEqual('8')
-    expect(Node_LE_8.value).toEqual([
+    expect(Node_LE_8.value.Value()).toEqual([
         11, 0, 0
     ])
 
@@ -306,17 +306,17 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     Node_LE_8 = Node_BR_123.branch[7];
     expect(Node_LE_5.mode).toEqual(LEAF)
     expect(Node_LE_5.key).toEqual('5')
-    expect(Node_LE_5.value).toEqual([
+    expect(Node_LE_5.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_6.mode).toEqual(LEAF)
     expect(Node_LE_6.key).toEqual('6')
-    expect(Node_LE_6.value).toEqual([
+    expect(Node_LE_6.value.Value()).toEqual([
         15, 0, 0
     ])
     expect(Node_LE_8.mode).toEqual(LEAF)
     expect(Node_LE_8.key).toEqual('8')
-    expect(Node_LE_8.value).toEqual([
+    expect(Node_LE_8.value.Value()).toEqual([
         11, 0, 0
     ])
     
@@ -350,12 +350,12 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     Node_LE_8 = Node_BR_123.branch[7];
     expect(Node_LE_5.mode).toEqual(LEAF)
     expect(Node_LE_5.key).toEqual('5')
-    expect(Node_LE_5.value).toEqual([
+    expect(Node_LE_5.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_8.mode).toEqual(LEAF)
     expect(Node_LE_8.key).toEqual('8')
-    expect(Node_LE_8.value).toEqual([
+    expect(Node_LE_8.value.Value()).toEqual([
         11, 0, 0
     ])
 
@@ -380,7 +380,7 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
 
     expect(Node_LE_89.mode).toEqual(LEAF)
     expect(Node_LE_89.key).toEqual('89')
-    expect(Node_LE_89.value).toEqual([
+    expect(Node_LE_89.value.Value()).toEqual([
         15, 0, 0
     ])
 
@@ -389,12 +389,12 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
 
     expect(Node_LE_5.mode).toEqual(LEAF)
     expect(Node_LE_5.key).toEqual('5')
-    expect(Node_LE_5.value).toEqual([
+    expect(Node_LE_5.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_8.mode).toEqual(LEAF)
     expect(Node_LE_8.key).toEqual('8')
-    expect(Node_LE_8.value).toEqual([
+    expect(Node_LE_8.value.Value()).toEqual([
         11, 0, 0
     ])
     
@@ -428,12 +428,12 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     Node_LE_8 = Node_BR_123.branch[7];
     expect(Node_LE_5.mode).toEqual(LEAF)
     expect(Node_LE_5.key).toEqual('5')
-    expect(Node_LE_5.value).toEqual([
+    expect(Node_LE_5.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_8.mode).toEqual(LEAF)
     expect(Node_LE_8.key).toEqual('8')
-    expect(Node_LE_8.value).toEqual([
+    expect(Node_LE_8.value.Value()).toEqual([
         11, 0, 0
     ])
 
@@ -459,7 +459,7 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     // Node_LE_567
     expect(Node_LE_567.mode).toEqual(LEAF)
     expect(Node_LE_567.key).toEqual('567')
-    expect(Node_LE_567.value).toEqual([
+    expect(Node_LE_567.value.Value()).toEqual([
         15, 0, 0
     ])
 
@@ -473,12 +473,12 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
 
     expect(Node_LE_5.mode).toEqual(LEAF)
     expect(Node_LE_5.key).toEqual('5')
-    expect(Node_LE_5.value).toEqual([
+    expect(Node_LE_5.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_8.mode).toEqual(LEAF)
     expect(Node_LE_8.key).toEqual('8')
-    expect(Node_LE_8.value).toEqual([
+    expect(Node_LE_8.value.Value()).toEqual([
         11, 0, 0
     ])
     
@@ -512,12 +512,12 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     Node_LE_456 = Node_BR_1.branch[3];
     expect(Node_LE_345.mode).toEqual(LEAF)
     expect(Node_LE_345.key).toEqual('345')
-    expect(Node_LE_345.value).toEqual([
+    expect(Node_LE_345.value.Value()).toEqual([
         7, 0, 0
     ])
     expect(Node_LE_456.mode).toEqual(LEAF)
     expect(Node_LE_456.key).toEqual('456')
-    expect(Node_LE_456.value).toEqual([
+    expect(Node_LE_456.value.Value()).toEqual([
         11, 0, 0
     ])
 
@@ -537,7 +537,7 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     // Node_LE_3456
     expect(Node_LE_3456.mode).toEqual(LEAF);
     expect(Node_LE_3456.key).toEqual('3456');
-    expect(Node_LE_3456.value).toEqual([
+    expect(Node_LE_3456.value.Value()).toEqual([
         15, 0, 0
     ]);
 
@@ -547,13 +547,13 @@ test('MPT.Insert() extension -> ... with default parameters', () => {
     // Node_LE345
     expect(Node_LE_345.mode).toEqual(LEAF);
     expect(Node_LE_345.key).toEqual('345');
-    expect(Node_LE_345.value).toEqual([
+    expect(Node_LE_345.value.Value()).toEqual([
         7, 0, 0
     ]);
     // Node_LE_456
     expect(Node_LE_456.mode).toEqual(LEAF);
     expect(Node_LE_456.key).toEqual('456');
-    expect(Node_LE_456.value).toEqual([
+    expect(Node_LE_456.value.Value()).toEqual([
         11, 0, 0
     ]); 
 });
@@ -588,13 +588,13 @@ test('MPT.Search() with type = account', () => {
     testingMPT.Insert('12345', 7);
     testingMPT.Insert('12378', 11);
     testingMPT.Insert('14567', 15);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 0, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 0, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 0, 0
     ]);
     expect(testingMPT.Search('12245')).toBeNull();
@@ -659,13 +659,13 @@ test('MPT.ModifyValue()', () => {
     testingMPT.Insert('12345', 7);
     testingMPT.Insert('12378', 11);
     testingMPT.Insert('14567', 15);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 0, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 0, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 0, 0
     ]);
 
@@ -673,26 +673,26 @@ test('MPT.ModifyValue()', () => {
     expect(testingMPT.ModifyValue('12345', '+', 17)).not.toBeNull();
     expect(testingMPT.ModifyValue('12378', '+', 2)).not.toBeNull();
     expect(testingMPT.ModifyValue('14567', '+', 5)).not.toBeNull();
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         24, 0, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         13, 0, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         20, 0, 0
     ]);
     // Try decrease (should success)
     expect(testingMPT.ModifyValue('12345', '-', 5)).not.toBeNull();
     expect(testingMPT.ModifyValue('12378', '-', 2)).not.toBeNull();
     expect(testingMPT.ModifyValue('14567', '-', 1)).not.toBeNull();
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
     ]);
 
@@ -701,13 +701,13 @@ test('MPT.ModifyValue()', () => {
     expect(testingMPT.ModifyValue('12378', '-', 25)).toBeNull();
     expect(testingMPT.ModifyValue('14567', '-', 19)).toBeNull();
     // After Failure, value should not be changed
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
     ]);
 
@@ -716,13 +716,13 @@ test('MPT.ModifyValue()', () => {
     expect(testingMPT.ModifyValue('12345', 'k', 15)).toBeNull();
     expect(testingMPT.ModifyValue('12345', '!', 3)).toBeNull();
     // After Failure, value should not be changed
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
     ]);
 
@@ -731,13 +731,13 @@ test('MPT.ModifyValue()', () => {
     expect(testingMPT.ModifyValue('12357', '-', 7)).toBeNull();
     expect(testingMPT.ModifyValue('12257', '-', 7)).toBeNull();
     // After Failure, value should not be changed
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, 0
     ]);
 
@@ -765,13 +765,13 @@ test('MPT.Verify()', () => {
     testingMPT.Insert('12345', 7);
     testingMPT.Insert('12378', 11);
     testingMPT.Insert('14567', 15);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 0, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 0, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 0, 0
     ]);
 
@@ -814,13 +814,13 @@ test('MPT.RefundTax()', () => {
     testingMPT.Insert('12345', 7, 2);
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 0
     ]);
 
@@ -832,19 +832,19 @@ test('MPT.RefundTax()', () => {
     expect(testingMPT.RefundTax('12245', 1, true)).not.toBeNull();
 
     // Check updated tax
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         9, 0, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         12, 0, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         16, 2, 0
     ]);
-    expect(testingMPT.Search('14568')).toEqual([
+    expect(testingMPT.Search('14568').Value()).toEqual([
         1, 0, 0
     ]);
-    expect(testingMPT.Search('12245')).toEqual([
+    expect(testingMPT.Search('12245').Value()).toEqual([
         1, 0, 0
     ]);
 
@@ -856,19 +856,19 @@ test('MPT.RefundTax()', () => {
 
 
     // Search value, tax should not change after failed update
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         9, 0, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         12, 0, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         16, 2, 0
     ]);
-    expect(testingMPT.Search('14568')).toEqual([
+    expect(testingMPT.Search('14568').Value()).toEqual([
         1, 0, 0
     ]);
-    expect(testingMPT.Search('12245')).toEqual([
+    expect(testingMPT.Search('12245').Value()).toEqual([
         1, 0, 0
     ]);
 
@@ -902,13 +902,13 @@ test('MPT.UpdateValue()', () => {
     testingMPT.Insert('12345', 7, 2);
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 0
     ]);
 
@@ -919,10 +919,10 @@ test('MPT.UpdateValue()', () => {
     expect(testingMPT.UpdateValue('14567', '13456', 1)).not.toBeNull();
 
     // Verify value
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         5* (1 -TAX_RATIO), 2 + 5 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, 0
     ]);
     /*
@@ -931,12 +931,12 @@ test('MPT.UpdateValue()', () => {
     ]);
     */
 
-    resTemp = testingMPT.Search('14567');
+    resTemp = testingMPT.Search('14567').Value();
     expect(resTemp[0]).toBeCloseTo(13 - 4 * TAX_RATIO, PRECISION);
     expect(resTemp[1]).toBeCloseTo(3 + 4 * TAX_RATIO, PRECISION);
     expect(resTemp[2]).toBeCloseTo(0, PRECISION);
 
-    expect(testingMPT.Search('13456')).toEqual([
+    expect(testingMPT.Search('13456').Value()).toEqual([
         1, 0, 0
     ]);
 
@@ -946,10 +946,10 @@ test('MPT.UpdateValue()', () => {
     expect(testingMPT.UpdateValue('12345', '14567', -2)).toBeNull();
 
     // Verify value, should not change after failed update
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         5* (1 -TAX_RATIO), 2 + 5 * TAX_RATIO, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, 0
     ]);
     /*
@@ -958,12 +958,12 @@ test('MPT.UpdateValue()', () => {
     ]);
     */
    
-    resTemp = testingMPT.Search('14567');
+    resTemp = testingMPT.Search('14567').Value();
     expect(resTemp[0]).toBeCloseTo(13 - 4 * TAX_RATIO, PRECISION);
     expect(resTemp[1]).toBeCloseTo(3 + 4 * TAX_RATIO, PRECISION);
     expect(resTemp[2]).toBeCloseTo(0, PRECISION);
 
-    expect(testingMPT.Search('13456')).toEqual([
+    expect(testingMPT.Search('13456').Value()).toEqual([
         1, 0, 0
     ]);
 
@@ -992,13 +992,13 @@ test('MPT.UpdateTax()', () => {
     testingMPT.Insert('12345', 7, 2);
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 0
     ]);
 
@@ -1015,13 +1015,13 @@ test('MPT.UpdateTax()', () => {
     expect(testingMPT.UpdateTax('13465', 1)).toBeNull();
 
     // Search value, tax should not change after failed update
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 4, 0
     ])
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 0, 0
     ])
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 4, 0
     ])
 
@@ -1053,13 +1053,13 @@ test('MPT.UpdateDbit()', () => {
     testingMPT.Insert('12345', 7, 2);
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 0
     ]);
 
@@ -1069,13 +1069,13 @@ test('MPT.UpdateDbit()', () => {
     expect(testingMPT.UpdateDbit('14567', 2)).not.toBeNull();
 
     // Verify successful update
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 1
     ])
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 1
     ])
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 2
     ])
 
@@ -1090,13 +1090,13 @@ test('MPT.UpdateDbit()', () => {
     expect(testingMPT.UpdateDbit('12234', 1)).toBeNull();
 
     // Search value, Dbit should not change after failed update
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 1
     ])
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 1
     ])
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 2
     ])
 });
@@ -1131,13 +1131,13 @@ test('MPT.TotalTax()', () => {
     testingMPT.Insert('12345', 7, 2);
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 0
     ]);
 
@@ -1163,16 +1163,16 @@ test('MPT.Select()', () => {
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
     testingMPT.Insert('123', 5, 4);
-    expect(testingMPT.Search('12345')).toEqual([
+    expect(testingMPT.Search('12345').Value()).toEqual([
         7, 2, 0
     ]);
-    expect(testingMPT.Search('12378')).toEqual([
+    expect(testingMPT.Search('12378').Value()).toEqual([
         11, 1, 0
     ]);
-    expect(testingMPT.Search('14567')).toEqual([
+    expect(testingMPT.Search('14567').Value()).toEqual([
         15, 3, 0
     ]);
-    expect(testingMPT.Search('123')).toEqual([
+    expect(testingMPT.Search('123').Value()).toEqual([
         5, 4, 0
     ]);
 
