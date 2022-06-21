@@ -1162,7 +1162,6 @@ test('MPT.Select()', () => {
     testingMPT.Insert('12345', 7, 2);
     testingMPT.Insert('12378', 11, 1);
     testingMPT.Insert('14567', 15, 3);
-    console.log('start now')
     testingMPT.Insert('123', 5, 4);
     expect(testingMPT.Search('12345')).toEqual([
         7, 2, 0
