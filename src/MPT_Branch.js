@@ -1,6 +1,7 @@
 const keccak256 = require('keccak256');
 const rlp = require('rlp');
 const NodeVal = require('./NodeVal');
+const Leaf = require('./MPT_Leaf')
 
 /**
  * Constructor of the MPT Branch Class
