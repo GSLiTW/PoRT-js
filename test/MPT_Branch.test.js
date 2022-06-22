@@ -8,3 +8,9 @@ test('#T001 constructor with default parameters', () => {
     expect(testingBranch.root).toEqual(false);
     expect(testingBranch.type).toEqual('account');
 });
+
+test('#T002 constructor with custom parameters', () => {
+    let testingBranch = new Branch(true, 'receipt');
+    expect(testingBranch.root).toEqual(true);
+    expect(testingBranch.type).toEqual('receipt');
+});
