@@ -15,3 +15,11 @@ test('#T002 constructor with custom parameters', () => {
     expect(testingLeaf.type).toEqual('receipt');
 });
 
+test('#T003 Insert()', () => {
+    let testingLeaf = new Leaf();
+    testingLeaf.Insert('12345', 5, 2, 1);
+    expect(testingLeaf.value.Value()).toEqual([
+        5, 2, 1
+    ]);
+    expect(testingLeaf.Insert('12345')).toBeNull();
+});
