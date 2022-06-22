@@ -17,4 +17,14 @@ const NodeVal = require('./NodeVal');
     this.root = root;
 };
 
+Leaf.prototype.Insert = function (key, balance, tax = 0, dbit = 0) {
+    if (this.value == null) {
+        this.key = key;
+        this.value = new NodeVal(balance, tax, dbit);
+    } else {
+        console.log(">Weird request. User already exist");
+        return null;
+    }
+}
+
 module.exports = Leaf;
