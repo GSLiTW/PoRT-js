@@ -3,10 +3,7 @@
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
-/* From voter.js*/
-const elliptic = require('elliptic');
-const schnorr = require('bip-schnorr');
-const randomBytes = require('random-bytes');
+
 
 /**
  * Cosig class is responsible for do cosig algorithm calculation
@@ -60,6 +57,6 @@ Cosig.prototype.computePubkeyMulWithChallenge = function(voterPubKey, challenge)
     X0.add(voterPubKey[i]);
   }
   X0.mul(challenge);
-}
+};
 
 module.exports = Cosig;
