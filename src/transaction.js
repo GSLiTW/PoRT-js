@@ -1,4 +1,5 @@
 const sha256 = require('sha256');
+
 /**
  * @class Data Structure for a single transaction
  * @param  {string} id - Transaction Hash
@@ -6,12 +7,20 @@ const sha256 = require('sha256');
  * @param  {string} receiver - Receiver's public key/ address
  * @param  {float} value - Transaction value
  */
-function Transaction_MT(id, sender, receiver, value) {
+function Transaction_MT(id, sender, receiver, value, MPT) {
   this.id = id;
   this.sender = sender;
   this.receiver = receiver;
   this.value = value;
+  this.accountCheck(sender, MPT);
+  this.accountCheck(receiver, MPT);
 }
+
+Transaction_MT.prototype.accountCheck = function(key, MPT) {
+  if(MPT.Search(key) === null){
+    MPT.Insert(key, 0)
+  }
+};
 
 Transaction_MT.prototype.get_id = function() {
   return this.id;

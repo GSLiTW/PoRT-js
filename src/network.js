@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
 const CSV_data = require('./CSV_data.js');
-const TransactionMT = require('./transaction.js');
 const fs = require('fs');
 
 // macros
@@ -74,7 +73,7 @@ const pending_txn_pool = new Pending_Txn_Pool();
 function insertCSVData(quantity, data) {
     txns = [];
     for (let i = 1; i < quantity; i++) {
-      txns.push(new TransactionMT(data[i][0], data[i][2], data[i][3], data[i][4]));
+      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
     }
     return txns;
   };
