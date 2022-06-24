@@ -52,11 +52,12 @@ Cosig.prototype.verifyCosig = function(gr0, x0c, challenge, Block) {
 };
 
 Cosig.prototype.computePubkeyMulWithChallenge = function(voterPubKey, challenge) {
-  const X0 = voterPubKey[0];
+  const x0 = voterPubKey[0];
   for (let i = 1; i < voterPubKey.length; i++) {
-    X0.add(voterPubKey[i]);
+    x0 = x0.add(voterPubKey[i]);
   }
-  X0.mul(challenge);
+  const x0c = x0.mul(challenge);
+  return x0c;
 };
 
 module.exports = Cosig;

@@ -5,6 +5,9 @@ const Cosig = require('./cosig.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
+const elliptic = require('elliptic');
+// eslint-disable-next-line new-cap
+const ecdsa = new elliptic.ec('secp256k1');
 
 
 /**
@@ -129,7 +132,7 @@ Creator.prototype.aggregateResponse = function() {
 };
 
 Creator.prototype.verifyCoSig = function() {
-  const responseKeypair = this.wallet.NewKeyPair(this.r0Aggr.toString(16));
+  const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
   const gr0 = responseKeypair[1];
   const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
   const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
