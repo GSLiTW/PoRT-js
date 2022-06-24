@@ -17,7 +17,7 @@ function Transaction_MT(id, sender, receiver, value, MPT) {
 }
 
 Transaction_MT.prototype.accountCheck = function(key, MPT) {
-  if(MPT.Search(key) === null){
+  if(MPT.Search(key) === undefined){
     MPT.Insert(key, 0)
   }
 };

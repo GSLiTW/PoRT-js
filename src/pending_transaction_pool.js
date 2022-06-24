@@ -36,20 +36,19 @@ Pending_Transaction_Pool.prototype.get_num_of_transaction = function() {
   return this.transactions.length;
 };
 
-Pending_Transaction_Pool.prototype.isRepeat = function(tx){
-  this.transactions.forEach((element) => {
-    if (tx.id === element.id) {
-      return true;
-    }
-  });
-  return false;
+Pending_Transaction_Pool.prototype.isRepeat = function(tx) {
+
+  if(this.transactions.filter(e => e.id === tx.id).length > 0){
+    return true;
+  } else {
+    return false;
+  }
 };
 
 Pending_Transaction_Pool.prototype.validate = function (tx) {
   if (tx.value < 0) {
     return false;
   }
-
   return true;
 };
 
