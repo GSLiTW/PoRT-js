@@ -2,6 +2,7 @@
 /* From creator.js*/
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
+const hashVerify = crypto.createHash('sha256');
 const BN = require('bn.js');
 
 
@@ -30,7 +31,7 @@ Cosig.prototype.generateChallenge = function(voterPubV, block) {
 
   hash.update(this.v0Aggr.encode('hex') + block);
   this.challenge = new BN(hash.copy().digest('hex'), 'hex');
-  this.challenge = this.challenge.toString('hex');
+  // this.challenge = this.challenge.toString('hex');
 
   return this.challenge;
 };
@@ -46,18 +47,19 @@ Cosig.prototype.aggregateResponse = function(voterResponse) {
 
 Cosig.prototype.verifyCosig = function(gr0, x0c, challenge, Block) {
   const newpubV = gr0.add(x0c);
-  const newchallenge = hash.update(newpubV.encode('hex') + Block);
+  hashVerify.update(newpubV.encode('hex') + Block);
+  const newchallenge = new BN(hashVerify.copy().digest(), 'hex');
   const result = newchallenge.eq(challenge);
   return result;
 };
 
 Cosig.prototype.computePubkeyMulWithChallenge = function(voterPubKey, challenge) {
-  const x0 = voterPubKey[0];
+  let x0 = voterPubKey[0];
   for (let i = 1; i < voterPubKey.length; i++) {
     x0 = x0.add(voterPubKey[i]);
   }
-  const x0c = x0.mul(challenge);
-  return x0c;
+  x0 = x0.mul(challenge);
+  return x0;
 };
 
 module.exports = Cosig;

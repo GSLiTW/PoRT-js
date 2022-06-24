@@ -8,10 +8,7 @@ const BN = require('bn.js');
 const elliptic = require('elliptic');
 // eslint-disable-next-line new-cap
 const ecdsa = new elliptic.ec('secp256k1');
-<<<<<<< HEAD
 
-=======
->>>>>>> xyhy-creator_test
 
 /**
  * Creater is responsible for creating blocks and communicate with voter to generate cosignature
@@ -90,7 +87,7 @@ Creator.prototype.generateChallenge = function() {
     this.v0Aggr = this.v0Aggr.add(this.voterPubV[i]);
   }
 
-  return this.challenge;
+  return this.challenge.toString('hex');
 };
 
 Creator.prototype.generateChallengeWithIndex = function() {
@@ -130,13 +127,13 @@ Creator.prototype.aggregateResponse = function() {
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
 
   if (this.verifyCoSig()) {
-    this.block.Cosig = this.cosig();
+    this.block.Cosig = this.cosig;
   }
 };
 
 Creator.prototype.verifyCoSig = function() {
   const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
-  const gr0 = responseKeypair[1];
+  const gr0 = responseKeypair.getPublic();
   const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
   const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
   if (checkResult) {
