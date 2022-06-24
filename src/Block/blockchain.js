@@ -1,9 +1,10 @@
 const currentNodeUrl = process.argv[3];
 
 // local modules
-const Block = require('./block.js');
-const Transaction_MT = require('./transaction.js');
+const Block = require('./block');
+const Transaction_MT = require('./transaction/transaction');
 const Txn_Pool = require('./pending_transaction_pool');
+const GenesisData=require('./Block/genesisBlock.json');
 
 const TRANSACTION_TYPE = {
     transaction: "TRANSACTION",
@@ -27,11 +28,11 @@ function Blockchain(MPT){
     // this.address = this.accounts.getAddress();
     var txn_pool = new Txn_Pool();
     txn_pool.create(1);
-    var genesisBlock = new Block(4000718, txn_pool.transactions, '0xa3d2f1958efa84f053faf7eb14d2c104bef35b3098c23c5034678034c86ec183', MPT);
-    genesisBlock.timestamp = 1604671786702;
-    genesisBlock.hash = '0xa3d2f1958efa84f053faf7eb14d2c104bef35b3098c23c5034678034c86ec183';
-    genesisBlock.nextCreator = '04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b';
-    genesisBlock.nextVoters = ['046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680', '0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd', '0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4'];
+    var genesisBlock = new Block(4000718, txn_pool.transactions, GenesisData[hash], MPT);
+    genesisBlock.timestamp = GenesisData[timestamp];
+    genesisBlock.hash = GenesisData[hash];
+    genesisBlock.nextCreator = GenesisData[nextCreator];
+    genesisBlock.nextVoters = GenesisData[nextVoters];
     this.chain.push(genesisBlock)   //create Genesis Block
 }
 

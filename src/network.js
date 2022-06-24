@@ -7,20 +7,28 @@ const fs = require("fs");
 
 // macros
 const VOTER_NUM = 3;
+var glob = require("glob");
+var path = require( 'path' );
 
+glob.sync( './*.js' ).forEach( function( file ) {
+
+    require( path.resolve( file ) );
+  });
 // local modules
-const Blockchain = require("./blockchain.js");
-const Transaction = require("./transaction.js")
-const MPT = require('./MPT');
-const Pending_Txn_Pool = require('./pending_transaction_pool');
-const Wallet = require('./wallet');
-const backup = require('./backup');
+const Blockchain = require("./Block/blockchain.js");
+const Transaction = require("./Transaction/transaction.js")
+const MPT = require('./MPT/MPT');
+const Pending_Txn_Pool = require('./Transaction/Pending_transaction_pool');
+const Wallet = require('./Utility/wallet');
+const backup = require('./Utility/backup');
+
+
 
 const Backup = new backup();
-const Creator = require('./creator');
-const Voter = require('./voter');
+const Creator = require('./Creator/creator');
+const Voter = require('./Voter/voter');
 
-const Block = require('./block.js');
+const Block = require('./Block/block.js');
 
 
 // will be set to false in ("/Creator/GetBlock")

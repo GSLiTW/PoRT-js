@@ -1,5 +1,5 @@
-const Block = require("./block.js");
-const PoRT = require("./PoRT.js");
+const Block = require("../Block/modules");
+const PoRT = require("../PoRT.js");
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
@@ -29,7 +29,7 @@ Creator.prototype.IsValid = function () {
  * @param  {list} pendingTxs
  * @param  {Number} height
  * @param  {string} previousHash
- * @return {Block} created block
+ * @return {Block.block} created block
  */
 Creator.prototype.Create = function (pendingTxs, height, previousHash) {
     //console.log(this.MPT.Cal_hash());
@@ -40,7 +40,7 @@ Creator.prototype.Create = function (pendingTxs, height, previousHash) {
 
     //console.log(this.MPT.Cal_hash());
 
-    this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
+    this.block = new Block.block(height, pendingTxs.transactions, previousHash, this.MPT);
 
     return this.block;
 }
