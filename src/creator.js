@@ -8,7 +8,10 @@ const BN = require('bn.js');
 const elliptic = require('elliptic');
 // eslint-disable-next-line new-cap
 const ecdsa = new elliptic.ec('secp256k1');
+<<<<<<< HEAD
 
+=======
+>>>>>>> xyhy-creator_test
 
 /**
  * Creater is responsible for creating blocks and communicate with voter to generate cosignature

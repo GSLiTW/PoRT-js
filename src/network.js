@@ -819,19 +819,19 @@ app.post('/Creator/Challenge', function(req, res) {
   const VoterPubV = wallet.PublicKeyFromHex(VoterPubVHex);
 
   creator.getVoter(VoterUrl, VoterPubKey, VoterPubV);
-  console.log('there are ' + creator.VoterUrl.length + ' Voter now');
-  if (creator.VoterUrl.length == VOTER_NUM && !FirstRoundLock) {
+  console.log('there are ' + creator.voterUrl.length + ' Voter now');
+  if (creator.voterUrl.length == VOTER_NUM && !FirstRoundLock) {
     // if there is a Timeout before, clear it first, since every voter come
     if (FirstRountSetTimeout) {
       clearTimeout(FirstRountSetTimeout);
     }
     FirstRoundLock = true;
-    FirstRoundVoterNum = creator.VoterUrl.length;
+    FirstRoundVoterNum = creator.voterUrl.length;
 
     const challenge = creator.generateChallenge();
     const requestPromises = [];
     let index = 0;
-    creator.VoterUrl.forEach((networkNodeUrl) => {
+    creator.voterUrl.forEach((networkNodeUrl) => {
       const requestOptions = {
         uri: networkNodeUrl + '/Voter/Response',
         method: 'POST',
@@ -853,15 +853,15 @@ app.post('/Creator/Challenge', function(req, res) {
 
     // wait for 5 sec, if no voter comes, then do next step
     FirstRountSetTimeout = setTimeout(()=>{
-      if (creator.VoterUrl.length != VOTER_NUM && !FirstRoundLock) {
+      if (creator.voterUrl.length != VOTER_NUM && !FirstRoundLock) {
         // check if any voter come in this 10 sec
         const challenge = creator.generateChallenge();
         FirstRoundLock = true;
-        FirstRoundVoterNum = creator.VoterUrl.length;
+        FirstRoundVoterNum = creator.voterUrl.length;
 
         const requestPromises = [];
         let index = 0;
-        creator.VoterUrl.forEach((networkNodeUrl) => {
+        creator.voterUrl.forEach((networkNodeUrl) => {
           const requestOptions = {
             uri: networkNodeUrl + '/Voter/Response',
             method: 'POST',
@@ -955,11 +955,11 @@ app.post('/Creator/GetResponses', function(req, res) {
     creator.getResponses(response);
     creator.setVoterIndex(req.body.index);
 
-    if (creator.VoterResponse.length == FirstRoundVoterNum) {
+    if (creator.voterResponse.length == FirstRoundVoterNum) {
       if (GetResponsesSetTimeout) {
         clearTimeout(GetResponsesSetTimeout);
       }
-      console.log('there are' + creator.VoterResponse.length + ' Voter now');
+      console.log('there are' + creator.voterResponse.length + ' Voter now');
       creator.aggregateResponse();
 
       const seq = seqList[seqList.length - 1] + 1;
@@ -984,7 +984,7 @@ app.post('/Creator/GetResponses', function(req, res) {
         challenge = creator.generateChallengeWithIndex();
         creator.VoterIndex.forEach((index) => {
           const requestOptions = {
-            uri: creator.VoterUrl[index] + '/Voter/Response',
+            uri: creator.voterUrl[index] + '/Voter/Response',
             method: 'POST',
             body: {
               index: index,
