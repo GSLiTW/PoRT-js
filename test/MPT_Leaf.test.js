@@ -18,6 +18,7 @@ test('#T002 constructor with custom parameters', () => {
 test('#T003 Insert()', () => {
     let testingLeaf = new Leaf();
     testingLeaf.Insert('12345', 5, 2, 1);
+    console.log(testingLeaf);
     expect(testingLeaf.value.Value()).toEqual([
         5, 2, 1
     ]);

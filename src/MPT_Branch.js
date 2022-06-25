@@ -1,7 +1,8 @@
 const keccak256 = require('keccak256');
 const rlp = require('rlp');
 const NodeVal = require('./NodeVal');
-const Leaf = require('./MPT_Leaf')
+const Leaf = require('./MPT_Leaf');
+const Extension = require('./MPT_Extension');
 
 /**
  * Constructor of the MPT Branch Class
@@ -25,14 +26,16 @@ const Leaf = require('./MPT_Leaf')
 Branch.prototype.Insert = function (key, balance, tax = 0, dbit = 0) {
     if (key.length == 0) {
         this.value = new NodeVal(balance, tax, dbit);
+        return this;
     } else {
         this.value = null;
         this.key = null;
         ch = parseInt(key[0], 16);
         if (this.branch[ch] == null) {
-            this.branch[ch] = new MPT();
+            this.branch[ch] = new Leaf();
         }
-        this.branch[ch].Insert(key.substr(1), balance, tax, dbit);
+        this.branch[ch] = this.branch[ch].Insert(key.substr(1), balance, tax, dbit);
+        return this;
     }
 }
 
