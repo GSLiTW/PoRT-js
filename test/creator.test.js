@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /* eslint-disable require-jsdoc */
 const Creator = require('../src/creator');
 const MPT = require('../src/MPT');
@@ -9,35 +10,26 @@ const elliptic = require('elliptic');
 const ecdsa = new elliptic.ec('secp256k1');
 
 
-describe('try test', () => {
+describe('creator test', () => {
   {
     function init() {
-      const users = fs.readFileSync('./data/node_address_mapping_table.csv')
-          .toString().split('\n').map((e) => e.trim())
-          .map((e) => e.split(',').map((e) => e.trim()));
-
-      const keypair = fs.readFileSync('./data/private_public_key.csv')
-          .toString().split('\n').map((e) => e.trim())
-          .map((e) => e.split(',').map((e) => e.trim()));
-
-      const w = new Wallet();
+      const user1Balance = 100;
+      const user1Tax = 10;
+      const user1Pubk = 1;
+      const user1Port = 1;
       const tree = new MPT();
-      const initBalance = 100;
-      const initTax = 10;
-      const pubk = w.publicKey;
-      tree.Insert(pubk, initBalance, initTax, 1);
-      const port = 8002;
-      const creator = new Creator(port, pubk, tree);
-      console.log('Create Finish');
+      tree.Insert(user1Pubk, user1Balance, user1Tax, 1);
+      const creator = new Creator(user1Port, user1Pubk, tree);
+      console.log('Init Finish');
     }
 
     test('test creator constructor', ()=>{
       function callback() {
         try {
           expect(creator).toEqual({
-            port: 8002,
+            port: 1,
             MPT: tree,
-            wallet: w.publicKey,
+            wallet: 1,
           });
         } catch (e) {
           console.error(e);
@@ -52,6 +44,27 @@ describe('try test', () => {
           expect(creator.isValid()).toBeTruthy();
         } catch (e) {
           console.error(e);
+        }
+      }
+      init(callback);
+    });
+
+    test('test getVoter', () => {
+      function callback() {
+        try {
+          const voter1url = 'voter1';
+          const voter1Pubk = 2;
+          const voter1PubV = 2;
+          const voter2url = 'voter2';
+          const voter2Pubk = 3;
+          const voter2PubV = 3;
+          creator.getVoter(voter1url, voter1Pubk, voter1PubV);
+          creator.getVoter(voter2url, voter2Pubk, voter2PubV);
+          expect(creator.voterUrl).toEqual(['voter1', 'voter2']);
+          expect(creator.voterPubKey).toEqual([2, 3]);
+          expect(creator.voterPubV).toEqual([2, 3]);
+        } catch (e) {
+          console.log(e);
         }
       }
       init(callback);

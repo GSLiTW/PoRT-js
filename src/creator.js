@@ -80,13 +80,6 @@ Creator.prototype.setVoterIndex = function(index) {
 
 Creator.prototype.generateChallenge = function() {
   this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block);
-
-  // TODO: later to remove, wait verifyCoSig function porting finish
-  this.v0Aggr = this.voterPubV[0];
-  for (let i = 1; i < this.voterPubV.length; i++) {
-    this.v0Aggr = this.v0Aggr.add(this.voterPubV[i]);
-  }
-
   return this.challenge.toString('hex');
 };
 
@@ -110,7 +103,6 @@ Creator.prototype.getChallenge = function() {
 
 Creator.prototype.getResponses = function(VoterResponseHex) {
   const VoterResponse = new BN(VoterResponseHex, 'hex');
-  // console.log(VoterResponse);
   if (this.voterResponse == null) {
     this.voterResponse = [VoterResponse];
   } else {
@@ -136,11 +128,6 @@ Creator.prototype.verifyCoSig = function() {
   const gr0 = responseKeypair.getPublic();
   const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
   const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
-  if (checkResult) {
-    console.log('%c\nCosig Verify Result: Passed :)', 'color:green;');
-  } else {
-    console.log('%c\nCosig Verify Result: Failed :(', 'color:red;');
-  }
 
   return checkResult;
 };
