@@ -462,20 +462,6 @@ MPT.prototype.Verify = function (key) {
  * @param  {Boolean} forced - force refund if destination does not originally exist
  */
 MPT.prototype.RefundTax = function (to, refund = 0, forced = false) {
-    // check refund value > 0
-    if (refund < 0) {
-        console.log("> Warning, refunding negative tax");
-    }
-    // check destination exist
-    if (this.Search(to) == null) {
-        console.log("> Refund destination does not exist");
-        if (forced) {
-            this.Insert(to, refund);
-            console.log("> Inserted new node with starting balance = " + refund);
-            return 0;
-        }
-        return null;
-    }
     // check enough tax to deduct
     if (refund > this.Search(to).tax) {
         console.log("> Not enough tax to deduct from " + to);
@@ -501,19 +487,6 @@ MPT.prototype.RefundTax = function (to, refund = 0, forced = false) {
  */
 MPT.prototype.UpdateValue = function (from, to, value = 0) {
     if (this.type == 'account') {
-        if (value <= 0) {
-            console.log("> UpdateValue with invalid value input");
-            return null;
-        }
-        if (this.Search(from) == null) {
-            console.log("> Error, UpdateValue with inexisted source address");
-            return null;
-        }
-        if (this.Search(to) == null) {
-            console.log("> Warning, destination address does not exist, now created");
-            this.Insert(to, 0);
-        }
-
         var val1 = this.ModifyValue(from, '-', value);
         if (val1 == null) {
             console.log("> An error occurred when updating " + from + "'s value.");
