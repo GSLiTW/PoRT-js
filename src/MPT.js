@@ -462,11 +462,6 @@ MPT.prototype.Verify = function (key) {
  * @param  {Boolean} forced - force refund if destination does not originally exist
  */
 MPT.prototype.RefundTax = function (to, refund = 0, forced = false) {
-    // check enough tax to deduct
-    if (refund > this.Search(to).tax) {
-        console.log("> Not enough tax to deduct from " + to);
-        return null;
-    }
     var val1 = this.ModifyValue(to, '+', refund);
     if (val1 == null) {
         console.log("> An error occurred when updating " + to + "'s value.");
