@@ -37,14 +37,10 @@ Creator.prototype.isValid = function() {
  * @param  {string} previousHash
  * @return {Block} created block
  */
-Creator.prototype.create = function(pendingTxs, height, previousHash) {
-  // console.log(this.MPT.Cal_hash());
-
+Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash) {
   /* for (var i = 0; i < pendingTxs.length; i++) {
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
     }*/
-
-  // console.log(this.MPT.Cal_hash());
   this.cosig = new Cosig();
   this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
 
@@ -84,16 +80,7 @@ Creator.prototype.generateChallenge = function() {
 };
 
 Creator.prototype.generateChallengeWithIndex = function() {
-  this.V0Aggr = this.voterPubV[this.voterIndex[0]];
-  for (let i = 1; i < this.voterIndex.length; i++) {
-    this.v0Aggr = this.v0Aggr.add(this.voterPubV[this.voterIndex[i]]);
-  }
-
-  // console.log("\nV0_aggr: " + this.V0_aggr.encode('hex'));
-
-  hash.update(this.v0Aggr.encode('hex') + this.block);
-  this.challenge = new BN(hash.copy().digest('hex'), 'hex');
-
+  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block, this.voterIndex);
   return this.challenge.toString('hex');
 };
 
@@ -138,7 +125,7 @@ Creator.prototype.verifyCoSig = function() {
  * @param {Block} lastBlock - last block
  * @return {Block} the completed new block
  */
-Creator.prototype.getBlock = function(previousHash, lastBlock) {
+Creator.prototype.completeBlock = function(previousHash, lastBlock) {
   const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, 1);
   this.block.nextCreator = creatorPoRT.next_maintainer[1];
   for (let i = 0; i < lastBlock.nextVoters.length; i++) {

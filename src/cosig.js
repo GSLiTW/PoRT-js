@@ -5,7 +5,6 @@ const hash = crypto.createHash('sha256');
 const hashVerify = crypto.createHash('sha256');
 const BN = require('bn.js');
 
-
 /**
  * Cosig class is responsible for do cosig algorithm calculation
  * @class
@@ -31,7 +30,18 @@ Cosig.prototype.generateChallenge = function(voterPubV, block) {
 
   hash.update(this.v0Aggr.encode('hex') + block);
   this.challenge = new BN(hash.copy().digest('hex'), 'hex');
-  // this.challenge = this.challenge.toString('hex');
+
+  return this.challenge;
+};
+
+Cosig.prototype.generateChallengeWithIndex = function(voterPubV, block, voterIndex) {
+  this.v0Aggr = voterPubV[voterIndex[0]];
+  for (let i = 1; i < voterIndex.length; i++) {
+    this.v0Aggr = this.v0Aggr.add(voterPubV[voterIndex[i]]);
+  }
+
+  hash.update(this.v0Aggr.encode('hex') + block);
+  this.challenge = new BN(hash.copy().digest('hex'), 'hex');
 
   return this.challenge;
 };
@@ -45,9 +55,9 @@ Cosig.prototype.aggregateResponse = function(voterResponse) {
   return this.r0Aggr;
 };
 
-Cosig.prototype.verifyCosig = function(gr0, x0c, challenge, Block) {
+Cosig.prototype.verifyCosig = function(gr0, x0c, challenge, block) {
   const newpubV = gr0.add(x0c);
-  hashVerify.update(newpubV.encode('hex') + Block);
+  hashVerify.update(newpubV.encode('hex') + block);
   const newchallenge = new BN(hashVerify.copy().digest(), 'hex');
   const result = newchallenge.eq(challenge);
   return result;
