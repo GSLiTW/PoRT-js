@@ -136,8 +136,15 @@ Creator.prototype.completeBlock = function(previousHash, lastBlock) {
   return this.block;
 };
 
-Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress, previousBlockHash) {
-  const newPoRT = new PoRT(rootMaintainerAddress, this.MPT, rootMaintainerAddress.Dbit);
+/**
+ * Select corresponding new maintainers
+ * @param  {string} rootMaintainerAddress - current block maintainer address as the seed of next maintainers
+ * @return {string} selectedMainter - next-next round maintainer address
+ */
+Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress) {
+  const newPoRT = new PoRT(rootMaintainerAddress, this.MPT, rootMaintainerAddress.Dbit); // Question: need NodeVal.Dbit.
+  const selectedMainter = newPoRT.nextMaintainer;
+  return selectedMainter;
 };
 
 
