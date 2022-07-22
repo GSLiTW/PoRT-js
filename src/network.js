@@ -690,7 +690,7 @@ app.post('/register-nodes-bulk', function(req, res) {
 
 app.get('/block/:blockHash', function(req, res) {
   const blockHash = req.params.blockHash;
-  const correctBlock = chain.completeBlock(blockHash);
+  const correctBlock = chain.getBlock(blockHash);
   res.json({
     block: correctBlock,
   });

@@ -27,9 +27,9 @@ test('#Test1 : Creator Construct', ()=>{
   });
 });
 
-test('#Test2 : isValid Function', ()=>{
-  expect(creator.isValid()).toBeTruthy();
-});
+// test('#Test2 : isValid Function', ()=>{
+//   expect(creator.isValid()).toBeTruthy();
+// });
 
 test('#Test3 : getVoter Function', () => {
   const voter1url = 'voter1';
@@ -50,4 +50,16 @@ test('#Test 4 : Set Voter\'s Index', () => {
     creator.setVoterIndex(index);
   }
   expect(creator.voterIndex).toEqual([0, 1, 2, 3, 4]);
+});
+
+describe('jump step selection test', () => {
+  const Tree;
+  const currentCreator, currentVoter;
+  const nextCreator, nextVoter;
+  const thirdRoundCreator, thirdVoter;
+  test('#Test 5: checking creators in different block', () => {
+    let selectedCreator = currentCreator.selectNewMaintainer(currentCreator);
+    let selectedVoter = currentCreator.selectNewMaintainer(currentVoter);
+    expect(selectedMantainers).toEqual(thirdRoundMaintainers);
+  });
 });

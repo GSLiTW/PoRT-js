@@ -136,5 +136,9 @@ Creator.prototype.completeBlock = function(previousHash, lastBlock) {
   return this.block;
 };
 
+Creator.prototype.selectNewMaintainer = function(maintainerSeedAddress, previousBlockHash) {
+  
+};
+
 
 module.exports = Creator;
