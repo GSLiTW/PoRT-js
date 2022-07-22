@@ -1024,7 +1024,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     }
 
     console.log('Creator.GetBlock start');
-    const newBlock = creator.getBlock(tempBlock.hash, lastBlock);
+    const newBlock = creator.completeBlock(tempBlock.hash, lastBlock);
 
     console.log('update Dbit start');
     Tree.UpdateDbit(lastBlock.nextCreator, 0);

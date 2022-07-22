@@ -127,17 +127,17 @@ Creator.prototype.verifyCoSig = function() {
  */
 Creator.prototype.completeBlock = function(previousHash, lastBlock) {
   const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, 1);
-  this.block.nextCreator = creatorPoRT.next_maintainer[1];
+  this.block.nextCreator = creatorPoRT.nextMaintainer;
   for (let i = 0; i < lastBlock.nextVoters.length; i++) {
     const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, 2);
-    this.block.nextVoters.push(voterPoRT.next_maintainer[1]);
+    this.block.nextVoters.push(voterPoRT.nextMaintainer);
   }
   this.block.hash = this.block.hashBlock(previousHash, this.block);
   return this.block;
 };
 
-Creator.prototype.selectNewMaintainer = function(maintainerSeedAddress, previousBlockHash) {
-  
+Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress, previousBlockHash) {
+  const newPoRT = new PoRT(rootMaintainerAddress, this.MPT, rootMaintainerAddress.Dbit);
 };
 
 
