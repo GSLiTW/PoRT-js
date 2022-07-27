@@ -1,5 +1,5 @@
-const Block = require("../Block/modules");
-const PoRT = require("../PoRT.js");
+const Block = require("../Block/block");
+const PoRT = require("./PoRT.js");
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
