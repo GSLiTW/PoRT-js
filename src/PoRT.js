@@ -1,5 +1,9 @@
 const sha256 = require('sha256');
-
+/** PoRT constructor.
+* @param  {string} address - root address
+* @param {MPT} MPT
+* @param {string} dbit - root dbit
+*/
 function PoRT(address, MPT, dbit) {
   this.address = address,
   this.Tree = MPT,
@@ -10,6 +14,7 @@ function PoRT(address, MPT, dbit) {
   const h = parseInt(tmp, 16) % T;
   const getMaintainer = this.Tree.Select(h, 0, 0);
   this.nextMaintainer = getMaintainer[1];
+  this.Tree.UpdateDbit(this.address, '00');
   this.Tree.UpdateDbit(this.nextMaintainer, this.dbit);
 }
 module.exports = PoRT;
