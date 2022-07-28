@@ -142,7 +142,7 @@ Creator.prototype.completeBlock = function(previousHash, lastBlock) {
  * @return {string} selectedMainter - next-next round maintainer address
  */
 Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress) {
-  const newPoRT = new PoRT(rootMaintainerAddress, this.MPT, rootMaintainerAddress.Dbit); // Question: need NodeVal.Dbit.
+  const newPoRT = new PoRT(rootMaintainerAddress, this.MPT, rootMaintainerAddress.dbit); // Question: need NodeVal.Dbit.
   const selectedMainter = newPoRT.nextMaintainer;
   return selectedMainter;
 };
