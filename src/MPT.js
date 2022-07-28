@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const keccak256 = require('keccak256');
 const rlp = require('rlp');
 const NodeVal = require('./NodeVal');
@@ -67,9 +68,9 @@ MPT.prototype.Display = function(level) {
  * @param  {String} key - public key of the inserted wallet
  * @param  {Number} balance - initial wallet balance
  * @param  {Number} [tax=0] - initial tax value
- * @param  {integer={0,1,2}} [dbit=0] - initial dirty bit value
+ * @param  {String={'00','11','12','21','22'}} [dbit='00'] - initial dirty bit value
  */
-MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
+MPT.prototype.Insert = function(key, balance, tax = 0, dbit = '00') {
   /* FOR DEBUGGING: TAX = 0.1 * VALUE */
   // tax = 0.1 * value;
   /* FOR DEBUGGING*/
@@ -115,7 +116,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         } else {
           this.branch[parseInt(key[0], 16)] = new MPT();
           this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance, tax, dbit);
-          var NewNode = new MPT();
+          const NewNode = new MPT();
           NewNode.mode = 'extension';
           NewNode.key = this.key.substr(1);
           NewNode.next = this.next;
@@ -125,7 +126,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         this.next.Insert(key.substr(i), balance, tax, dbit);
       } else {
         if (i == (this.key.length - 1)) {
-          var NewNode = new MPT();
+          const NewNode = new MPT();
           NewNode.mode = 'branch';
           NewNode.branch[parseInt(key[i], 16)] = new MPT();
           NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance, tax, dbit);
@@ -134,7 +135,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
           this.value = null;
           this.next = NewNode;
         } else {
-          var NewNode = new MPT();
+          const NewNode = new MPT();
           NewNode.mode = 'branch';
           NewNode.branch[parseInt(key[i], 16)] = new MPT();
           NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance, tax, dbit);
@@ -148,7 +149,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         }
       }
     } else if (this.mode == 'leaf') {
-      var i = 0;
+      let i = 0;
       while (key[i] == this.key[i]) {
         i++;
         if (i == key.length) break;
@@ -162,7 +163,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         this.value = null;
       } else {
         this.mode = 'extension';
-        var NewNode = new MPT();
+        const NewNode = new MPT();
         NewNode.mode = 'branch';
         NewNode.branch[parseInt(key[i], 16)] = new MPT();
         NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance, tax, dbit);
@@ -199,7 +200,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         this.branch[ch].Insert(key.substr(1), balance);
       }
     } else if (this.mode == 'extension') {
-      var i = 0;
+      let i = 0;
       while (key[i] == this.key[i]) {
         i++;
         if (i == this.key.length) {
@@ -216,7 +217,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         } else {
           this.branch[parseInt(key[0], 16)] = new MPT();
           this.branch[parseInt(key[0], 16)].Insert(key.substr(1), balance);
-          var NewNode = new MPT();
+          const NewNode = new MPT();
           NewNode.mode = 'extension';
           NewNode.key = this.key.substr(1);
           NewNode.next = this.next;
@@ -226,7 +227,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         this.next.Insert(key.substr(i), balance, tax);
       } else {
         if (i == (this.key.length - 1)) {
-          var NewNode = new MPT();
+          const NewNode = new MPT();
           NewNode.mode = 'branch';
           NewNode.branch[parseInt(key[i], 16)] = new MPT();
           NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance);
@@ -234,7 +235,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
           this.key = key.substr(0, i);
           this.next = NewNode;
         } else {
-          var NewNode = new MPT();
+          const NewNode = new MPT();
           NewNode.mode = 'branch';
           NewNode.branch[parseInt(key[i], 16)] = new MPT();
           NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance);
@@ -247,7 +248,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         }
       }
     } else if (this.mode == 'leaf') {
-      var i = 0;
+      let i = 0;
       while (key[i] == this.key[i]) {
         i++;
         if (i == key.length) break;
@@ -260,7 +261,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = 0) {
         this.branch[parseInt(this.key[i], 16)].Insert(this.key.substr(1), this.balance);
       } else {
         this.mode = 'extension';
-        var NewNode = new MPT();
+        const NewNode = new MPT();
         NewNode.mode = 'branch';
         NewNode.branch[parseInt(key[i], 16)] = new MPT();
         NewNode.branch[parseInt(key[i], 16)].Insert(key.substr(i + 1), balance);
@@ -571,11 +572,11 @@ MPT.prototype.UpdateTax = function(key, Update_value) {
 /**
  * Update the dirty bit value to indicate the creator/voter bits
  * @param  {String} key - public key/ address of the wallet to update
- * @param  {Integer={0,1,2}} [dbit=0] - new dirty bit value of the wallet
+ * @param  {String={'00','11','12','21','22'}} [dbit='00'] - new dirty bit value of the wallet
  */
-MPT.prototype.UpdateDbit = function(key, dbit = 0) {
-  if (dbit != 0 && dbit != 1 && dbit != 2) {
-    console.error('Error: dbit should be 0, 1 or 2.');
+MPT.prototype.UpdateDbit = function(key, dbit = '00') {
+  if (dbit != '00' && dbit != '11' && dbit != '12' && dbit != '21' && dbit != '22') {
+    console.error('Error: dbit should be 00, 11, 12, 21 or 22.');
     return null;
   }
   if (this.mode == 'leaf') {
