@@ -7,9 +7,5 @@
 
 # dependencies
 node_modules/
-<<<<<<< HEAD
-coverage/
-=======
 
 coverage/*
->>>>>>> origin/Peter_NodeVal
