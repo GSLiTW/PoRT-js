@@ -3,9 +3,9 @@
  * @class Data Structure for value of MPT node
  * @param  {Number} [balance=0]
  * @param  {Number} [tax=0]
- * @param  {integer={0, 1, 2}} [Dbit=0]
+ * @param  {string={'00', '11', '12', '21', '22'}} [Dbit='00']
  */
-function NodeVal(balance = 0, tax = 0, DirtyBit = 0) {
+function NodeVal(balance = 0, tax = 0, DirtyBit = '00') {
   this.balance = balance;
   this.tax = tax;
   this.DirtyBit = DirtyBit;
