@@ -68,9 +68,9 @@ MPT.prototype.Display = function(level) {
  * @param  {String} key - public key of the inserted wallet
  * @param  {Number} balance - initial wallet balance
  * @param  {Number} [tax=0] - initial tax value
- * @param  {String={'00','11','12','21','22'}} [dbit='00'] - initial dirty bit value
+ * @param  {String={[0,0],[1,1],[1,2],[2,1],[2,2]}} [dbit=[0, 0]] - initial dirty bit value
  */
-MPT.prototype.Insert = function(key, balance, tax = 0, dbit = '00') {
+MPT.prototype.Insert = function(key, balance, tax = 0, dbit = [0, 0]) {
   /* FOR DEBUGGING: TAX = 0.1 * VALUE */
   // tax = 0.1 * value;
   /* FOR DEBUGGING*/
@@ -99,7 +99,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = '00') {
         this.branch[ch].Insert(key.substr(1), balance, tax, dbit);
       }
     } else if (this.mode == 'extension') {
-      var i = 0;
+      let i = 0;
       while (key[i] == this.key[i]) {
         i++;
         if (i == this.key.length) {
@@ -572,10 +572,10 @@ MPT.prototype.UpdateTax = function(key, Update_value) {
 /**
  * Update the dirty bit value to indicate the creator/voter bits
  * @param  {String} key - public key/ address of the wallet to update
- * @param  {String={'00','11','12','21','22'}} [dbit='00'] - new dirty bit value of the wallet
+ * @param  {String={[0,0],[1,1],[1,2],[2,1],[2,2]}} [dbit=[0, 0]] - new dirty bit value of the wallet
  */
-MPT.prototype.UpdateDbit = function(key, dbit = '00') {
-  if (dbit != '00' && dbit != '11' && dbit != '12' && dbit != '21' && dbit != '22') {
+MPT.prototype.UpdateDbit = function(key, dbit = [0, 0]) {
+  if (dbit != [0, 0] && dbit != [1, 1] && dbit != [1, 2] && dbit != [2, 1] && dbit != [2, 2]) {
     console.error('Error: dbit should be 00, 11, 12, 21 or 22.');
     return null;
   }
