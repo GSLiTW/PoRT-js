@@ -28,7 +28,7 @@ function Creator(port, wallet, MPT) {
  * @return {bool} True if the caller is the creator of the current round of block construction; False otherwise
  */
 Creator.prototype.isValid = function() {
-  return (this.MPT.Verify(this.wallet.publicKey.encode('hex')) == 1);
+  return (this.MPT.Verify(this.wallet.publicKey.encode('hex')) == [1, 1] || this.MPT.Verify(this.wallet.publicKey.encode('hex')) == [2, 1]);
 };
 /**
  * Create a Block, adding transactions, MPT and metadata into it
