@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "A doubly-linked PoRT Blockchain approach",
   "main": "index.js",
+  "jest": {
+    "moduleDirectories": [
+      "node_modules",
+      "<rootDir>"
+    ]
+  },
   "scripts": {
     "3000": "nodemon --watch dev -e js src/network.js 3000 http://localhost:3000 &",
     "3001": "nodemon --watch dev -e js src/network.js 3001 http://localhost:3001 &",
@@ -162,7 +168,8 @@
     "3155": "nodemon --watch dev -e js src/network.js 3155 http://localhost:3155 &",
     "3156": "nodemon --watch dev -e js src/network.js 3156 http://localhost:3156 &",
     "3157": "nodemon --watch dev -e js src/network.js 3157 http://localhost:3157 &",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "author": "",
   "license": "ISC",
@@ -196,8 +203,14 @@
     "ws": ">=7.4.6"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
     "babel-cli": "^6.26.0",
+    "babel-jest": "^28.1.0",
     "babel-preset-env": "^1.7.0",
+    "eslint": "^8.17.0",
+    "eslint-config-google": "^0.14.0",
+    "jest": "^28.1.0",
     "jsdoc-to-markdown": "^7.1.1"
   },
   "engines": {
