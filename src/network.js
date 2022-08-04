@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -50,7 +51,7 @@ w = undefined;
 
 const Tree = new MPT(true);
 
-for (var i = 0; i < 157; i++) {
+for (let i = 0; i < 157; i++) {
   if (i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
   else if (i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
   else if (i == 6) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
@@ -61,7 +62,7 @@ for (var i = 0; i < 157; i++) {
 
 const chain = new Blockchain(Tree);
 
-for (var i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
+for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
 
@@ -393,7 +394,7 @@ app.post('/receive-new-block', function(req, res) {
     }
 
 
-    for (var i = 0, UpdateList = tempBlock.transactions; i < UpdateList.length; i++) {
+    for (let i = 0, UpdateList = tempBlock.transactions; i < UpdateList.length; i++) {
       Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
     }
 
@@ -401,7 +402,7 @@ app.post('/receive-new-block', function(req, res) {
     Tree.UpdateDbit(lastBlock.nextCreator, 0);
     Tree.UpdateDbit(tempBlock.nextCreator, 1);
 
-    for (var i = 0; i < tempBlock.nextVoters.length; i++) {
+    for (let i = 0; i < tempBlock.nextVoters.length; i++) {
       Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
       Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
     }
@@ -411,7 +412,7 @@ app.post('/receive-new-block', function(req, res) {
       // refund creator's & voter's tax
       if (lastBlock['height'] >= 4000718) {
         Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-        for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+        for (let i = 0; i < lastBlock.nextVoters.length; i++) {
           Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
         }
       }
@@ -424,7 +425,7 @@ app.post('/receive-new-block', function(req, res) {
 
       // only delete txs which are in new block
       console.log('before delete all tx: '+pending_txn_pool.transactions);
-      for (var i=0; i<newBlock.transactions.length; i++) {
+      for (let i=0; i<newBlock.transactions.length; i++) {
         pending_txn_pool.transactions.forEach(function(tx, index, arr) {
           if (tx.id == newBlock.transactions[i].id) {
             arr.splice(index, 1);
@@ -1018,7 +1019,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     // refund creator's & voter's tax
     if (lastBlock['height'] >= 4000718) {
       Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-      for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
         Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
       }
     }
@@ -1030,11 +1031,11 @@ app.post('/Creator/GetBlock', function(req, res) {
     Tree.UpdateDbit(lastBlock.nextCreator, 0);
     Tree.UpdateDbit(tempBlock.nextCreator, 1);
 
-    for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+    for (let i = 0; i < lastBlock.nextVoters.length; i++) {
       Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
     }
 
-    for (var i = 0; i < tempBlock.nextVoters.length; i++) {
+    for (let i = 0; i < tempBlock.nextVoters.length; i++) {
       Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
     }
     // console.log(tempBlock);
@@ -1046,7 +1047,7 @@ app.post('/Creator/GetBlock', function(req, res) {
 
     // only delete txs which are in new block
     console.log('before delete all tx: '+pending_txn_pool.transactions);
-    for (var i=0; i<newBlock.transactions.length; i++) {
+    for (let i=0; i<newBlock.transactions.length; i++) {
       pending_txn_pool.transactions.forEach(function(tx, index, arr) {
         if (tx.id == newBlock.transactions[i].id) {
           arr.splice(index, 1);
