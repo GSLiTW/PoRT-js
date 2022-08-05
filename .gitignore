@@ -7,5 +7,14 @@
 
 # dependencies
 node_modules/
+<<<<<<< HEAD
 
 coverage/*
+=======
+<<<<<<< HEAD
+
+coverage/*
+=======
+coverage/
+>>>>>>> 80a8defac17af4216d5061f85ba0dc027aa16344
+>>>>>>> develop

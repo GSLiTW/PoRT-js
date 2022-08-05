@@ -773,6 +773,7 @@ test('MPT.Verify()', () => {
 });
 
 test('MPT.RefundTax()', () => {
+<<<<<<< HEAD
   // test case for UpdateTax()
   // extension (1) -> branch
   //                   [2] -> extension [3] -> branch
@@ -908,11 +909,132 @@ test('MPT.UpdateValue()', () => {
     14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, [0, 0],
   ]);
   /*
+=======
+    // test case for UpdateTax()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7, 2, 0)
+    //                                             [7] -> leaf [8] (11, 1, 0)
+    //                   [4] -> leaf [567] (15, 3, 0)
+    // Try updating (should success)
+    //      12345 + (2)
+    //      12378 + (1)
+    //      14567 + (1)
+
+    //
+    // Try refunding (should fail)
+    //      14569 + (1) (address doesn't exist)
+    //      12247 + (1) (address doesn't exist)
+    //      13459 + (1) (address doesn't exist)
+    //      12245 + (1) (not enough tax to deduct)
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7, 2);
+    testingMPT.Insert('12378', 11, 1);
+    testingMPT.Insert('14567', 15, 3);
+    expect(testingMPT.Search('12345').Value()).toEqual([
+        7, 2, 0
+    ]);
+    expect(testingMPT.Search('12378').Value()).toEqual([
+        11, 1, 0
+    ]);
+    expect(testingMPT.Search('14567').Value()).toEqual([
+        15, 3, 0
+    ]);
+
+    // Update tax (should success)
+    expect(testingMPT.RefundTax('12345', 2)).not.toBeNull();
+    expect(testingMPT.RefundTax('12378', 1)).not.toBeNull();
+    expect(testingMPT.RefundTax('14567', 1)).not.toBeNull();
+
+    // Check updated tax
+    expect(testingMPT.Search('12345').Value()).toEqual([
+        9, 0, 0
+    ]);
+    expect(testingMPT.Search('12378').Value()).toEqual([
+        12, 0, 0
+    ]);
+    expect(testingMPT.Search('14567').Value()).toEqual([
+        16, 2, 0
+    ]);
+
+    // Update tax (should fail)
+    expect(testingMPT.RefundTax('14569', 1)).toBeNull();
+    expect(testingMPT.RefundTax('12247', 1)).toBeNull();
+    expect(testingMPT.RefundTax('13459', 1)).toBeNull();
+    expect(testingMPT.RefundTax('12245', 1)).toBeNull();
+
+
+    // Search value, tax should not change after failed update
+    expect(testingMPT.Search('12345').Value()).toEqual([
+        9, 0, 0
+    ]);
+    expect(testingMPT.Search('12378').Value()).toEqual([
+        12, 0, 0
+    ]);
+    expect(testingMPT.Search('14567').Value()).toEqual([
+        16, 2, 0
+    ]);
+
+});
+
+test('MPT.UpdateValue()', () => {
+    // test case for UpdateValue()
+    // extension (1) -> branch
+    //                   [2] -> extension [3] -> branch
+    //                                             [4] -> leaf [5] (7, 2, 0)
+    //                                             [7] -> leaf [8] (11, 1, 0)
+    //                   [4] -> leaf [567] (15, 3, 0)
+    // Try updating (should success)
+    //      12345 -> 12378 (5)
+    //      12378 -> 14567 (2)
+    //      14567 -> 12345 (3)
+    //
+    // Results:
+    //      12345 (5, 2, 0)
+    //      12378 (14, 1, 0)
+    //      14567 (13, 3, 0)
+    //      13456 (1, 0, 0)
+    //
+    // Try refunding (should fail)
+    //      14568 -> 12378 (2)  (source address doesn't exist)
+    //      12345 -> 14567 (9)  (source address not enough balance)
+    //      12345 -> 14567 (-2) (update value < 0)
+
+    let testingMPT = new MPT(true, 'account');
+    testingMPT.Insert('12345', 7, 2);
+    testingMPT.Insert('12378', 11, 1);
+    testingMPT.Insert('14567', 15, 3);
+    expect(testingMPT.Search('12345').Value()).toEqual([
+        7, 2, 0
+    ]);
+    expect(testingMPT.Search('12378').Value()).toEqual([
+        11, 1, 0
+    ]);
+    expect(testingMPT.Search('14567').Value()).toEqual([
+        15, 3, 0
+    ]);
+
+    // Update value (should success)
+    expect(testingMPT.UpdateValue('12345', '12378', 5)).not.toBeNull();
+    expect(testingMPT.UpdateValue('12378', '14567', 2)).not.toBeNull();
+    expect(testingMPT.UpdateValue('14567', '12345', 3)).not.toBeNull();
+
+    // Verify value
+    expect(testingMPT.Search('12345').Value()).toEqual([
+        5* (1 -TAX_RATIO), 2 + 5 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('12378').Value()).toEqual([
+        14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, 0
+    ]);
+    /*
+>>>>>>> develop
     expect(testingMPT.Search('14567')).toEqual([
         13 - 4 * TAX_RATIO, 3 + 4 * TAX_RATIO, 0
     ]);
     */
 
+<<<<<<< HEAD
   resTemp = testingMPT.Search('14567').Value();
   expect(resTemp[0]).toBeCloseTo(13 - 4 * TAX_RATIO, PRECISION);
   expect(resTemp[1]).toBeCloseTo(3 + 4 * TAX_RATIO, PRECISION);
@@ -935,10 +1057,39 @@ test('MPT.UpdateValue()', () => {
     14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, 0,
   ]);
   /*
+=======
+    resTemp = testingMPT.Search('14567').Value();
+    expect(resTemp[0]).toBeCloseTo(14 - 3 * TAX_RATIO, PRECISION);
+    expect(resTemp[1]).toBeCloseTo(3 + 3 * TAX_RATIO, PRECISION);
+    expect(resTemp[2]).toBeCloseTo(0, PRECISION);
+
+
+    // Update tax (should fail)
+    expect(testingMPT.UpdateValue('14568', '12378', 2)).toBeNull();
+    expect(testingMPT.UpdateValue('12345', '14567', 9)).toBeNull();
+
+    // Verify value, should not change after failed update
+    expect(testingMPT.Search('12345').Value()).toEqual([
+        5* (1 -TAX_RATIO), 2 + 5 * TAX_RATIO, 0
+    ]);
+    expect(testingMPT.Search('12378').Value()).toEqual([
+        14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, 0
+    ]);
+    /*
+>>>>>>> develop
     expect(testingMPT.Search('14567')).toEqual([
         13 - 4 * TAX_RATIO, 3 + 4 * TAX_RATIO, 0
     ]);
     */
+<<<<<<< HEAD
+=======
+   
+    resTemp = testingMPT.Search('14567').Value();
+    expect(resTemp[0]).toBeCloseTo(14 - 3 * TAX_RATIO, PRECISION);
+    expect(resTemp[1]).toBeCloseTo(3 + 3 * TAX_RATIO, PRECISION);
+    expect(resTemp[2]).toBeCloseTo(0, PRECISION);
+
+>>>>>>> develop
 
   resTemp = testingMPT.Search('14567').Value();
   expect(resTemp[0]).toBeCloseTo(13 - 4 * TAX_RATIO, PRECISION);
