@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-/* eslint-disable new-cap */
 /* eslint-disable max-len */
 const Block = require('./block.js');
 const PoRT = require('./PoRT.js');
@@ -7,6 +5,9 @@ const Cosig = require('./cosig.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
+const elliptic = require('elliptic');
+// eslint-disable-next-line new-cap
+const ecdsa = new elliptic.ec('secp256k1');
 
 
 /**
@@ -26,7 +27,7 @@ function Creator(port, wallet, MPT) {
  * Check if the caller is selected as creator to perform actions for the current round of block construction, by passing publickey into MPT function
  * @return {bool} True if the caller is the creator of the current round of block construction; False otherwise
  */
-Creator.prototype.IsValid = function() {
+Creator.prototype.isValid = function() {
   return (this.MPT.Verify(this.wallet.publicKey.encode('hex')) == 1);
 };
 /**
@@ -36,7 +37,7 @@ Creator.prototype.IsValid = function() {
  * @param  {string} previousHash
  * @return {Block} created block
  */
-Creator.prototype.Create = function(pendingTxs, height, previousHash) {
+Creator.prototype.create = function(pendingTxs, height, previousHash) {
   // console.log(this.MPT.Cal_hash());
 
   /* for (var i = 0; i < pendingTxs.length; i++) {
@@ -52,127 +53,105 @@ Creator.prototype.Create = function(pendingTxs, height, previousHash) {
 
 /**
  * Get voter from network and add to the list
- * @param  {string} VoterUrl - Voter's network url
- * @param  {string} VoterPubKey - Wallet public key of voter
- * @param  {string} VoterPubV - Round public V of voter
- * @param  {int}    VoterIndex - record which Voter have attend the GetResponse with index of VoterUrl
+ * @param  {string} voterUrl - Voter's network url
+ * @param  {string} voterPubKey - Wallet public key of voter
+ * @param  {string} voterPubV - Round public V of voter
+ * @param  {int}    voterIndex - record which Voter have attend the GetResponse with index of VoterUrl
  */
-Creator.prototype.GetVoter = function(VoterUrl, VoterPubKey, VoterPubV) {
-  if (this.VoterUrl == null) {
-    this.VoterUrl = [VoterUrl];
-    this.VoterPubKey = [VoterPubKey];
-    this.VoterPubV = [VoterPubV];
+Creator.prototype.getVoter = function(voterUrl, voterPubKey, voterPubV) {
+  if (this.voterUrl == null) {
+    this.voterUrl = [voterUrl];
+    this.voterPubKey = [voterPubKey];
+    this.voterPubV = [voterPubV];
   } else {
-    this.VoterUrl.push(VoterUrl);
-    this.VoterPubKey.push(VoterPubKey);
-    this.VoterPubV.push(VoterPubV);
+    this.voterUrl.push(voterUrl);
+    this.voterPubKey.push(voterPubKey);
+    this.voterPubV.push(voterPubV);
   }
 };
 
 Creator.prototype.setVoterIndex = function(index) {
-  if (this.VoterIndex == null) {
-    this.VoterIndex = [index];
+  if (this.voterIndex == null) {
+    this.voterIndex = [index];
   } else {
-    this.VoterIndex.push(index);
+    this.voterIndex.push(index);
   }
 };
 
-Creator.prototype.GenerateChallenge = function() {
-  this.challenge = this.cosig.generateChallenge(this.VoterPubV, this.block);
+Creator.prototype.generateChallenge = function() {
+  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block);
 
   // TODO: later to remove, wait verifyCoSig function porting finish
-  this.V0_aggr = this.VoterPubV[0];
-  for (let i = 1; i < this.VoterPubV.length; i++) {
-    this.V0_aggr = this.V0_aggr.add(this.VoterPubV[i]);
+  this.v0Aggr = this.voterPubV[0];
+  for (let i = 1; i < this.voterPubV.length; i++) {
+    this.v0Aggr = this.v0Aggr.add(this.voterPubV[i]);
   }
 
-  return this.challenge;
+  return this.challenge.toString('hex');
 };
 
-Creator.prototype.GenerateChallengeWithIndex = function() {
-  this.V0_aggr = this.VoterPubV[this.VoterIndex[0]];
-  for (let i = 1; i < this.VoterIndex.length; i++) {
-    this.V0_aggr = this.V0_aggr.add(this.VoterPubV[this.VoterIndex[i]]);
+Creator.prototype.generateChallengeWithIndex = function() {
+  this.V0Aggr = this.voterPubV[this.voterIndex[0]];
+  for (let i = 1; i < this.voterIndex.length; i++) {
+    this.v0Aggr = this.v0Aggr.add(this.voterPubV[this.voterIndex[i]]);
   }
 
   // console.log("\nV0_aggr: " + this.V0_aggr.encode('hex'));
 
-  hash.update(this.V0_aggr.encode('hex') + this.block);
+  hash.update(this.v0Aggr.encode('hex') + this.block);
   this.challenge = new BN(hash.copy().digest('hex'), 'hex');
 
   return this.challenge.toString('hex');
 };
 
-Creator.prototype.GetChallenge = function() {
+Creator.prototype.getChallenge = function() {
   return this.challenge.toString('hex');
 };
 
-Creator.prototype.GetResponses = function(VoterResponseHex) {
+Creator.prototype.getResponses = function(VoterResponseHex) {
   const VoterResponse = new BN(VoterResponseHex, 'hex');
   // console.log(VoterResponse);
-  if (this.VoterResponse == null) {
-    this.VoterResponse = [VoterResponse];
+  if (this.voterResponse == null) {
+    this.voterResponse = [VoterResponse];
   } else {
-    this.VoterResponse.push(VoterResponse);
+    this.voterResponse.push(VoterResponse);
   }
 };
 
-Creator.prototype.ClearResponses = function() {
-  this.VoterResponse = null;
+Creator.prototype.clearResponses = function() {
+  this.voterResponse = null;
 };
 
 
-Creator.prototype.AggregateResponse = function() {
-  this.r0_aggr = this.VoterResponse[0];
-  for (let i = 1; i < this.VoterResponse.length; i++) {
-    this.r0_aggr = this.r0_aggr.add(this.VoterResponse[i]);
-  }
-  // console.log(this.r0_aggr.toString(16));
+Creator.prototype.aggregateResponse = function() {
+  this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
 
-  if (this.VerifyCoSig()) {
-    this.GetCoSig();
+  if (this.verifyCoSig()) {
+    this.block.Cosig = this.cosig;
   }
 };
 
-Creator.prototype.VerifyCoSig = function() {
-  const keys = this.wallet.NewKeyPair(this.r0_aggr.toString(16));
-  const G_r0 = keys[1];
-  // console.log("\nG_r0:" + G_r0.encode('hex'));
-
-  let X0 = this.VoterPubKey[0];
-  for (let i = 1; i < this.VoterPubKey.length; i++) {
-    X0 = X0.add(this.VoterPubKey[i]);
-  }
-  // console.log("\nX0: " + X0.encode('hex'));
-
-  const X0_c = X0.mul(this.challenge);
-
-  if (this.V0_aggr.eq(G_r0.add(X0_c))) {
+Creator.prototype.verifyCoSig = function() {
+  const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
+  const gr0 = responseKeypair.getPublic();
+  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
+  const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
+  if (checkResult) {
     console.log('%c\nCosig Verify Result: Passed :)', 'color:green;');
   } else {
     console.log('%c\nCosig Verify Result: Failed :(', 'color:red;');
   }
 
-  return this.V0_aggr.eq(G_r0.add(X0_c));
+  return checkResult;
 };
 
-/**
- * The final step of communication: store cosignature in the block
- * @param  {string} cosig - cosignature generated from voter.combinepartialsign
- */
-Creator.prototype.GetCoSig = function() {
-  this.block.CoSig = {
-    c: this.challenge,
-    r0_aggr: this.r0_aggr,
-  };
-};
 /**
  * Complete the generation of current new block
  * @param  {string} previousHash - hash value of the last block
  * @param {Block} lastBlock - last block
  * @return {Block} the completed new block
  */
-Creator.prototype.GetBlock = function(previousHash, lastBlock) {
+Creator.prototype.getBlock = function(previousHash, lastBlock) {
   const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, 1);
   this.block.nextCreator = creatorPoRT.next_maintainer[1];
   for (let i = 0; i < lastBlock.nextVoters.length; i++) {
