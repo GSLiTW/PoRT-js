@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
+const CSV_data = require('./CSV_data.js');
 const fs = require('fs');
 
 // macros
@@ -58,7 +59,6 @@ for (var i = 0; i < 157; i++) {
   else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
 }
 
-
 const chain = new Blockchain(Tree);
 
 for (var i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
@@ -69,7 +69,27 @@ Tree.Cal_old_hash();
 Tree.ResetSaved();
 
 const pending_txn_pool = new Pending_Txn_Pool();
-pending_txn_pool.create(2);
+
+function insertCSVData(quantity, data) {
+    txns = [];
+    for (let i = 1; i < quantity; i++) {
+      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+    }
+    return txns;
+  };
+
+function createtxs(num) {
+    const csvdata = new CSV_data();
+    const data_ = csvdata.getData(num); // get data of block1
+    if (num == 1 || num == 2) {
+      return insertCSVData(44, data_);
+    } else if (num == 3) {
+      return insertCSVData(50, data_);
+    } else console.log('wrong block number.');
+  };
+
+
+pending_txn_pool.addTxs(createtxs(2));
 
 let tempBlock = new Block(4000719, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
@@ -78,7 +98,7 @@ tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2c
 tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
 
 pending_txn_pool.clean();
-pending_txn_pool.create(3);
+pending_txn_pool.addTxs(createtxs(3));
 
 
 if (port >= 3002) {
@@ -297,7 +317,7 @@ app.post('/blockchain/createblock', function(req, res) {
 
   pending_txn_pool.clean();
   if (req.body.num == 2) {
-    pending_txn_pool.create(3);
+    pending_txn_pool.addTxs(createtxs(3));
   }
 
   res.json({
@@ -331,7 +351,7 @@ app.post('/MPT/ReceiveUpdateDbit', function(req, res) {
 });
 
 app.get('/transaction/third-block', function(req, res) {
-  pending_txn_pool.create(3);
+  pending_txn_pool.addTxs(createtxs(3));
   res.json({note: `push transactions of the third etherscan into pending txn pool.`});
 });
 
@@ -420,7 +440,7 @@ app.post('/receive-new-block', function(req, res) {
       chain.chain.push(tempBlock);
 
       /* pending_txn_pool.clean();
-            if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
+            if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
 
       // only delete txs which are in new block
       console.log('before delete all tx: '+pending_txn_pool.transactions);
@@ -722,7 +742,7 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, Tree);
 
 
-  if (creator.isValid() && !CreatorStartThisRound) {
+  if (creator.IsValid() && !CreatorStartThisRound) {
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime = 'Last Sync: ' + currentdate.getDate() + '/' +
@@ -734,7 +754,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
+    blockToVote = creator.Create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -818,20 +838,20 @@ app.post('/Creator/Challenge', function(req, res) {
   const VoterPubKey = wallet.PublicKeyFromHex(VoterPubKeyHex);
   const VoterPubV = wallet.PublicKeyFromHex(VoterPubVHex);
 
-  creator.getVoter(VoterUrl, VoterPubKey, VoterPubV);
-  console.log('there are ' + creator.voterUrl.length + ' Voter now');
-  if (creator.voterUrl.length == VOTER_NUM && !FirstRoundLock) {
+  creator.GetVoter(VoterUrl, VoterPubKey, VoterPubV);
+  console.log('there are ' + creator.VoterUrl.length + ' Voter now');
+  if (creator.VoterUrl.length == VOTER_NUM && !FirstRoundLock) {
     // if there is a Timeout before, clear it first, since every voter come
     if (FirstRountSetTimeout) {
       clearTimeout(FirstRountSetTimeout);
     }
     FirstRoundLock = true;
-    FirstRoundVoterNum = creator.voterUrl.length;
+    FirstRoundVoterNum = creator.VoterUrl.length;
 
-    const challenge = creator.generateChallenge();
+    const challenge = creator.GenerateChallenge();
     const requestPromises = [];
     let index = 0;
-    creator.voterUrl.forEach((networkNodeUrl) => {
+    creator.VoterUrl.forEach((networkNodeUrl) => {
       const requestOptions = {
         uri: networkNodeUrl + '/Voter/Response',
         method: 'POST',
@@ -853,15 +873,15 @@ app.post('/Creator/Challenge', function(req, res) {
 
     // wait for 5 sec, if no voter comes, then do next step
     FirstRountSetTimeout = setTimeout(()=>{
-      if (creator.voterUrl.length != VOTER_NUM && !FirstRoundLock) {
+      if (creator.VoterUrl.length != VOTER_NUM && !FirstRoundLock) {
         // check if any voter come in this 10 sec
-        const challenge = creator.generateChallenge();
+        const challenge = creator.GenerateChallenge();
         FirstRoundLock = true;
-        FirstRoundVoterNum = creator.voterUrl.length;
+        FirstRoundVoterNum = creator.VoterUrl.length;
 
         const requestPromises = [];
         let index = 0;
-        creator.voterUrl.forEach((networkNodeUrl) => {
+        creator.VoterUrl.forEach((networkNodeUrl) => {
           const requestOptions = {
             uri: networkNodeUrl + '/Voter/Response',
             method: 'POST',
@@ -949,18 +969,18 @@ app.post('/Voter/Response', function(req, res) {
 
 app.post('/Creator/GetResponses', function(req, res) {
   console.log('********** Creator/GetResponses start  **********');
-  if (req.body.challenge == creator.getChallenge()) {
+  if (req.body.challenge == creator.GetChallenge()) {
     console.log('test');
     const response = req.body.response;
-    creator.getResponses(response);
+    creator.GetResponses(response);
     creator.setVoterIndex(req.body.index);
 
-    if (creator.voterResponse.length == FirstRoundVoterNum) {
+    if (creator.VoterResponse.length == FirstRoundVoterNum) {
       if (GetResponsesSetTimeout) {
         clearTimeout(GetResponsesSetTimeout);
       }
-      console.log('there are' + creator.voterResponse.length + ' Voter now');
-      creator.aggregateResponse();
+      console.log('there are' + creator.VoterResponse.length + ' Voter now');
+      creator.AggregateResponse();
 
       const seq = seqList[seqList.length - 1] + 1;
 
@@ -980,11 +1000,11 @@ app.post('/Creator/GetResponses', function(req, res) {
 
       // wait for 5 sec, if no voter comes, then do next step
       GetResponsesSetTimeout = setTimeout(()=>{
-        creator.clearResponses();
-        challenge = creator.generateChallengeWithIndex();
+        creator.ClearResponses();
+        challenge = creator.GenerateChallengeWithIndex();
         creator.VoterIndex.forEach((index) => {
           const requestOptions = {
-            uri: creator.voterUrl[index] + '/Voter/Response',
+            uri: creator.VoterUrl[index] + '/Voter/Response',
             method: 'POST',
             body: {
               index: index,
@@ -1024,7 +1044,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     }
 
     console.log('Creator.GetBlock start');
-    const newBlock = creator.getBlock(tempBlock.hash, lastBlock);
+    const newBlock = creator.GetBlock(tempBlock.hash, lastBlock);
 
     console.log('update Dbit start');
     Tree.UpdateDbit(lastBlock.nextCreator, 0);
@@ -1042,7 +1062,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     chain.chain.push(tempBlock);
 
     /* pending_txn_pool.clean();
-        if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
+        if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
 
     // only delete txs which are in new block
     console.log('before delete all tx: '+pending_txn_pool.transactions);
