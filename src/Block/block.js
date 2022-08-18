@@ -1,6 +1,6 @@
 const sha256 = require("sha256");
 const Pending_Transaction_Pool = require("../Transaction/pending_transaction_pool")
-const Cosig = require('./cosig');
+const Cosig = require('../cosig');
 
 /**
  * Generate & Initialize Block Class
