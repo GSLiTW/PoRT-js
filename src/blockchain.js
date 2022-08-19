@@ -26,7 +26,7 @@ function Blockchain(MPT){
     // this.accounts = new Account();
     // this.address = this.accounts.getAddress();
     var txn_pool = new Txn_Pool();
-    txn_pool.create(1);
+    txn_pool.create(1, MPT);
     var genesisBlock = new Block(4000718, txn_pool.transactions, '0xa3d2f1958efa84f053faf7eb14d2c104bef35b3098c23c5034678034c86ec183', MPT);
     genesisBlock.timestamp = 1604671786702;
     genesisBlock.hash = '0xa3d2f1958efa84f053faf7eb14d2c104bef35b3098c23c5034678034c86ec183';
