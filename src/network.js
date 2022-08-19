@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
+const CSV_data = require('./CSV_data.js');
 const fs = require('fs');
 
 // macros
@@ -59,7 +60,6 @@ for (let i = 0; i < 157; i++) {
   else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
 }
 
-
 const chain = new Blockchain(Tree);
 
 for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
@@ -70,7 +70,27 @@ Tree.Cal_old_hash();
 Tree.ResetSaved();
 
 const pending_txn_pool = new Pending_Txn_Pool();
-pending_txn_pool.create(2);
+
+function insertCSVData(quantity, data) {
+    txns = [];
+    for (let i = 1; i < quantity; i++) {
+      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+    }
+    return txns;
+  };
+
+function createtxs(num) {
+    const csvdata = new CSV_data();
+    const data_ = csvdata.getData(num); // get data of block1
+    if (num == 1 || num == 2) {
+      return insertCSVData(44, data_);
+    } else if (num == 3) {
+      return insertCSVData(50, data_);
+    } else console.log('wrong block number.');
+  };
+
+
+pending_txn_pool.addTxs(createtxs(2));
 
 let tempBlock = new Block(4000719, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
@@ -79,7 +99,7 @@ tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2c
 tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
 
 pending_txn_pool.clean();
-pending_txn_pool.create(3);
+pending_txn_pool.addTxs(createtxs(3));
 
 
 if (port >= 3002) {
@@ -298,7 +318,7 @@ app.post('/blockchain/createblock', function(req, res) {
 
   pending_txn_pool.clean();
   if (req.body.num == 2) {
-    pending_txn_pool.create(3);
+    pending_txn_pool.addTxs(createtxs(3));
   }
 
   res.json({
@@ -332,7 +352,7 @@ app.post('/MPT/ReceiveUpdateDbit', function(req, res) {
 });
 
 app.get('/transaction/third-block', function(req, res) {
-  pending_txn_pool.create(3);
+  pending_txn_pool.addTxs(createtxs(3));
   res.json({note: `push transactions of the third etherscan into pending txn pool.`});
 });
 
@@ -421,7 +441,13 @@ app.post('/receive-new-block', function(req, res) {
       chain.chain.push(tempBlock);
 
       /* pending_txn_pool.clean();
-            if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
+            if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
+
+      // only delete txs which are in new block
+      console.log('before delete all tx: '+pending_txn_pool.transactions);
+      for (let i=0; i<newBlock.transactions.length; i++) {
+=======
+            if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
 
       // only delete txs which are in new block
       console.log('before delete all tx: '+pending_txn_pool.transactions);
@@ -1043,7 +1069,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     chain.chain.push(tempBlock);
 
     /* pending_txn_pool.clean();
-        if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
+        if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
 
     // only delete txs which are in new block
     console.log('before delete all tx: '+pending_txn_pool.transactions);
