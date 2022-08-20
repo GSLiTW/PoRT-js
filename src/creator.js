@@ -2,6 +2,7 @@
 const Block = require('./block.js');
 const PoRT = require('./PoRT.js');
 const Cosig = require('./cosig.js');
+const Blockchain = require('./blockchain.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
@@ -16,19 +17,29 @@ const ecdsa = new elliptic.ec('secp256k1');
  * @param  {string} port - Network port number of the creator
  * @param  {string} wallet - Wallet public key of the creator
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the creator
+ * @param {Blockchain} blockchain - Local  blockchain
  */
-function Creator(port, wallet, MPT) {
+function Creator(port, wallet, MPT, blockchain) {
   this.MPT = MPT;
   this.port = port;
   this.wallet = wallet;
+  this.blockchain = blockchain;
 }
 
 /**
  * Check if the caller is selected as creator to perform actions for the current round of block construction, by passing publickey into MPT function
  * @return {bool} True if the caller is the creator of the current round of block construction; False otherwise
  */
-Creator.prototype.isValid = function() {
-  return (this.MPT.Verify(this.wallet.publicKey.encode('hex')) == [1, 1] || this.MPT.Verify(this.wallet.publicKey.encode('hex')) == [2, 1]);
+Creator.prototype.isValid = function () {
+  const roundOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0];
+  const identityOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[1];
+  const roundNum = this.blockchain.height % 2;
+  let checksum;
+  if (roundNum === roundOfCreator-1 && identityOfCreator === 1)
+    checksum = 1;
+  else
+    checksum = 0;
+  return checksum;
 };
 /**
  * Create a Block, adding transactions, MPT and metadata into it
