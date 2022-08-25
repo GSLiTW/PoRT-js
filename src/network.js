@@ -71,22 +71,22 @@ Tree.ResetSaved();
 const pending_txn_pool = new Pending_Txn_Pool();
 
 function insertCSVData(quantity, data) {
-    txns = [];
-    for (let i = 1; i < quantity; i++) {
-      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
-    }
-    return txns;
-  };
+  txns = [];
+  for (let i = 1; i < quantity; i++) {
+    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+  }
+  return txns;
+};
 
 function createtxs(num) {
-    const csvdata = new CSV_data();
-    const data_ = csvdata.getData(num); // get data of block1
-    if (num == 1 || num == 2) {
-      return insertCSVData(44, data_);
-    } else if (num == 3) {
-      return insertCSVData(50, data_);
-    } else console.log('wrong block number.');
-  };
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num); // get data of block1
+  if (num == 1 || num == 2) {
+    return insertCSVData(44, data_);
+  } else if (num == 3) {
+    return insertCSVData(50, data_);
+  } else console.log('wrong block number.');
+};
 
 
 pending_txn_pool.addTxs(createtxs(2));
@@ -145,6 +145,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/blockchain', function(req, res) {
   res.send(chain);
+  console.log('asd')
 });
 
 app.get('/wallet', function(req, res) {

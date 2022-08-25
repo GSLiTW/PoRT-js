@@ -1,6 +1,8 @@
 // data structure for pending txns
 const CSV_data = require('./CSV_data.js');
 const Transaction_MT = require('./transaction.js');
+const elliptic = require('elliptic');
+const ecdsa = new elliptic.ec('secp256k1');
 
 function Pending_Transaction_Pool(tx = []) {
   this.transactions = tx;
@@ -37,17 +39,20 @@ Pending_Transaction_Pool.prototype.get_num_of_transaction = function() {
 };
 
 Pending_Transaction_Pool.prototype.isRepeat = function(tx) {
-
-  if(this.transactions.filter(e => e.id === tx.id).length > 0){
+  if (this.transactions.filter((e) => e.id === tx.id).length > 0) {
     return true;
   } else {
     return false;
   }
 };
 
-Pending_Transaction_Pool.prototype.validate = function (tx) {
+Pending_Transaction_Pool.prototype.validate = function(tx) {
   if (tx.value < 0) {
     return false;
+  }
+  pubkey = ecdsa.recoverPubKey(tx.id, {r:tx.r, s:tx.s}, tx.v-27, "hex");
+  if (!ecdsa.verify(tx.id, {r:tx.r, s:tx.s}, pubkey)){
+    return false
   }
   return true;
 };
