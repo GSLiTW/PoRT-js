@@ -99,7 +99,7 @@ Wallet.prototype.ValidateAddress = function(address) {
   return (actualChecksum.compare(targetChecksum) == 0);
 };
 
-Wallet.prototype.getAddress = function(port) {
+Wallet.getAddress = function(port) {
   let addressmap = new Map([
     [3000, "0x76f72b060b2f0a702f5fada34d005578f3b0e8f8"],
     [3001, "0x4ed4b2733f458f72979bea194ce8de5aa4889e0f"],
@@ -124,7 +124,7 @@ Wallet.prototype.getAddress = function(port) {
     [3020, "0xaa97288d8af06c1b05ce9417f6f94041a51fec3e"],
   ]);
 
-  return addressmap(port);
+  return addressmap.get(port);
 }
 
 module.exports = Wallet;
