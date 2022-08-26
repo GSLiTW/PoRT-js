@@ -743,7 +743,7 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, Tree);
 
 
-  if (creator.IsValid() && !CreatorStartThisRound) {
+  if (creator.isValid() && !CreatorStartThisRound) {
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime = 'Last Sync: ' + currentdate.getDate() + '/' +
