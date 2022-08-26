@@ -71,22 +71,22 @@ Tree.ResetSaved();
 const pending_txn_pool = new Pending_Txn_Pool();
 
 function insertCSVData(quantity, data) {
-    txns = [];
-    for (let i = 1; i < quantity; i++) {
-      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
-    }
-    return txns;
-  };
+  txns = [];
+  for (let i = 1; i < quantity; i++) {
+    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+  }
+  return txns;
+};
 
 function createtxs(num) {
-    const csvdata = new CSV_data();
-    const data_ = csvdata.getData(num); // get data of block1
-    if (num == 1 || num == 2) {
-      return insertCSVData(44, data_);
-    } else if (num == 3) {
-      return insertCSVData(50, data_);
-    } else console.log('wrong block number.');
-  };
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num); // get data of block1
+  if (num == 1 || num == 2) {
+    return insertCSVData(44, data_);
+  } else if (num == 3) {
+    return insertCSVData(50, data_);
+  } else console.log('wrong block number.');
+};
 
 
 pending_txn_pool.addTxs(createtxs(2));
@@ -145,6 +145,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/blockchain', function(req, res) {
   res.send(chain);
+  console.log('asd')
 });
 
 app.get('/wallet', function(req, res) {
@@ -742,7 +743,7 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, Tree);
 
 
-  if (creator.IsValid() && !CreatorStartThisRound) {
+  if (creator.isValid() && !CreatorStartThisRound) {
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime = 'Last Sync: ' + currentdate.getDate() + '/' +
@@ -754,7 +755,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.Create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
+    blockToVote = creator.create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -838,20 +839,20 @@ app.post('/Creator/Challenge', function(req, res) {
   const VoterPubKey = wallet.PublicKeyFromHex(VoterPubKeyHex);
   const VoterPubV = wallet.PublicKeyFromHex(VoterPubVHex);
 
-  creator.GetVoter(VoterUrl, VoterPubKey, VoterPubV);
-  console.log('there are ' + creator.VoterUrl.length + ' Voter now');
-  if (creator.VoterUrl.length == VOTER_NUM && !FirstRoundLock) {
+  creator.getVoter(VoterUrl, VoterPubKey, VoterPubV);
+  console.log('there are ' + creator.voterUrl.length + ' Voter now');
+  if (creator.voterUrl.length == VOTER_NUM && !FirstRoundLock) {
     // if there is a Timeout before, clear it first, since every voter come
     if (FirstRountSetTimeout) {
       clearTimeout(FirstRountSetTimeout);
     }
     FirstRoundLock = true;
-    FirstRoundVoterNum = creator.VoterUrl.length;
+    FirstRoundVoterNum = creator.voterUrl.length;
 
-    const challenge = creator.GenerateChallenge();
+    const challenge = creator.generateChallenge();
     const requestPromises = [];
     let index = 0;
-    creator.VoterUrl.forEach((networkNodeUrl) => {
+    creator.voterUrl.forEach((networkNodeUrl) => {
       const requestOptions = {
         uri: networkNodeUrl + '/Voter/Response',
         method: 'POST',
@@ -875,13 +876,13 @@ app.post('/Creator/Challenge', function(req, res) {
     FirstRountSetTimeout = setTimeout(()=>{
       if (creator.VoterUrl.length != VOTER_NUM && !FirstRoundLock) {
         // check if any voter come in this 10 sec
-        const challenge = creator.GenerateChallenge();
+        const challenge = creator.generateChallenge();
         FirstRoundLock = true;
-        FirstRoundVoterNum = creator.VoterUrl.length;
+        FirstRoundVoterNum = creator.voterUrl.length;
 
         const requestPromises = [];
         let index = 0;
-        creator.VoterUrl.forEach((networkNodeUrl) => {
+        creator.voterUrl.forEach((networkNodeUrl) => {
           const requestOptions = {
             uri: networkNodeUrl + '/Voter/Response',
             method: 'POST',
@@ -969,18 +970,18 @@ app.post('/Voter/Response', function(req, res) {
 
 app.post('/Creator/GetResponses', function(req, res) {
   console.log('********** Creator/GetResponses start  **********');
-  if (req.body.challenge == creator.GetChallenge()) {
+  if (req.body.challenge == creator.getChallenge()) {
     console.log('test');
     const response = req.body.response;
-    creator.GetResponses(response);
+    creator.getResponses(response);
     creator.setVoterIndex(req.body.index);
 
-    if (creator.VoterResponse.length == FirstRoundVoterNum) {
+    if (creator.voterResponse.length == FirstRoundVoterNum) {
       if (GetResponsesSetTimeout) {
         clearTimeout(GetResponsesSetTimeout);
       }
-      console.log('there are' + creator.VoterResponse.length + ' Voter now');
-      creator.AggregateResponse();
+      console.log('there are' + creator.voterResponse.length + ' Voter now');
+      creator.aggregateResponse();
 
       const seq = seqList[seqList.length - 1] + 1;
 
@@ -1000,11 +1001,11 @@ app.post('/Creator/GetResponses', function(req, res) {
 
       // wait for 5 sec, if no voter comes, then do next step
       GetResponsesSetTimeout = setTimeout(()=>{
-        creator.ClearResponses();
-        challenge = creator.GenerateChallengeWithIndex();
-        creator.VoterIndex.forEach((index) => {
+        creator.clearResponses();
+        challenge = creator.generateChallengeWithIndex();
+        creator.voterIndex.forEach((index) => {
           const requestOptions = {
-            uri: creator.VoterUrl[index] + '/Voter/Response',
+            uri: creator.voterUrl[index] + '/Voter/Response',
             method: 'POST',
             body: {
               index: index,
@@ -1044,7 +1045,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     }
 
     console.log('Creator.GetBlock start');
-    const newBlock = creator.GetBlock(tempBlock.hash, lastBlock);
+    const newBlock = creator.getBlock(tempBlock.hash, lastBlock);
 
     console.log('update Dbit start');
     Tree.UpdateDbit(lastBlock.nextCreator, 0);

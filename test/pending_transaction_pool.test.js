@@ -15,7 +15,7 @@ describe('txpooltest', () => {
     .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 
   const Tree = new MPT(true);
-
+  console.log(typeof(Tree))
   for (var i = 0; i < 157; i++) {
     if (i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
     else if (i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter

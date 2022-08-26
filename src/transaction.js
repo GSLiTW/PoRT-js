@@ -7,18 +7,21 @@ const sha256 = require('sha256');
  * @param  {string} receiver - Receiver's public key/ address
  * @param  {float} value - Transaction value
  */
-function Transaction_MT(id, sender, receiver, value, MPT) {
+function Transaction_MT(id, sender, receiver, value,/* v, r, s, */MPT) {
   this.id = id;
   this.sender = sender;
   this.receiver = receiver;
-  this.value = value;
+  this.value = Math.round(value * 1000000000000);// since 10^18 will overflow (limit: 10^16), use 10^12 temporarily instead.
+  //this.v = v;
+  //this.r = r;
+  //this.s = s;
   this.accountCheck(sender, MPT);
   this.accountCheck(receiver, MPT);
 }
 
 Transaction_MT.prototype.accountCheck = function(key, MPT) {
-  if(MPT.Search(key) === undefined){
-    MPT.Insert(key, 0)
+  if (MPT.Search(key) === undefined || MPT.Search(key) === null) {
+    MPT.Insert(key, 0);
   }
 };
 
