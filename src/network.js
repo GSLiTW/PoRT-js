@@ -418,13 +418,11 @@ app.post('/receive-new-block', function(req, res) {
       Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
     }
 
-
     Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
     Tree.UpdateDbit(tempBlock.nextCreator, [(tempBlock.height%2)+1, 1]);
-
     for (let i = 0; i < tempBlock.nextVoters.length; i++) {
       Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
-      Tree.UpdateDbit(tempBlock.nextVoters[i], [tempBlock.height%2, 2]);
+      Tree.UpdateDbit(tempBlock.nextVoters[i], [(tempBlock.height % 2) + 1, 2]);
     }
 
 
@@ -790,7 +788,7 @@ app.post('/Voter', function(req, res) {
   const seq = req.body.SeqNum;
 
   if (seqList.indexOf(seq) == -1) {
-    voter = new Voter(port, wallet, Tree);
+    voter = new Voter(port, wallet, Tree, chain);
     if (voter.IsValid()) {
       // console.log('i am voter');
 
@@ -1052,11 +1050,11 @@ app.post('/Creator/GetBlock', function(req, res) {
     Tree.UpdateDbit(tempBlock.nextCreator, [(tempBlock.height%2)+1, 1]);
 
     for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
+      Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
     }
 
     for (let i = 0; i < tempBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
+      Tree.UpdateDbit(tempBlock.nextVoters[i], [(tempBlock.height%2)+1, 2]);
     }
     // console.log(tempBlock);
     console.log('push tempblock' + tempBlock.height + ' into chain');
