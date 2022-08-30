@@ -740,7 +740,7 @@ app.get('/block-explorer', function(req, res) {
 
 app.get('/Creator', function(req, res) {
   console.log('********** Creator start  **********');
-  creator = new Creator(port, wallet, Tree);
+  creator = new Creator(port, wallet, Tree, chain);
 
 
   if (creator.isValid() && !CreatorStartThisRound) {
