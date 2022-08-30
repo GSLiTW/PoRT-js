@@ -53,11 +53,11 @@ w = undefined;
 const Tree = new MPT(true);
 
 for (let i = 0; i < 157; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
+  if (i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, [2, 1]); // dbit == 1 means creator
+  else if (i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 6) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 8) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, [0, 0]);
 }
 
 const chain = new Blockchain(Tree);
@@ -72,22 +72,22 @@ Tree.ResetSaved();
 const pending_txn_pool = new Pending_Txn_Pool();
 
 function insertCSVData(quantity, data) {
-    txns = [];
-    for (let i = 1; i < quantity; i++) {
-      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
-    }
-    return txns;
-  };
+  txns = [];
+  for (let i = 1; i < quantity; i++) {
+    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+  }
+  return txns;
+};
 
 function createtxs(num) {
-    const csvdata = new CSV_data();
-    const data_ = csvdata.getData(num); // get data of block1
-    if (num == 1 || num == 2) {
-      return insertCSVData(44, data_);
-    } else if (num == 3) {
-      return insertCSVData(50, data_);
-    } else console.log('wrong block number.');
-  };
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num); // get data of block1
+  if (num == 1 || num == 2) {
+    return insertCSVData(44, data_);
+  } else if (num == 3) {
+    return insertCSVData(50, data_);
+  } else console.log('wrong block number.');
+};
 
 
 pending_txn_pool.addTxs(createtxs(2));
@@ -419,12 +419,12 @@ app.post('/receive-new-block', function(req, res) {
     }
 
 
-    Tree.UpdateDbit(lastBlock.nextCreator, 0);
-    Tree.UpdateDbit(tempBlock.nextCreator, 1);
+    Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+    Tree.UpdateDbit(tempBlock.nextCreator, [(tempBlock.height%2)+1, 1]);
 
     for (let i = 0; i < tempBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
-      Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
+      Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextVoters[i], [tempBlock.height%2, 2]);
     }
 
 
@@ -755,7 +755,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
+    blockToVote = creator.constructNewBlock(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -1048,8 +1048,8 @@ app.post('/Creator/GetBlock', function(req, res) {
     const newBlock = creator.completeBlock(tempBlock.hash, lastBlock);
 
     console.log('update Dbit start');
-    Tree.UpdateDbit(lastBlock.nextCreator, 0);
-    Tree.UpdateDbit(tempBlock.nextCreator, 1);
+    Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+    Tree.UpdateDbit(tempBlock.nextCreator, [(tempBlock.height%2)+1, 1]);
 
     for (let i = 0; i < lastBlock.nextVoters.length; i++) {
       Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
