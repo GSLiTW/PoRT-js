@@ -3,6 +3,7 @@ const Txn = require('../src/transaction')
 const Blockchain = require('../src/blockchain.js');
 const MPT = require('../src/MPT');
 const fs = require('fs');
+const wallet = require('../src/wallet');
 
 
 describe('txpooltest', () => {
@@ -58,6 +59,10 @@ describe('txpooltest', () => {
     txs = txpool.get_transaction()
     searchrslt = Tree.Search('04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e1')
     expect(searchrslt).toBeDefined();
+  });
+
+  test('wallet port map', () => {
+    expect(wallet.getAddress(3000)).toMatch('0x76f72b060b2f0a702f5fada34d005578f3b0e8f8');
   });
 
 });
