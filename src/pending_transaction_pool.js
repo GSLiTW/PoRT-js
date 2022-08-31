@@ -37,15 +37,14 @@ Pending_Transaction_Pool.prototype.get_num_of_transaction = function() {
 };
 
 Pending_Transaction_Pool.prototype.isRepeat = function(tx) {
-
-  if(this.transactions.filter(e => e.id === tx.id).length > 0){
+  if (this.transactions.filter((e) => e.id === tx.id).length > 0) {
     return true;
   } else {
     return false;
   }
 };
 
-Pending_Transaction_Pool.prototype.validate = function (tx) {
+Pending_Transaction_Pool.prototype.validate = function(tx) {
   if (tx.value < 0) {
     return false;
   }

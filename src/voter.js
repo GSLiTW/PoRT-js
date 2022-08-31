@@ -31,12 +31,12 @@ function Voter(port, wallet, MPT, blockchain) {
  * @return {bool} True if the caller is the voter of the current round of block construction; False otherwise
  */
 Voter.prototype.IsValid = function() {
-  const roundOfVoter = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0];
+  const roundOfVoter = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0]%2;
   const identityOfVoter = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[1];
   const lastBlock = this.blockchain.getLastBlock();
-  const roundNum = lastBlock.height%2 + 1;
+  const roundNum = lastBlock.height%2;
   let checksum;
-  if (roundNum == roundOfVoter-1 && identityOfVoter == 2) {
+  if (roundNum == roundOfVoter && identityOfVoter == 2) {
     checksum = 1;
   } else {
     checksum = 0;
