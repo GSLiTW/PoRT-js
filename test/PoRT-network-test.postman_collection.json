@@ -1,0 +1,259 @@
+{
+	"info": {
+		"_postman_id": "24c00f97-f412-47db-afd1-95e43d90faff",
+		"name": "PoRT-network-test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16716806"
+	},
+	"item": [
+		{
+			"name": "3000:blockchain",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json()",
+							"pm.collectionVariables.set(\"block1height\", res[\"chain\"][0][\"height\"]);",
+							"",
+							"pm.test(\"number of block\", function () {",
+							"    pm.expect(res[\"chain\"].length).to.equal(1);",
+							"});",
+							"",
+							"pm.test(\"number of txs\", function () {",
+							"    pm.expect(res[\"chain\"][0][\"transactions\"].length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"number of creators\", function () {",
+							"    pm.expect(res[\"chain\"][0][\"nextCreator\"]).is.string;",
+							"    pm.expect(res[\"chain\"][0][\"nextCreator\"].length).to.be.equal(130);",
+							"});",
+							"",
+							"pm.test(\"number of voters\", function () {",
+							"    pm.expect(res[\"chain\"][0][\"nextVoters\"].length).to.be.equal(3);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/blockchain",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3002:creator",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json()",
+							"",
+							"pm.test(\"seqNum\", function () {",
+							"    pm.expect(res[\"SeqNum\"]).to.equal(1);",
+							"});",
+							"",
+							"pm.test(\"creator\", function () {",
+							"    pm.expect(res[\"CreatorUrl\"]).is.string;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/Creator",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"Creator"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3000:blockchain2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json()",
+							"",
+							"let block1height = pm.collectionVariables.get(\"block1height\");",
+							"",
+							"pm.test(\"number of block\", function () {",
+							"    pm.expect(res[\"chain\"].length).to.equal(2);",
+							"});",
+							"",
+							"pm.test(\"number of txs\", function () {",
+							"    pm.expect(res[\"chain\"][1][\"transactions\"].length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"number of creators\", function () {",
+							"    pm.expect(res[\"chain\"][1][\"nextCreator\"]).is.string;",
+							"    pm.expect(res[\"chain\"][1][\"nextCreator\"].length).to.be.equal(130);",
+							"});",
+							"",
+							"pm.test(\"number of voters\", function () {",
+							"    pm.expect(res[\"chain\"][1][\"nextVoters\"].length).to.be.equal(3);",
+							"});",
+							"",
+							"pm.test(\"block height\", function () {",
+							"    //let lowestHeight = res[\"chain\"][0][\"height\"];",
+							"    pm.expect(res[\"chain\"][1][\"height\"]).to.equal(block1height+1);",
+							"});",
+							"",
+							"pm.test(\"hash = next prevhash\", function () {",
+							"    pm.expect(res[\"chain\"][1][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][0][\"hash\"]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/blockchain",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3001:creator",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json()",
+							"",
+							"pm.test(\"seqNum\", function () {",
+							"    pm.expect(res[\"SeqNum\"]).to.equal(4);",
+							"});",
+							"",
+							"pm.test(\"creator\", function () {",
+							"    pm.expect(res[\"CreatorUrl\"]).is.string;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/Creator",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"Creator"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3000:blockchain3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json()",
+							"",
+							"let block1height = pm.collectionVariables.get(\"block1height\");",
+							"",
+							"pm.test(\"number of block\", function () {",
+							"    pm.expect(res[\"chain\"].length).to.equal(3);",
+							"});",
+							"",
+							"pm.test(\"number of txs\", function () {",
+							"    pm.expect(res[\"chain\"][2][\"transactions\"].length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"number of creators\", function () {",
+							"    pm.expect(res[\"chain\"][2][\"nextCreator\"]).is.string;",
+							"    pm.expect(res[\"chain\"][2][\"nextCreator\"].length).to.be.equal(130);",
+							"});",
+							"",
+							"pm.test(\"number of voters\", function () {",
+							"    pm.expect(res[\"chain\"][2][\"nextVoters\"].length).to.be.equal(3);",
+							"});",
+							"",
+							"pm.test(\"block height\", function () {",
+							"    //let lowestHeight = res[\"chain\"][0][\"height\"];",
+							"    pm.expect(res[\"chain\"][1][\"height\"]).to.equal(block1height+1);",
+							"    pm.expect(res[\"chain\"][2][\"height\"]).to.equal(block1height+2);",
+							"});",
+							"",
+							"pm.test(\"hash = next prevhash\", function () {",
+							"    pm.expect(res[\"chain\"][1][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][0][\"hash\"]);",
+							"    pm.expect(res[\"chain\"][2][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][1][\"hash\"]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/blockchain",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "block1height",
+			"value": ""
+		}
+	]
+}
