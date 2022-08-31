@@ -30,15 +30,17 @@ function Creator(port, wallet, MPT, blockchain) {
  * Check if the caller is selected as creator to perform actions for the current round of block construction, by passing publickey into MPT function
  * @return {bool} True if the caller is the creator of the current round of block construction; False otherwise
  */
-Creator.prototype.isValid = function () {
+Creator.prototype.isValid = function() {
   const roundOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0];
   const identityOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[1];
-  const roundNum = this.blockchain.height % 2;
+  const lastBlock = this.blockchain.getLastBlock();
+  const roundNum = lastBlock.height%2 + 1;
   let checksum;
-  if (roundNum === roundOfCreator-1 && identityOfCreator === 1)
+  if (roundNum == roundOfCreator-1 && identityOfCreator == 1) {
     checksum = 1;
-  else
+  } else {
     checksum = 0;
+  }
   return checksum;
 };
 /**
