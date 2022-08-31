@@ -139,11 +139,20 @@ Creator.prototype.verifyCoSig = function() {
  * @return {Block} the completed new block
  */
 Creator.prototype.completeBlock = function(previousHash, lastBlock) {
-  const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, 1);
-  this.block.nextCreator = creatorPoRT.nextMaintainer;
-  for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-    const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, 2);
-    this.block.nextVoters.push(voterPoRT.nextMaintainer);
+  if (lastBlock.height % 2 === 1) {
+    const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, [1, 1]);
+    this.block.nextCreator = creatorPoRT.nextMaintainer;
+    for (let i = 0; i < lastBlock.nextVoters.length; i++) {
+      const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, [1, 2]);
+      this.block.nextVoters.push(voterPoRT.nextMaintainer);
+    }
+  } else {
+    const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, [2, 1]);
+    this.block.nextCreator = creatorPoRT.nextMaintainer;
+    for (let i = 0; i < lastBlock.nextVoters.length; i++) {
+      const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, [2, 2]);
+      this.block.nextVoters.push(voterPoRT.nextMaintainer);
+    }
   }
   this.block.hash = this.block.hashBlock(previousHash, this.block);
   return this.block;
