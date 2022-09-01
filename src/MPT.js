@@ -576,7 +576,7 @@ MPT.prototype.UpdateTax = function(key, Update_value) {
  */
 MPT.prototype.UpdateDbit = function(key, dbit = [0, 0]) {
   if ( !((dbit[0]===0 && dbit[1]===0) || (dbit[0]===1 && dbit[1]===1) || (dbit[0]===1 && dbit[1]===2) || (dbit[0]===2 && dbit[1]===1) || (dbit[0]===2 && dbit[1]===2)) ) {
-    console.error('Error: dbit should be 00, 11, 12, 21 or 22. '+key+' ' + dbit);
+    console.error('Error: fail to update dbit: '+key+' ' + dbit);
     return null;
   }
   if (this.mode == 'leaf') {
