@@ -575,8 +575,8 @@ MPT.prototype.UpdateTax = function(key, Update_value) {
  * @param  {String={[0,0],[1,1],[1,2],[2,1],[2,2]}} [dbit=[0, 0]] - new dirty bit value of the wallet
  */
 MPT.prototype.UpdateDbit = function(key, dbit = [0, 0]) {
-  if (dbit != [0, 0] && dbit != [1, 1] && dbit != [1, 2] && dbit != [2, 1] && dbit != [2, 2]) {
-    console.error('Error: dbit should be 00, 11, 12, 21 or 22.');
+  if (dbit !== [0, 0] && dbit !== [1, 1] && dbit !== [1, 2] && dbit !== [2, 1] && dbit !== [2, 2]) {
+    console.error('Error: dbit should be 00, 11, 12, 21 or 22. '+key+' ' + dbit);
     return null;
   }
   if (this.mode == 'leaf') {

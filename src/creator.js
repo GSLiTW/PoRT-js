@@ -155,6 +155,7 @@ Creator.prototype.completeBlock = function(previousHash, lastBlock) {
     }
   }
   this.block.hash = this.block.hashBlock(previousHash, this.block);
+  console.error('completeBlock');
   return this.block;
 };
 

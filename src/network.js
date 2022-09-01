@@ -146,7 +146,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/blockchain', function(req, res) {
   res.send(chain);
-  console.log('asd')
+  console.log('asd');
 });
 
 app.get('/wallet', function(req, res) {
@@ -419,7 +419,7 @@ app.post('/receive-new-block', function(req, res) {
       Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
     }
 
-    if (tempBlock.height === 1) {
+    if (tempBlock.height%2 === 1) {
       Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
       Tree.UpdateDbit(tempBlock.nextCreator, [1, 1]);
       for (let i = 0; i < tempBlock.nextVoters.length; i++) {
@@ -1076,7 +1076,7 @@ app.post('/Creator/GetBlock', function(req, res) {
       }
     }
 
-    
+
     // console.log(tempBlock);
     console.log('push tempblock' + tempBlock.height + ' into chain');
     chain.chain.push(tempBlock);
