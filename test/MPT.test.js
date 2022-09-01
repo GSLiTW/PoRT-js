@@ -1051,40 +1051,40 @@ test('MPT.UpdateDbit()', () => {
   ]);
 
   // Update Dbit (should success)
-  expect(testingMPT.UpdateDbit('12345', 1)).not.toBeNull();
-  expect(testingMPT.UpdateDbit('12378', 1)).not.toBeNull();
-  expect(testingMPT.UpdateDbit('14567', 2)).not.toBeNull();
+  expect(testingMPT.UpdateDbit('12345', [1, 1])).not.toBeNull();
+  expect(testingMPT.UpdateDbit('12378', [2, 1])).not.toBeNull();
+  expect(testingMPT.UpdateDbit('14567', [2, 2])).not.toBeNull();
 
   // Verify successful update
   expect(testingMPT.Search('12345').Value()).toEqual([
-    7, 2, 1,
+    7, 2, [1, 1],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    11, 1, 1,
+    11, 1, [2, 1],
   ]);
   expect(testingMPT.Search('14567').Value()).toEqual([
-    15, 3, 2,
+    15, 3, [2, 2],
   ]);
 
   // Update Dbit (should fail)
-  expect(testingMPT.UpdateDbit('12345', 3)).toBeNull();
-  expect(testingMPT.UpdateDbit('12378', -1)).toBeNull();
-  expect(testingMPT.UpdateDbit('14567', 5)).toBeNull();
-  expect(testingMPT.UpdateDbit('12356', 1)).toBeNull();
-  expect(testingMPT.UpdateDbit('12349', 1)).toBeNull();
-  expect(testingMPT.UpdateDbit('12349', 3)).toBeNull();
-  expect(testingMPT.UpdateDbit('13456', 1)).toBeNull();
-  expect(testingMPT.UpdateDbit('12234', 1)).toBeNull();
+  expect(testingMPT.UpdateDbit('12345', [1, 3])).toBeNull();
+  expect(testingMPT.UpdateDbit('12378', [2, -1])).toBeNull();
+  expect(testingMPT.UpdateDbit('14567', [0, 5])).toBeNull();
+  expect(testingMPT.UpdateDbit('12356', [0, 1])).toBeNull();
+  expect(testingMPT.UpdateDbit('12349', [-1, 1])).toBeNull();
+  expect(testingMPT.UpdateDbit('12349', [3, 3])).toBeNull();
+  expect(testingMPT.UpdateDbit('13456', [3, 1])).toBeNull();
+  expect(testingMPT.UpdateDbit('12234', [-2, 1])).toBeNull();
 
   // Search value, Dbit should not change after failed update
   expect(testingMPT.Search('12345').Value()).toEqual([
-    7, 2, 1,
+    7, 2, [1, 1],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    11, 1, 1,
+    11, 1, [2, 1],
   ]);
   expect(testingMPT.Search('14567').Value()).toEqual([
-    15, 3, 2,
+    15, 3, [2, 2],
   ]);
 });
 
