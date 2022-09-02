@@ -72,4 +72,13 @@ Cosig.prototype.computePubkeyMulWithChallenge = function(voterPubKey, challenge)
   return x0;
 };
 
+Cosig.prototype.GenerateResponse = function(cHex) {
+  const c = new BN(cHex, 'hex');
+  const v = new BN(this.secretv.toString('hex'), 'hex');
+  const x = new BN(this.wallet.privateKey.toString('hex'), 'hex');
+  this.response = v.sub(c.mul(x));
+
+  return this.response.toString('hex');
+};
+
 module.exports = Cosig;

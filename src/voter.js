@@ -6,6 +6,7 @@ const schnorr = require('bip-schnorr');
 const convert = schnorr.convert;
 const muSig = schnorr.muSig;
 const elliptic = require('elliptic');
+const Cosig = require('./cosig.js');
 const ec = new elliptic.ec('secp256k1');
 const BN = require('bn.js');
 
@@ -50,12 +51,14 @@ Voter.prototype.IsValid = function() {
 Voter.prototype.CreatorUrl = function(url) {
   this.CreatorUrl = url;
 };
+
 /**
  * Check if new block's merkle root is valid (matches the merkle root calculated by voter's local MPT copy)
  * @param  {string} merkleRoot - new block's merkle root calculated by creator
  * @param  {MPT} voterMPT - voter's local MPT copy
  * @return {bool} True if merkleRoot is valid; False otherwise
  */
+/*
 Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do we need to pass voter MPT?
   const hash = voterMPT.oldHash;
   console.log('merkleRoot: ', merkleRoot);
@@ -67,14 +70,38 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do w
     return 0;
   }
 };
+*/
+Voter.prototype.VerifyBlock = function (block_to_vote) {
+  const txs = block_to_vote.transactions;
+  let tx = null;
+  let sender_value = null;
 
+
+  for (let i = 0; i < txs.length; i++) {
+      tx = txs[i];
+      sender_value = this.MPT.Search(tx.sender);
+
+      if (tx.value > sender_value) {
+          return 0;
+      }
+      let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
+      let pubKeyRecovered = ec.recoverPubKey(
+          hexToDecimal(tx.id), signature, signature.recoveryParam, "hex");
+      console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
+
+      let validSig = ec.verify(tx.id, signature, pubKeyRecovered);
+      if (validSig == false) {
+          return 0;
+      }
+
+  }
+  return 1;
+}
 Voter.prototype.GenerateResponse = function(cHex) {
-  const c = new BN(cHex, 'hex');
-  const v = new BN(this.secretv.toString('hex'), 'hex');
-  const x = new BN(this.wallet.privateKey.toString('hex'), 'hex');
-  this.response = v.sub(c.mul(x));
+  this.cosig = new Cosig();
+  this.response = this.cosig.GenerateResponse(cHex);
 
-  return this.response.toString('hex');
+  return this.response;
 };
 
 
