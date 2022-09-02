@@ -947,7 +947,7 @@ app.post('/Creator/Challenge', function(req, res) {
 
 app.post('/Voter/Response', function(req, res) {
   console.log('********** Voter/Response start  **********');
-  const isBlockValid = voter.VerifyBlock(req.body.message.merkleRoot, voter.MPT);
+  const isBlockValid = voter.VerifyBlock(req.body.message);
   if (isBlockValid) {
     const challenge = req.body.challenge;
     const index = req.body.index;
