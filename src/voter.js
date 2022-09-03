@@ -86,10 +86,10 @@ Voter.prototype.VerifyBlock = function (block_to_vote) {
       }
       let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
       let pubKeyRecovered = ec.recoverPubKey(
-          hexToDecimal(tx.id), signature, signature.recoveryParam, "hex");
+          hexToDecimal(tx.id), tx.signature, tx.signature.recoveryParam, "hex");
       console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
 
-      let validSig = ec.verify(tx.id, signature, pubKeyRecovered);
+      let validSig = ec.verify(tx.id, tx.signature, pubKeyRecovered);
       if (validSig == false) {
           return 0;
       }
