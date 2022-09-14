@@ -3,17 +3,12 @@ const app = express();
 const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
+const CSV_data = require('./CSV_data.js');
 const fs = require('fs');
 
 // macros
 const VOTER_NUM = 3;
-var glob = require("glob");
-var path = require( 'path' );
 
-glob.sync( './*.js' ).forEach( function( file ) {
-
-    require( path.resolve( file ) );
-  });
 // local modules
 const Blockchain = require("./Block/blockchain.js");
 const Transaction = require("./Transaction/transaction")
@@ -58,18 +53,18 @@ w = undefined;
 
 const Tree = new MPT(true);
 
-for (var i = 0; i < 157; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
+for (let i = 0; i < 157; i++) {
+  if (i == 2) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
+  else if (i == 4) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 6) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 8) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [0, 0]);
 }
 
 
 const chain = new Blockchain(Tree);
 
-for (var i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
+for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
 
@@ -77,7 +72,27 @@ Tree.Cal_old_hash();
 Tree.ResetSaved();
 
 const pending_txn_pool = new Pending_Txn_Pool();
-pending_txn_pool.create(2);
+
+function insertCSVData(quantity, data) {
+  txns = [];
+  for (let i = 1; i < quantity; i++) {
+    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+  }
+  return txns;
+};
+
+function createtxs(num) {
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num); // get data of block1
+  if (num == 1 || num == 2) {
+    return insertCSVData(44, data_);
+  } else if (num == 3) {
+    return insertCSVData(50, data_);
+  } else console.log('wrong block number.');
+};
+
+
+pending_txn_pool.addTxs(createtxs(2));
 
 let tempBlock = new Block(4000719, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
@@ -86,7 +101,7 @@ tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2c
 tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
 
 pending_txn_pool.clean();
-pending_txn_pool.create(3);
+pending_txn_pool.addTxs(createtxs(3));
 
 
 if (port >= 3002) {
@@ -133,6 +148,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/blockchain', function(req, res) {
   res.send(chain);
+  console.log('asd');
 });
 
 app.get('/wallet', function(req, res) {
@@ -305,7 +321,7 @@ app.post('/blockchain/createblock', function(req, res) {
 
   pending_txn_pool.clean();
   if (req.body.num == 2) {
-    pending_txn_pool.create(3);
+    pending_txn_pool.addTxs(createtxs(3));
   }
 
   res.json({
@@ -339,7 +355,7 @@ app.post('/MPT/ReceiveUpdateDbit', function(req, res) {
 });
 
 app.get('/transaction/third-block', function(req, res) {
-  pending_txn_pool.create(3);
+  pending_txn_pool.addTxs(createtxs(3));
   res.json({note: `push transactions of the third etherscan into pending txn pool.`});
 });
 
@@ -401,17 +417,24 @@ app.post('/receive-new-block', function(req, res) {
     }
 
 
-    for (var i = 0, UpdateList = tempBlock.transactions; i < UpdateList.length; i++) {
+    for (let i = 0, UpdateList = tempBlock.transactions; i < UpdateList.length; i++) {
       Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
     }
 
-
-    Tree.UpdateDbit(lastBlock.nextCreator, 0);
-    Tree.UpdateDbit(tempBlock.nextCreator, 1);
-
-    for (var i = 0; i < tempBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
-      Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
+    if (tempBlock.height%2 === 1) {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [1, 1]);
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [1, 2]);
+      }
+    } else {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [2, 1]);
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [2, 2]);
+      }
     }
 
 
@@ -419,7 +442,7 @@ app.post('/receive-new-block', function(req, res) {
       // refund creator's & voter's tax
       if (lastBlock['height'] >= 4000718) {
         Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-        for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+        for (let i = 0; i < lastBlock.nextVoters.length; i++) {
           Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
         }
       }
@@ -432,7 +455,7 @@ app.post('/receive-new-block', function(req, res) {
 
       // only delete txs which are in new block
       console.log('before delete all tx: '+pending_txn_pool.transactions);
-      for (var i=0; i<newBlock.transactions.length; i++) {
+      for (let i=0; i<newBlock.transactions.length; i++) {
         pending_txn_pool.transactions.forEach(function(tx, index, arr) {
           if (tx.id == newBlock.transactions[i].id) {
             arr.splice(index, 1);
@@ -727,7 +750,7 @@ app.get('/block-explorer', function(req, res) {
 
 app.get('/Creator', function(req, res) {
   console.log('********** Creator start  **********');
-  creator = new Creator(port, wallet, Tree);
+  creator = new Creator(port, wallet, Tree, chain);
 
 
   if (creator.isValid() && !CreatorStartThisRound) {
@@ -742,7 +765,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
+    blockToVote = creator.constructNewBlock(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -777,7 +800,7 @@ app.post('/Voter', function(req, res) {
   const seq = req.body.SeqNum;
 
   if (seqList.indexOf(seq) == -1) {
-    voter = new Voter(port, wallet, Tree);
+    voter = new Voter(port, wallet, Tree, chain);
     if (voter.IsValid()) {
       // console.log('i am voter');
 
@@ -926,7 +949,7 @@ app.post('/Creator/Challenge', function(req, res) {
 
 app.post('/Voter/Response', function(req, res) {
   console.log('********** Voter/Response start  **********');
-  const isBlockValid = voter.VerifyBlock(req.body.message.merkleRoot, voter.MPT);
+  const isBlockValid = voter.VerifyBlock(req.body.message);
   if (isBlockValid) {
     const challenge = req.body.challenge;
     const index = req.body.index;
@@ -1026,25 +1049,36 @@ app.post('/Creator/GetBlock', function(req, res) {
     // refund creator's & voter's tax
     if (lastBlock['height'] >= 4000718) {
       Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-      for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
         Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
       }
     }
 
     console.log('Creator.GetBlock start');
-    const newBlock = creator.getBlock(tempBlock.hash, lastBlock);
+    const newBlock = creator.completeBlock(tempBlock.hash, lastBlock);
 
     console.log('update Dbit start');
-    Tree.UpdateDbit(lastBlock.nextCreator, 0);
-    Tree.UpdateDbit(tempBlock.nextCreator, 1);
-
-    for (var i = 0; i < lastBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
+    if (tempBlock.height % 2 === 1) {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [1, 1]);
+      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+      }
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [1, 2]);
+      }
+    } else {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [2, 1]);
+      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+      }
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [2, 2]);
+      }
     }
 
-    for (var i = 0; i < tempBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
-    }
+
     // console.log(tempBlock);
     console.log('push tempblock' + tempBlock.height + ' into chain');
     chain.chain.push(tempBlock);
@@ -1054,7 +1088,7 @@ app.post('/Creator/GetBlock', function(req, res) {
 
     // only delete txs which are in new block
     console.log('before delete all tx: '+pending_txn_pool.transactions);
-    for (var i=0; i<newBlock.transactions.length; i++) {
+    for (let i=0; i<newBlock.transactions.length; i++) {
       pending_txn_pool.transactions.forEach(function(tx, index, arr) {
         if (tx.id == newBlock.transactions[i].id) {
           arr.splice(index, 1);
