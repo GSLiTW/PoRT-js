@@ -6,7 +6,7 @@ const schnorr = require('bip-schnorr');
 const convert = schnorr.convert;
 const muSig = schnorr.muSig;
 const elliptic = require('elliptic');
-const Cosig = require('./cosig.js');
+const Cosig = require('../cosig.js');
 const ec = new elliptic.ec('secp256k1');
 const BN = require('bn.js');
 

@@ -26,7 +26,7 @@ function Blockchain(MPT) {
   // pase json to get data
 
   var txn_pool = new Txn_Pool();
-  txn_pool.create(1);
+  txn_pool.create(1,MPT);
 
   let genesisData = require("../Block/genesisBlock.json");
   fs.readFile("../Block/genesisBlock.json", (err, data) => {

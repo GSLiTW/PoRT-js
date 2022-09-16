@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
-const CSV_data = require('./CSV_data.js');
+const CSV_data = require('./Transaction/CSV_data');
 const fs = require('fs');
 
 // macros
