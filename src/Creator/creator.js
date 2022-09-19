@@ -1,11 +1,13 @@
-const Block = require("../Block/block");
-const PoRT = require("./PoRT.js");
+/* eslint-disable max-len */
+const Block = require('../Block/block');
+const PoRT = require('./PoRT.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
 const elliptic = require('elliptic');
 // eslint-disable-next-line new-cap
 const ecdsa = new elliptic.ec('secp256k1');
+const Cosig = require('../cosig.js');
 
 
 /**
