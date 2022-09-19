@@ -1,28 +1,29 @@
-/* eslint-disable max-len */
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
-const CSV_data = require('./CSV_data.js');
+const CSV_data = require('./Transaction/CSV_data');
 const fs = require('fs');
 
 // macros
 const VOTER_NUM = 3;
 
 // local modules
-const Blockchain = require('./blockchain.js');
-const Transaction = require('./transaction.js');
-const MPT = require('./MPT');
-const Pending_Txn_Pool = require('./pending_transaction_pool');
-const Wallet = require('./wallet');
-const backup = require('./backup');
+const Blockchain = require("./Block/blockchain.js");
+const Transaction = require("./Transaction/transaction")
+const MPT = require('./MPT/MPT');
+const Pending_Txn_Pool = require('./Transaction/Pending_transaction_pool');
+const Wallet = require('./Utility/wallet');
+const backup = require('./Utility/backup');
+
+
 
 const Backup = new backup();
-const Creator = require('./creator');
-const Voter = require('./voter');
+const Creator = require('./Creator/creator');
+const Voter = require('./Voter/voter');
 
-const Block = require('./block.js');
+const Block = require('./Block/block.js');
 
 const Cosig = require('./cosig.js');
 
@@ -59,6 +60,7 @@ for (let i = 0; i < 157; i++) {
   else if (i == 8) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
   else Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [0, 0]);
 }
+
 
 const chain = new Blockchain(Tree);
 
@@ -449,7 +451,7 @@ app.post('/receive-new-block', function(req, res) {
       chain.chain.push(tempBlock);
 
       /* pending_txn_pool.clean();
-            if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
+            if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
 
       // only delete txs which are in new block
       console.log('before delete all tx: '+pending_txn_pool.transactions);
@@ -1082,7 +1084,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     chain.chain.push(tempBlock);
 
     /* pending_txn_pool.clean();
-        if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
+        if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
 
     // only delete txs which are in new block
     console.log('before delete all tx: '+pending_txn_pool.transactions);

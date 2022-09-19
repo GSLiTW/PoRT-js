@@ -1,8 +1,5 @@
-/* eslint-disable max-len */
-const Block = require('./block.js');
-const PoRT = require('./PoRT.js');
-const Cosig = require('./cosig.js');
-const Blockchain = require('./blockchain.js');
+const Block = require("../Block/block");
+const PoRT = require("./PoRT.js");
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
@@ -48,7 +45,7 @@ Creator.prototype.isValid = function() {
  * @param  {list} pendingTxs
  * @param  {Number} height
  * @param  {string} previousHash
- * @return {Block} created block
+ * @return {Block.block} created block
  */
 Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash) {
   /* for (var i = 0; i < pendingTxs.length; i++) {
@@ -56,7 +53,6 @@ Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash)
     }*/
   this.cosig = new Cosig();
   this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
-
   return this.block;
 };
 

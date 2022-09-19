@@ -1,6 +1,7 @@
-const sha256 = require('sha256');
-const Cosig = require('./cosig');
-const Pending_Transaction_Pool = require('./pending_transaction_pool');
+const sha256 = require("sha256");
+const Pending_Transaction_Pool = require("../Transaction/pending_transaction_pool")
+const Cosig = require('../cosig');
+
 /**
  * Generate & Initialize Block Class
  * @class  Block of the Blockchain containing basics of Bitcoin/Ethereum blocks and information about creators and voters
@@ -25,6 +26,7 @@ function Block(height, pendingTransactions, previousHash, MPT) {
   this.nextVoters = [],
   this.hash = null;
 };
+
 /**
  * Generate hash of block
  * @param  {string} previousBlockHash

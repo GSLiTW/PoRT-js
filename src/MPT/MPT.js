@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 const keccak256 = require('keccak256');
 const rlp = require('rlp');
-const NodeVal = require('./NodeVal');
+const NodeVal = require('../NodeVal');
 /**
  * Constructor of the MPT Class
  * @class Data Structure for Merkle Patricia Trie (MPT)
