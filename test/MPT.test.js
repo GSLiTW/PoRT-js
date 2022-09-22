@@ -1,4 +1,4 @@
-const MPT = require('../src/MPT'); // include MPT as DUT
+const MPT = require('../src/MPT/MPT'); // include MPT as DUT
 const BRANCH = 'branch';
 const EXTENSION = 'extension';
 const LEAF = 'leaf';
@@ -673,28 +673,27 @@ test('MPT.ModifyValue()', () => {
   expect(testingMPT.ModifyValue('12378', '-', 2)).not.toBeNull();
   expect(testingMPT.ModifyValue('14567', '-', 1)).not.toBeNull();
   expect(testingMPT.Search('12345').Value()).toEqual([
-    24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, [0, 0],
+    24 - 5, 0, [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, [0, 0],
+    13 - 2, 0, [0, 0],
   ]);
   expect(testingMPT.Search('14567').Value()).toEqual([
-    20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, [0, 0],
+    20 - 1, 0, [0, 0],
   ]);
 
   // Try decrease (should fail)
   expect(testingMPT.ModifyValue('12345', '-', 31)).toBeNull();
   expect(testingMPT.ModifyValue('12378', '-', 25)).toBeNull();
-  expect(testingMPT.ModifyValue('14567', '-', 19)).toBeNull();
   // After Failure, value should not be changed
   expect(testingMPT.Search('12345').Value()).toEqual([
-    24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, [0, 0],
+    24 - 5, 0, [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, [0, 0],
+    13 - 2, 0, [0, 0],
   ]);
   expect(testingMPT.Search('14567').Value()).toEqual([
-    20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, [0, 0],
+    20 - 1, 0, [0, 0],
   ]);
 
   // Try invalid modify flag (should fail)
@@ -703,13 +702,13 @@ test('MPT.ModifyValue()', () => {
   expect(testingMPT.ModifyValue('12345', '!', 3)).toBeNull();
   // After Failure, value should not be changed
   expect(testingMPT.Search('12345').Value()).toEqual([
-    24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, [0, 0],
+    24 - 5, 0, [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, [0, 0],
+    13 - 2, 0, [0, 0],
   ]);
   expect(testingMPT.Search('14567').Value()).toEqual([
-    20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, [0, 0],
+    20 - 1, 0, [0, 0],
   ]);
 
   // Try decrease inexisted address (should fail)
@@ -718,13 +717,13 @@ test('MPT.ModifyValue()', () => {
   expect(testingMPT.ModifyValue('12257', '-', 7)).toBeNull();
   // After Failure, value should not be changed
   expect(testingMPT.Search('12345').Value()).toEqual([
-    24 - 5 * (1 + TAX_RATIO), 5 * TAX_RATIO, [0, 0],
+    24 - 5, 0, [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    13 - 2 * (1 + TAX_RATIO), 2 * TAX_RATIO, [0, 0],
+    13 - 2, 0, [0, 0],
   ]);
   expect(testingMPT.Search('14567').Value()).toEqual([
-    20 - 1 * (1 + TAX_RATIO), 1 * TAX_RATIO, [0, 0],
+    20 - 1, 0, [0, 0],
   ]);
 });
 
@@ -761,15 +760,15 @@ test('MPT.Verify()', () => {
   ]);
 
   // Try verify (should success)
-  expect(testingMPT.Verify('12345')).toBeGreaterThanOrEqual(0);
-  expect(testingMPT.Verify('12378')).toBeGreaterThanOrEqual(0);
-  expect(testingMPT.Verify('14567')).toBeGreaterThanOrEqual(0);
+  expect(testingMPT.Verify('12345')).not.toEqual([-1, -1]);
+  expect(testingMPT.Verify('12378')).not.toEqual([-1, -1]);
+  expect(testingMPT.Verify('14567')).not.toEqual([-1, -1]);
 
   // Try verify (should fail)
-  expect(testingMPT.Verify('12346')).not.toBeGreaterThanOrEqual(0);
-  expect(testingMPT.Verify('12356')).not.toBeGreaterThanOrEqual(0);
-  expect(testingMPT.Verify('14568')).not.toBeGreaterThanOrEqual(0);
-  expect(testingMPT.Verify('12145')).not.toBeGreaterThanOrEqual(0);
+  expect(testingMPT.Verify('12346')).toEqual([-1, -1]);
+  expect(testingMPT.Verify('12356')).toEqual([-1, -1]);
+  expect(testingMPT.Verify('14568')).toEqual([-1, -1]);
+  expect(testingMPT.Verify('12145')).toEqual([-1, -1]);
 });
 
 test('MPT.RefundTax()', () => {
@@ -902,10 +901,10 @@ test('MPT.UpdateValue()', () => {
 
   // Verify value
   expect(testingMPT.Search('12345').Value()).toEqual([
-    5* (1 -TAX_RATIO), 2 + 5 * TAX_RATIO, [0, 0],
+    5, 2, [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, [0, 0],
+    14, 1, [0, 0],
   ]);
   /*
     expect(testingMPT.Search('14567')).toEqual([
@@ -915,9 +914,9 @@ test('MPT.UpdateValue()', () => {
 
 
   resTemp = testingMPT.Search('14567').Value();
-  expect(resTemp[0]).toBeCloseTo(13 - 4 * TAX_RATIO, PRECISION);
-  expect(resTemp[1]).toBeCloseTo(3 + 4 * TAX_RATIO, PRECISION);
-  expect(resTemp[2]).toBeCloseTo(0, PRECISION);
+  expect(resTemp[0]).toEqual(13);
+  expect(resTemp[1]).toEqual(3);
+  expect(resTemp[2]).toEqual([0, 0]);
 
   expect(testingMPT.Search('13456').Value()).toEqual([
     1, 0, [0, 0],
@@ -930,10 +929,10 @@ test('MPT.UpdateValue()', () => {
 
   // Verify value, should not change after failed update
   expect(testingMPT.Search('12345').Value()).toEqual([
-    5* (1 -TAX_RATIO), 2 + 5 * TAX_RATIO, 0,
+    5, 2, [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
-    14 - 2 * TAX_RATIO, 1 + 2 * TAX_RATIO, 0,
+    14, 1, [0, 0],
   ]);
   /*
     expect(testingMPT.Search('14567')).toEqual([
@@ -942,15 +941,15 @@ test('MPT.UpdateValue()', () => {
     */
 
     resTemp = testingMPT.Search('14567').Value();
-    expect(resTemp[0]).toBeCloseTo(14 - 3 * TAX_RATIO, PRECISION);
-    expect(resTemp[1]).toBeCloseTo(3 + 3 * TAX_RATIO, PRECISION);
-    expect(resTemp[2]).toBeCloseTo(0, PRECISION);
+    expect(resTemp[0]).toEqual(13);
+    expect(resTemp[1]).toEqual(3);
+    expect(resTemp[2]).toEqual([0, 0]);
 
 
   resTemp = testingMPT.Search('14567').Value();
-  expect(resTemp[0]).toBeCloseTo(13 - 4 * TAX_RATIO, PRECISION);
-  expect(resTemp[1]).toBeCloseTo(3 + 4 * TAX_RATIO, PRECISION);
-  expect(resTemp[2]).toBeCloseTo(0, PRECISION);
+  expect(resTemp[0]).toEqual(13);
+  expect(resTemp[1]).toEqual(3);
+  expect(resTemp[2]).toEqual([0, 0]);
 
   expect(testingMPT.Search('13456').Value()).toEqual([
     1, 0, [0, 0],
