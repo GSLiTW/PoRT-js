@@ -94,7 +94,7 @@ function createtxs(num) {
 
 pending_txn_pool.addTxs(createtxs(2));
 
-let tempBlock = new Block(4000719, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
+let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
 tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
 tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
@@ -440,7 +440,7 @@ app.post('/receive-new-block', function(req, res) {
 
     if (correctHash && correctIndex) {
       // refund creator's & voter's tax
-      if (lastBlock['height'] >= 4000718) {
+      if (lastBlock['height'] >= 1) {
         Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
         for (let i = 0; i < lastBlock.nextVoters.length; i++) {
           Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
@@ -1047,7 +1047,7 @@ app.post('/Creator/GetBlock', function(req, res) {
 
     console.log('refund start');
     // refund creator's & voter's tax
-    if (lastBlock['height'] >= 4000718) {
+    if (lastBlock['height'] >= 1) {
       Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
       for (let i = 0; i < lastBlock.nextVoters.length; i++) {
         Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
