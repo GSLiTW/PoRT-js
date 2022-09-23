@@ -1,8 +1,8 @@
-const Txn_Pool = require('../src/pending_transaction_pool');
-const Blockchain = require('../src/blockchain.js');
-const MPT = require('../src/MPT');
+const Txn_Pool = require('../src/Transaction/pending_transaction_pool');
+const Blockchain = require('../src/Block/blockchain.js');
+const MPT = require('../src/MPT/MPT');
 const fs = require('fs');
-const Txn = require('../src/transaction')
+const Txn = require('../src/Transaction/transaction');
 
 
 describe('txpooltest', () => {
