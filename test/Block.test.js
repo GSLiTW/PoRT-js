@@ -14,8 +14,7 @@ test("#BLOCK_test: func", () => {
     .toString() // convert Buffer to string
     .split("\n") // split string to lines
     .map((e) => e.trim()) // remove white spaces for each line
-    .map((e) => e.split(",").map((e) => e.trim())); // split each line to array
-  //console.log(data);
+      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 
   Bchain.txn_pool = new Txn_Pool();
   Bchain.txn_pool.create(1, T);
@@ -68,3 +67,4 @@ test("#BLOCK_test: func", () => {
   //   transaction: 0x43a1a360188faaa2b227c1133d66e155c240816b33d6cba682e9ab27dbc77012,
   // });
 });
+*/

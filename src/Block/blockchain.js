@@ -28,29 +28,28 @@ function Blockchain(MPT) {
   var txn_pool = new Txn_Pool();
   txn_pool.create(1, MPT);
 
-  let genesisData = require("../Block/genesisBlock.json");
-  fs.readFile("../Block/genesisBlock.json", (err, data) => {
-    if (err) {
-      return console.log("Error reading file from disk:", err);
-    }
-    try {
-      genesisData = JSON.parse(data);
-      console.log("JSON string:", "utf8", genesisData);
-    } catch (err) {
-      console.log("Error parsing JSON string:", err);
-    }
-  });
-  var genesisBlock = new Block(
-    4000718,
-    txn_pool.transactions,
-    genesisData.hash, //好難
-    MPT
+  let genesisData;
+  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
+  try {
+    genesisData = JSON.parse(dataFile);
+    // console.log('JSON string:', 'utf8', genesisData);
+  } catch (err) {
+    console.log('Error parsing JSON string:', err);
+  }
+  const genesisBlock = new Block(
+      1, // height
+      txn_pool.transactions,
+      '0', // previous Hash
+      MPT,
   );
   genesisBlock.timestamp = genesisData.timestamp;
-  genesisBlock.hash = genesisData.hash;
+  // genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
-  this.chain.push(genesisBlock); //create Genesis Block
+  hashValue = genesisBlock.hashBlock(0, genesisBlock);
+  console.log(hashValue);
+  genesisBlock.hash = hashValue;
+  this.chain.push(genesisBlock); // create Genesis Block
 }
 
 /**
