@@ -124,7 +124,7 @@ Creator.prototype.aggregateResponse = function() {
 Creator.prototype.verifyCoSig = function() {
   const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
   const gr0 = responseKeypair.getPublic();
-  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
+  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.getChallenge());
   const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
 
   return checkResult;
@@ -166,6 +166,5 @@ Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress) {
   const selectedMainter = newPoRT.nextMaintainer;
   return selectedMainter;
 };
-
 
 module.exports = Creator;

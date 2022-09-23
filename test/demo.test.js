@@ -101,11 +101,11 @@ describe('jump step selection test', () => {
   const voter3Wallet = new Wallet('b8cd965482d2c15b8c383a589267498be98c2880618ec168424efd4337fc9aee', '0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4');
   const creator = new Creator(3002, creatorWallet, T, chain);
   const voter1 = new Voter(3004, voter1Wallet, T, chain);
-  console.log('voter1 publicV', voter1.publicV);
+  // console.log('voter1 publicV', voter1.publicV);
   const voter2 = new Voter(3006, voter2Wallet, T, chain);
-  console.log('voter2 publicV', voter2.publicV);
+  // console.log('voter2 publicV', voter2.publicV);
   const voter3 = new Voter(3008, voter3Wallet, T, chain);
-  console.log('voter3 publicV', voter3.publicV);
+  // console.log('voter3 publicV', voter3.publicV);
   test('#test3: maintainer id', () => {
     expect(creator.isValid()).toBeTruthy();
     expect(voter1.IsValid()).toBeTruthy();
@@ -119,21 +119,29 @@ describe('jump step selection test', () => {
   creator.getVoter(voter1.port, voter1.wallet.publicKey, voter1.publicV);
   creator.getVoter(voter2.port, voter2.wallet.publicKey, voter2.publicV);
   creator.getVoter(voter3.port, voter3.wallet.publicKey, voter3.publicV);
+  test('#test5: getVoter finish', () => {
+    expect(creator.voterPubKey[0]).toEqual(voter1Wallet.publicKey);
+    expect(creator.voterPubKey[1]).toEqual(voter2Wallet.publicKey);
+    expect(creator.voterPubKey[2]).toEqual(voter3Wallet.publicKey);
+    expect(creator.voterPubV[0]).toEqual(voter1.publicV);
+    expect(creator.voterPubV[1]).toEqual(voter2.publicV);
+    expect(creator.voterPubV[2]).toEqual(voter3.publicV);
+  });
   creator.generateChallenge();
+  console.log('challenge', creator.getChallenge());
   if (voter1.VerifyBlock(creator.block)) {
-    voter1.GenerateResponse(creator.getChallenge);
+    voter1.GenerateResponse(creator.getChallenge());
   }
   if (voter2.VerifyBlock(creator.block)) {
-    voter2.GenerateResponse(creator.getChallenge);
+    voter2.GenerateResponse(creator.getChallenge());
   }
   if (voter3.VerifyBlock(creator.block)) {
-    voter3.GenerateResponse(creator.getChallenge);
+    voter3.GenerateResponse(creator.getChallenge());
   }
   creator.getResponses(voter1.response);
   creator.getResponses(voter2.response);
   creator.getResponses(voter3.response);
   creator.aggregateResponse();
-  if (creator.verifyCoSig()) {
-    creator.completeBlock();
-  }
+  console.log(creator.cosig);
+  creator.completeBlock(creator.blockchain.getLastBlock());
 });
