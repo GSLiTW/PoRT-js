@@ -25,21 +25,31 @@ function Blockchain(MPT) {
   this.networkNodes = [];
   // pase json to get data
 
-  const txn_pool = new Txn_Pool();
-  txn_pool.create(1, MPT);
+  var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
+  let InitTxs = []
+  for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
+    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].v, block1Txs.txs[i].r, block1Txs.txs[i].s, MPT))
+  }
+  const txn_pool = new Txn_Pool(InitTxs);
+  
+  //createtxs(num);
+  //txn_pool.create(1, MPT);
+  //console.log(1)
+  
 
   let genesisData = require('../Block/genesisBlock.json');
-  fs.readFile('../Block/genesisBlock.json', (err, data) => {
-    if (err) {
-      return console.log('Error reading file from disk:', err);
-    }
-    try {
-      genesisData = JSON.parse(data);
-      console.log('JSON string:', 'utf8', genesisData);
-    } catch (err) {
-      console.log('Error parsing JSON string:', err);
-    }
-  });
+  genesisData = JSON.parse(fs.readFileSync('./src/Block/genesisBlock.json', 'utf8'));
+  // fs.readFile('../Block/genesisBlock.json', (err, data) => {
+  //   if (err) {
+  //     return console.log('Error reading file from disk:', err);
+  //   }
+  //   try {
+  //     genesisData = JSON.parse(data);
+  //     console.log('JSON string:', 'utf8', genesisData);
+  //   } catch (err) {
+  //     console.log('Error parsing JSON string:', err);
+  //   }
+  // });
   const genesisBlock = new Block(
       1, // height
       txn_pool.transactions,

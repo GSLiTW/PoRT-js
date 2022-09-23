@@ -64,6 +64,8 @@ for (let i = 0; i < 157; i++) {
 
 const chain = new Blockchain(Tree);
 
+
+
 for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
@@ -73,12 +75,35 @@ Tree.ResetSaved();
 
 const pending_txn_pool = new Pending_Txn_Pool();
 
+//createtxs(1)
+
+//helper func to extract txs w/sig
+// function storeData (data, path) {
+//   try {
+//     fs.writeFileSync(path, JSON.stringify(data))
+//   } catch (err) {
+//     console.error(err)
+//   }
+// }
+// //
+// async function init() {
+//   console.log(1);
+//   await sleep(10000);
+//   console.log(2);
+// }
+// function sleep(ms) {
+//   return new Promise((resolve) => {
+//     setTimeout(resolve, ms);
+//   });
+// }
+
 function insertCSVData(quantity, data) {
   txns = [];
-  for (let i = 1; i < quantity; i++) {
-    if(data[i][2] === wallet.publicKey){
+  for (let i = 1; i <= quantity; i++) {
+    if(data[i][2] === wallet.publicKey.encode('hex')){
       const sig = wallet.Sign(data[i][0])
       const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig.recoveryParam, sig.r, sig.s,Tree)
+      //storeData(newTx, `./${port}.json`)
       const requestPromises = [];
       chain.networkNodes.forEach((networkNodeUrl) => {
         const requestOptions = {
@@ -92,7 +117,7 @@ function insertCSVData(quantity, data) {
       });
   
       Promise.all(requestPromises).then((data) => {
-        res.json({note: 'Transaction created and broadcast successfully.'});
+        console.log('Transaction created and broadcast successfully.');
       });
     }
     //txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
@@ -110,7 +135,7 @@ function createtxs(num) {
   } else console.log('wrong block number.');
 };
 
-
+// init()
 //pending_txn_pool.addTxs(createtxs(2));
 createtxs(2)
 
