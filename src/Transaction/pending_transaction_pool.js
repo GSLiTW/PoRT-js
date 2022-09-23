@@ -12,9 +12,9 @@ Pending_Transaction_Pool.prototype.create = function(num, MPT) {
   const data = new CSV_data();
   const data_ = data.getData(num); // get data of block1
   if (num == 1 || num == 2) {
-    Pending_Transaction_Pool.prototype.addTxs.call(this, Pending_Transaction_Pool.prototype.insertCSVData.call(this, 44, data_, MPT));
+    Pending_Transaction_Pool.prototype.addTxs.call(this, Pending_Transaction_Pool.prototype.insertCSVData.call(this, 4, data_, MPT));
   } else if (num == 3) {
-    Pending_Transaction_Pool.prototype.addTxs.call(this, Pending_Transaction_Pool.prototype.insertCSVData.call(this, 50, data_, MPT));
+    Pending_Transaction_Pool.prototype.addTxs.call(this, Pending_Transaction_Pool.prototype.insertCSVData.call(this, 4, data_, MPT));
   } else console.log('wrong block number.');
 };
 

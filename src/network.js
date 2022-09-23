@@ -85,9 +85,9 @@ function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num); // get data of block1
   if (num == 1 || num == 2) {
-    return insertCSVData(44, data_);
+    return insertCSVData(4, data_);
   } else if (num == 3) {
-    return insertCSVData(50, data_);
+    return insertCSVData(4, data_);
   } else console.log('wrong block number.');
 };
 
