@@ -19,6 +19,7 @@
 //     })
 // });
 
+/*
 test('#test1: genesisBlock', () => {
   const Blockchain = require('../src/Block/blockchain');
   const MPT = require('../src/MPT/MPT');
@@ -45,3 +46,4 @@ test('#test1: genesisBlock', () => {
   expect(targetblock.timestamp).toEqual(1604671786702);
   expect(targetblock.height).toEqual(1);
 });
+*/

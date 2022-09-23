@@ -39,7 +39,7 @@ function Blockchain(MPT) {
   const genesisBlock = new Block(
       1, // height
       txn_pool.transactions,
-      0, // previous Hash
+      '0', // previous Hash
       MPT,
   );
   genesisBlock.timestamp = genesisData.timestamp;
