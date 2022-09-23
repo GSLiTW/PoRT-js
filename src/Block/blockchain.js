@@ -32,7 +32,7 @@ function Blockchain(MPT) {
   const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
   try {
     genesisData = JSON.parse(dataFile);
-    console.log('JSON string:', 'utf8', genesisData);
+    // console.log('JSON string:', 'utf8', genesisData);
   } catch (err) {
     console.log('Error parsing JSON string:', err);
   }
@@ -43,9 +43,12 @@ function Blockchain(MPT) {
       MPT,
   );
   genesisBlock.timestamp = genesisData.timestamp;
-  genesisBlock.hash = genesisData.hash;
+  // genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
+  hashValue = genesisBlock.hashBlock(0, genesisBlock);
+  console.log(hashValue);
+  genesisBlock.hash = hashValue;
   this.chain.push(genesisBlock); // create Genesis Block
 }
 
