@@ -103,6 +103,7 @@ Blockchain.prototype.addTransactionToPendingTransaction = function(
     transactionObj,
 ) {
   let isexist = false;
+  console.log(transactionObj)
   for (let i = 0; i < this.pendingTransactions.length; i++) {
     if (this.pendingTransactions[i] == transactionObj) {
       isexist = true;

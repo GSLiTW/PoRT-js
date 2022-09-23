@@ -93,23 +93,23 @@ const pending_txn_pool = new Pending_Txn_Pool();
 //   }
 // }
 // //
-// async function init() {
-//   console.log(1);
-//   await sleep(10000);
-//   console.log(2);
-// }
-// function sleep(ms) {
-//   return new Promise((resolve) => {
-//     setTimeout(resolve, ms);
-//   });
-// }
+async function init() {
+  console.log(1);
+  await sleep(10000);
+  console.log(2);
+}
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 function insertCSVData(quantity, data) {
   txns = [];
   for (let i = 1; i <= quantity; i++) {
     if(data[i][2] === wallet.publicKey.encode('hex')){
       const sig = wallet.Sign(data[i][0])
-      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig.recoveryParam, sig.r, sig.s,Tree)
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig.recoveryParam, sig.r, sig.s, Tree)
       //storeData(newTx, `./${port}.json`)
       const requestPromises = [];
       chain.networkNodes.forEach((networkNodeUrl) => {
@@ -142,7 +142,7 @@ function createtxs(num) {
   } else console.log('wrong block number.');
 };
 
-// init()
+init()
 //pending_txn_pool.addTxs(createtxs(2));
 createtxs(2)
 
