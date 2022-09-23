@@ -5,6 +5,7 @@ const port = process.argv[2];
 const rp = require('promise-request-retry');
 const CSV_data = require('./Transaction/CSV_data');
 const fs = require('fs');
+const elliptic = require('elliptic');
 
 // macros
 const VOTER_NUM = 3;
@@ -48,17 +49,22 @@ let w = fs.readFileSync('./data/private_public_key.csv')
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
+const keytable = new Map();
+w.forEach(w => {
+  keytable.set(w[2], w[1])
+})
+
 w = undefined;
 
 
 const Tree = new MPT(true);
 
 for (let i = 0; i < 157; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [0, 0]);
+  if (i == 2) Tree.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
+  else if (i == 4) Tree.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 6) Tree.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 8) Tree.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else Tree.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [0, 0]);
 }
 
 
@@ -75,8 +81,12 @@ const pending_txn_pool = new Pending_Txn_Pool();
 
 function insertCSVData(quantity, data) {
   txns = [];
-  for (let i = 1; i < quantity; i++) {
-    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+  for (let i = 1; i <= quantity; i++) {
+    const ecdsa = new elliptic.ec('secp256k1');
+    console.log(data[i][2])
+    console.log(keytable.get(data[i][2]))
+    const sig = ecdsa.sign(data[i][0], keytable.get(data[i][2]), 'hex', {canonical: true});
+    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig.recoveryParam, sig.r, sig.s, Tree));
   }
   return txns;
 };
