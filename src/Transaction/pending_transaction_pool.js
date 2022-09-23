@@ -69,10 +69,10 @@ Pending_Transaction_Pool.prototype.validate = function(tx) {
   if (tx.value < 0) {
     return false;
   }
-  // pubkey = ecdsa.recoverPubKey(tx.id, {r:tx.r, s:tx.s}, tx.v-27, "hex");
-  // if (!ecdsa.verify(tx.id, {r:tx.r, s:tx.s}, pubkey)){
-  //   return false
-  // }
+  pubkey = ecdsa.recoverPubKey(tx.id, {r:tx.r, s:tx.s}, tx.v-27, "hex");
+  if (!ecdsa.verify(tx.id, {r:tx.r, s:tx.s}, pubkey)){
+    return false
+  }
   return true;
 };
 
