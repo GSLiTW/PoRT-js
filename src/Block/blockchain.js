@@ -30,7 +30,7 @@ function Blockchain(MPT) {
   for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
     InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].v, block1Txs.txs[i].r, block1Txs.txs[i].s, MPT))
   }
-  const txn_pool = new Txn_Pool(InitTxs);
+  this.txn_pool = new Txn_Pool(InitTxs);
   
   //createtxs(num);
   //txn_pool.create(1, MPT);
@@ -52,10 +52,11 @@ function Blockchain(MPT) {
   // });
   const genesisBlock = new Block(
       1, // height
-      txn_pool.transactions,
+      this.txn_pool.transactions,
       0, // previous Hash
       MPT,
   );
+  this.txn_pool.clean()
   genesisBlock.timestamp = genesisData.timestamp;
   genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
@@ -103,15 +104,16 @@ Blockchain.prototype.addTransactionToPendingTransaction = function(
     transactionObj,
 ) {
   let isexist = false;
-  console.log(transactionObj)
-  for (let i = 0; i < this.pendingTransactions.length; i++) {
-    if (this.pendingTransactions[i] == transactionObj) {
-      isexist = true;
-      break;
+  //console.log(transactionObj)
+  txs = this.txn_pool.get_transaction()
+  for (let i = 0; i < txs.length; i++) {
+    if (txs[i].id === transactionObj.id) {
+      //isexist = true;
+      return true;
     }
   }
   if (!isexist) {
-    this.pendingTransactions.push(transactionObj);
+    this.txn_pool.addTx(transactionObj);
   }
   // return this.getLastBlock()["height"]+1;
   return isexist;
