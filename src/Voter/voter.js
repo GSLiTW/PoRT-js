@@ -99,10 +99,11 @@ Voter.prototype.VerifyBlock = function (block_to_vote) {
 }
 Voter.prototype.GenerateResponse = function(cHex) {
   this.cosig = new Cosig();
-  this.response = this.cosig.GenerateResponse(cHex);
+  this.response = this.cosig.GenerateResponse(cHex, this.secretv, this.wallet.privateKey);
 
   return this.response;
 };
+
 
 
 module.exports = Voter;
