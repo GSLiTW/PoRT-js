@@ -3,25 +3,27 @@ const app = express();
 const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
-const CSV_data = require('./CSV_data.js');
+const CSV_data = require('./Transaction/CSV_data');
 const fs = require('fs');
 
 // macros
 const VOTER_NUM = 3;
 
 // local modules
-const Blockchain = require('./blockchain.js');
-const Transaction = require('./transaction.js');
-const MPT = require('./MPT');
-const Pending_Txn_Pool = require('./pending_transaction_pool');
-const Wallet = require('./wallet');
-const backup = require('./backup');
+const Blockchain = require('./Block/blockchain.js');
+const Transaction = require('./Transaction/transaction');
+const MPT = require('./MPT/MPT');
+const Pending_Txn_Pool = require('./Transaction/Pending_transaction_pool');
+const Wallet = require('./Utility/wallet');
+const backup = require('./Utility/backup');
+
+
 
 const Backup = new backup();
-const Creator = require('./creator');
-const Voter = require('./voter');
+const Creator = require('./Creator/creator');
+const Voter = require('./Voter/voter');
 
-const Block = require('./block.js');
+const Block = require('./Block/block.js');
 
 const Cosig = require('./cosig.js');
 
@@ -51,17 +53,18 @@ w = undefined;
 
 const Tree = new MPT(true);
 
-for (var i = 0; i < 157; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 1); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 2); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1000, 1000 * 0.0001, 0);
+for (let i = 0; i < 157; i++) {
+  if (i == 2) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
+  else if (i == 4) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 6) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 8) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+  else Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [0, 0]);
 }
+
 
 const chain = new Blockchain(Tree);
 
-for (var i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
+for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
 
@@ -101,9 +104,9 @@ function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num); // get data of block1
   if (num == 1 || num == 2) {
-    return insertCSVData(44, data_);
+    return insertCSVData(4, data_);
   } else if (num == 3) {
-    return insertCSVData(50, data_);
+    return insertCSVData(4, data_);
   } else console.log('wrong block number.');
 };
 
@@ -111,7 +114,7 @@ function createtxs(num) {
 //pending_txn_pool.addTxs(createtxs(2));
 createtxs(2)
 
-let tempBlock = new Block(4000719, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
+let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
 tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
 tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
@@ -166,7 +169,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/blockchain', function(req, res) {
   res.send(chain);
-  console.log('asd')
+  console.log('asd');
 });
 
 app.get('/wallet', function(req, res) {
@@ -437,25 +440,32 @@ app.post('/receive-new-block', function(req, res) {
     }
 
 
-    for (var i = 0, UpdateList = tempBlock.transactions; i < UpdateList.length; i++) {
+    for (let i = 0, UpdateList = tempBlock.transactions; i < UpdateList.length; i++) {
       Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
     }
 
-
-    Tree.UpdateDbit(lastBlock.nextCreator, 0);
-    Tree.UpdateDbit(tempBlock.nextCreator, 1);
-
-    for (var i = 0; i < tempBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
-      Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
+    if (tempBlock.height%2 === 1) {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [1, 1]);
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [1, 2]);
+      }
+    } else {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [2, 1]);
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [2, 2]);
+      }
     }
 
 
     if (correctHash && correctIndex) {
       // refund creator's & voter's tax
-      if (lastBlock['height'] >= 4000718) {
+      if (lastBlock['height'] >= 1) {
         Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-        for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+        for (let i = 0; i < lastBlock.nextVoters.length; i++) {
           Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
         }
       }
@@ -464,11 +474,11 @@ app.post('/receive-new-block', function(req, res) {
       chain.chain.push(tempBlock);
 
       /* pending_txn_pool.clean();
-            if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
+            if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
 
       // only delete txs which are in new block
       console.log('before delete all tx: '+pending_txn_pool.transactions);
-      for (var i=0; i<newBlock.transactions.length; i++) {
+      for (let i=0; i<newBlock.transactions.length; i++) {
         pending_txn_pool.transactions.forEach(function(tx, index, arr) {
           if (tx.id == newBlock.transactions[i].id) {
             arr.splice(index, 1);
@@ -763,7 +773,7 @@ app.get('/block-explorer', function(req, res) {
 
 app.get('/Creator', function(req, res) {
   console.log('********** Creator start  **********');
-  creator = new Creator(port, wallet, Tree);
+  creator = new Creator(port, wallet, Tree, chain);
 
 
   if (creator.isValid() && !CreatorStartThisRound) {
@@ -778,7 +788,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.create(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
+    blockToVote = creator.constructNewBlock(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -813,7 +823,7 @@ app.post('/Voter', function(req, res) {
   const seq = req.body.SeqNum;
 
   if (seqList.indexOf(seq) == -1) {
-    voter = new Voter(port, wallet, Tree);
+    voter = new Voter(port, wallet, Tree, chain);
     if (voter.IsValid()) {
       // console.log('i am voter');
 
@@ -897,7 +907,7 @@ app.post('/Creator/Challenge', function(req, res) {
 
     // wait for 5 sec, if no voter comes, then do next step
     FirstRountSetTimeout = setTimeout(()=>{
-      if (creator.VoterUrl.length != VOTER_NUM && !FirstRoundLock) {
+      if (creator.voterUrl.length != VOTER_NUM && !FirstRoundLock) {
         // check if any voter come in this 10 sec
         const challenge = creator.generateChallenge();
         FirstRoundLock = true;
@@ -962,7 +972,7 @@ app.post('/Creator/Challenge', function(req, res) {
 
 app.post('/Voter/Response', function(req, res) {
   console.log('********** Voter/Response start  **********');
-  const isBlockValid = voter.VerifyBlock(req.body.message.merkleRoot, voter.MPT);
+  const isBlockValid = voter.VerifyBlock(req.body.message);
   if (isBlockValid) {
     const challenge = req.body.challenge;
     const index = req.body.index;
@@ -1026,7 +1036,7 @@ app.post('/Creator/GetResponses', function(req, res) {
       GetResponsesSetTimeout = setTimeout(()=>{
         creator.clearResponses();
         challenge = creator.generateChallengeWithIndex();
-        creator.voterIndex.forEach((index) => {
+        creator.VoterIndex.forEach((index) => {
           const requestOptions = {
             uri: creator.voterUrl[index] + '/Voter/Response',
             method: 'POST',
@@ -1060,37 +1070,48 @@ app.post('/Creator/GetBlock', function(req, res) {
 
     console.log('refund start');
     // refund creator's & voter's tax
-    if (lastBlock['height'] >= 4000718) {
+    if (lastBlock['height'] >= 1) {
       Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
-      for (var i = 0; i < lastBlock.nextVoters.length; i++) {
+      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
         Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
       }
     }
 
     console.log('Creator.GetBlock start');
-    const newBlock = creator.getBlock(tempBlock.hash, lastBlock);
+    const newBlock = creator.completeBlock(tempBlock.hash, lastBlock);
 
     console.log('update Dbit start');
-    Tree.UpdateDbit(lastBlock.nextCreator, 0);
-    Tree.UpdateDbit(tempBlock.nextCreator, 1);
-
-    for (var i = 0; i < lastBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(lastBlock.nextVoters[i], 0);
+    if (tempBlock.height % 2 === 1) {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [1, 1]);
+      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+      }
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [1, 2]);
+      }
+    } else {
+      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
+      Tree.UpdateDbit(tempBlock.nextCreator, [2, 1]);
+      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
+      }
+      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
+        Tree.UpdateDbit(tempBlock.nextVoters[i], [2, 2]);
+      }
     }
 
-    for (var i = 0; i < tempBlock.nextVoters.length; i++) {
-      Tree.UpdateDbit(tempBlock.nextVoters[i], 2);
-    }
+
     // console.log(tempBlock);
     console.log('push tempblock' + tempBlock.height + ' into chain');
     chain.chain.push(tempBlock);
 
     /* pending_txn_pool.clean();
-        if (newBlock.height == 4000720) pending_txn_pool.addTxs(createtxs(3));*/
+        if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
 
     // only delete txs which are in new block
     console.log('before delete all tx: '+pending_txn_pool.transactions);
-    for (var i=0; i<newBlock.transactions.length; i++) {
+    for (let i=0; i<newBlock.transactions.length; i++) {
       pending_txn_pool.transactions.forEach(function(tx, index, arr) {
         if (tx.id == newBlock.transactions[i].id) {
           arr.splice(index, 1);
