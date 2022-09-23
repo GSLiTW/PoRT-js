@@ -4,6 +4,7 @@
 
 describe('jump step selection test', () => {
   const Creator = require('../src/Creator/creator.js');
+  const Voter = require('../src/Voter/voter.js');
   const MPT = require('../src/MPT/MPT.js');
   const Wallet = require('../src/Utility/wallet.js');
   const Block = require('../src/Block/block');
@@ -78,4 +79,9 @@ describe('jump step selection test', () => {
     expect(secondBlock.nextCreator).toEqual('04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8');
     expect(secondBlock.nextVoters[0]).toEqual('040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b');
   });
+
+  const creator = new Creator(3002, '04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b', T, chain);
+  const voter1 = new Voter(3004, '046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680', T);
+  const voter2 = new Voter(3006, '0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd', T);
+  const voter3 = new Voter(3008, '0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4', T);
 });
