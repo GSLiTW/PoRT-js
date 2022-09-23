@@ -775,7 +775,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.constructNewBlock(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
+    blockToVote = creator.constructNewBlock(tempBlock);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);

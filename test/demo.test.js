@@ -22,8 +22,12 @@ describe('jump step selection test', () => {
   // Function used
   function insertCSVData(quantity, data) {
     txns = [];
-    for (let i = 1; i < quantity; i++) {
-      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], T));
+    for (let i = 1; i <= quantity; i++) {
+      const ecdsa = new elliptic.ec('secp256k1');
+      console.log(data[i][2])
+      console.log(keytable.get(data[i][2]))
+      const sig = ecdsa.sign(data[i][0], keytable.get(data[i][2]), 'hex', {canonical: true});
+      txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig.recoveryParam, sig.r, sig.s, T));
     }
     return txns;
   };
@@ -43,15 +47,26 @@ describe('jump step selection test', () => {
       .toString() // convert Buffer to string
       .split('\n') // split string to lines
       .map((e) => e.trim()) // remove white spaces for each line
-      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+  
+  let w = fs.readFileSync('./data/private_public_key.csv')
+    .toString() // convert Buffer to string
+    .split('\n') // split string to lines
+    .map((e) => e.trim()) // remove white spaces for each line
+    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+  
+  const keytable = new Map();
+  w.forEach(w => {
+    keytable.set(w[2], w[1])
+  })
 
   const T = new MPT();
 
   for (let i = 0; i < 14; i++) {
-    if (i == 2) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
-    else if (i == 4) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-    else if (i == 6) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-    else if (i == 8) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
+    if (i == 2) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [1, 1]); // dbit == 1 means creator
+    else if (i == 4) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
+    else if (i == 6) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
+    else if (i == 8) T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
     else T.Insert(data[i][2], 10000000000000, 1000000000 * 0.0001, [0, 0]);
   }
   const txspool = new TxnPool();
@@ -63,7 +78,7 @@ describe('jump step selection test', () => {
     expect(targetblock.height).toEqual(1);
     expect(targetblock.nextCreator).toEqual('04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b');
     expect(targetblock.nextVoters[0]).toEqual('046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
-    expect(targetblock.hash).toEqual('ff7ff1b24728377a5061e24c0bd6fce6986bc8ed25430e458193264c1d0102bf');
+    expect(targetblock.hash).toEqual('088586169f78b09b197ad99aa53a81b05ab49a23e3a8082cf10200ca4d5c0699');
   });
 
   txspool.addTxs(createtxs(2));
@@ -73,15 +88,52 @@ describe('jump step selection test', () => {
   secondBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
   secondBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
   test('#test2: Second genesisBlock', () => {
-    expect(secondBlock.previousBlockHash).toEqual('ff7ff1b24728377a5061e24c0bd6fce6986bc8ed25430e458193264c1d0102bf');
+    expect(secondBlock.previousBlockHash).toEqual('088586169f78b09b197ad99aa53a81b05ab49a23e3a8082cf10200ca4d5c0699');
     expect(secondBlock.timestamp).toEqual(1604671786702);
     expect(secondBlock.height).toEqual(2);
     expect(secondBlock.nextCreator).toEqual('04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8');
     expect(secondBlock.nextVoters[0]).toEqual('040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b');
   });
 
-  const creator = new Creator(3002, '04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b', T, chain);
-  const voter1 = new Voter(3004, '046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680', T);
-  const voter2 = new Voter(3006, '0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd', T);
-  const voter3 = new Voter(3008, '0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4', T);
+  const creatorWallet = new Wallet('157938f922fa2b56d96c11b26b548583ee4ee15694f36d7c368a67833cd6e6d3', '04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b');
+  const voter1Wallet = new Wallet('d03e5191333fe476a8d18b141093bde4bbc618763836c3cd9d9b2bb07c30f900', '046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
+  const voter2Wallet = new Wallet('2a5425b6f3e36a88ee05bea41e44f54c80ae31eb63d229c34bcc83d0b524a701', '0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd');
+  const voter3Wallet = new Wallet('b8cd965482d2c15b8c383a589267498be98c2880618ec168424efd4337fc9aee', '0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4');
+  const creator = new Creator(3002, creatorWallet, T, chain);
+  const voter1 = new Voter(3004, voter1Wallet, T, chain);
+  console.log('voter1 publicV', voter1.publicV);
+  const voter2 = new Voter(3006, voter2Wallet, T, chain);
+  console.log('voter2 publicV', voter2.publicV);
+  const voter3 = new Voter(3008, voter3Wallet, T, chain);
+  console.log('voter3 publicV', voter3.publicV);
+  test('#test3: maintainer id', () => {
+    expect(creator.isValid()).toBeTruthy();
+    expect(voter1.IsValid()).toBeTruthy();
+    expect(voter2.IsValid()).toBeTruthy();
+    expect(voter3.IsValid()).toBeTruthy();
+  });
+  creator.constructNewBlock(secondBlock);
+  test('#test4: check voteBlock', () => {
+    expect(creator.block).toEqual(secondBlock);
+  });
+  creator.getVoter(voter1.port, voter1.wallet.publicKey, voter1.publicV);
+  creator.getVoter(voter2.port, voter2.wallet.publicKey, voter2.publicV);
+  creator.getVoter(voter3.port, voter3.wallet.publicKey, voter3.publicV);
+  creator.generateChallenge();
+  if (voter1.VerifyBlock(creator.block)) {
+    voter1.GenerateResponse(creator.getChallenge);
+  }
+  if (voter2.VerifyBlock(creator.block)) {
+    voter2.GenerateResponse(creator.getChallenge);
+  }
+  if (voter3.VerifyBlock(creator.block)) {
+    voter3.GenerateResponse(creator.getChallenge);
+  }
+  creator.getResponses(voter1.response);
+  creator.getResponses(voter2.response);
+  creator.getResponses(voter3.response);
+  creator.aggregateResponse();
+  if (creator.verifyCoSig()) {
+    creator.completeBlock();
+  }
 });

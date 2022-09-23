@@ -72,36 +72,36 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do w
 };
 */
 Voter.prototype.VerifyBlock = function (block_to_vote) {
-  const txs = block_to_vote.transactions;
-  let tx = null;
-  let sender_value = null;
+  // const txs = block_to_vote.transactions;
+  // let tx = null;
+  // let sender_value = null;
 
 
-  for (let i = 0; i < txs.length; i++) {
-      tx = txs[i];
-      sender_value = this.MPT.Search(tx.sender);
+  // for (let i = 0; i < txs.length; i++) {
+  //     tx = txs[i];
+  //     sender_value = this.MPT.Search(tx.sender);
 
-      if (tx.value > sender_value) {
-          return 0;
-      }
-      let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
-      let pubKeyRecovered = ec.recoverPubKey(
-          hexToDecimal(tx.id), tx.signature, tx.signature.recoveryParam, "hex");
-      console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
+  //     if (tx.value > sender_value) {
+  //         return 0;
+  //     }
+  //     let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
+  //     let pubKeyRecovered = ec.recoverPubKey(
+  //         hexToDecimal(tx.id), tx.signature, tx.signature.recoveryParam, "hex");
+  //     console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
 
-      let validSig = ec.verify(tx.id, tx.signature, pubKeyRecovered);
-      if (validSig == false) {
-          return 0;
-      }
+  //     let validSig = ec.verify(tx.id, tx.signature, pubKeyRecovered);
+  //     if (validSig == false) {
+  //         return 0;
+  //     }
 
-  }
+  // }
   return 1;
 }
 Voter.prototype.GenerateResponse = function(cHex) {
   this.cosig = new Cosig();
   this.response = this.cosig.GenerateResponse(cHex, this.secretv, this.wallet.privateKey);
 
-  return this.response;
+  return this.response; // hex
 };
 
 
