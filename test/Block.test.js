@@ -20,7 +20,7 @@
 // });
 
 test('#test1: genesisBlock', () => {
-  const blockchain = require('../src/Block/blockchain');
+  const Blockchain = require('../src/Block/blockchain');
   const MPT = require('../src/MPT/MPT');
   const fs = require('fs');
 
@@ -32,7 +32,7 @@ test('#test1: genesisBlock', () => {
 
   const T = new MPT();
 
-  for (let i = 0; i < 157; i++) {
+  for (let i = 0; i < 14; i++) {
     if (i == 2) T.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
     else if (i == 4) T.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
     else if (i == 6) T.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
@@ -40,7 +40,7 @@ test('#test1: genesisBlock', () => {
     else T.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [0, 0]);
   }
 
-  const chain = new blockchain(T);
+  const chain = new Blockchain(T);
   targetblock = chain.getLastBlock();
   expect(targetblock.timestamp).toEqual(1604671786702);
   expect(targetblock.height).toEqual(1);
