@@ -1,10 +1,12 @@
 const fs = require('fs');
-const MPT = require('./MPT');
-const Pending_Txn_Pool = require('./pending_transaction_pool');
+const MPT = require('../MPT/MPT');
+const Pending_Txn_Pool = require('../Transaction/pending_transaction_pool');
 const Block = require('./block');
+
 /**
  * @class Function used to set up things required for our prototype demo
  */
+
 function Preprocess() {
   this.chain,
   this.tree,

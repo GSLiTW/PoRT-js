@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // const account = require('../src/block');
 
 
@@ -42,5 +43,5 @@ test('#test1: genesisBlock', () => {
   const chain = new blockchain(T);
   targetblock = chain.getLastBlock();
   expect(targetblock.timestamp).toEqual(1604671786702);
-  expect(targetblock.height).toEqual(4000718);
+  expect(targetblock.height).toEqual(1);
 });

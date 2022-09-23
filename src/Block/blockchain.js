@@ -28,29 +28,24 @@ function Blockchain(MPT) {
   const txn_pool = new Txn_Pool();
   txn_pool.create(1, MPT);
 
+  let genesisData;
+  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
+  try {
+    genesisData = JSON.parse(dataFile);
+    console.log('JSON string:', 'utf8', genesisData);
+  } catch (err) {
+    console.log('Error parsing JSON string:', err);
+  }
   const genesisBlock = new Block(
       1, // height
       txn_pool.transactions,
       0, // previous Hash
       MPT,
   );
-
-  const f = fs.readFile('./src/Block/genesisBlock.json', (err, data) => {
-    if (err) {
-      return console.log('Error reading file from disk:', err);
-    }
-    try {
-      const genesisData = JSON.parse(data);
-      console.log(genesisData);
-      genesisBlock.timestamp = genesisData.timestamp;
-      genesisBlock.hash = genesisData.hash;
-      genesisBlock.nextCreator = genesisData.nextCreator;
-      genesisBlock.nextVoters = genesisData.nextVoters;
-    } catch (err) {
-      console.log('Error parsing JSON string:', err);
-    }
-  });
-
+  genesisBlock.timestamp = genesisData.timestamp;
+  genesisBlock.hash = genesisData.hash;
+  genesisBlock.nextCreator = genesisData.nextCreator;
+  genesisBlock.nextVoters = genesisData.nextVoters;
   this.chain.push(genesisBlock); // create Genesis Block
 }
 
@@ -112,6 +107,7 @@ Blockchain.prototype.addTransactionToPendingTransaction = function(
  * @param  {string} blockHash
  * @return {Block} The correct Block
  */
+
 Blockchain.prototype.getBlock = function(blockHash) {
   let correctBlock = null;
   this.chain.forEach((block) => {
@@ -120,11 +116,13 @@ Blockchain.prototype.getBlock = function(blockHash) {
 
   return correctBlock;
 };
+
 /**
  * get transaction from chain by its id
  * @param  {string} transactionId
  * @return {Transaction_MT,Block} transaction and the block where it is located
  */
+
 Blockchain.prototype.getTransaction = function(transactionId) {
   let correctTransaction = null;
   let correctBlock = null;
