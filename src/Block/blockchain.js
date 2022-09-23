@@ -28,28 +28,29 @@ function Blockchain(MPT) {
   const txn_pool = new Txn_Pool();
   txn_pool.create(1, MPT);
 
-  let genesisData = require('../Block/genesisBlock.json');
-  fs.readFile('../Block/genesisBlock.json', (err, data) => {
-    if (err) {
-      return console.log('Error reading file from disk:', err);
-    }
-    try {
-      genesisData = JSON.parse(data);
-      console.log('JSON string:', 'utf8', genesisData);
-    } catch (err) {
-      console.log('Error parsing JSON string:', err);
-    }
-  });
   const genesisBlock = new Block(
       1, // height
       txn_pool.transactions,
       0, // previous Hash
       MPT,
   );
-  genesisBlock.timestamp = genesisData.timestamp;
-  genesisBlock.hash = genesisData.hash;
-  genesisBlock.nextCreator = genesisData.nextCreator;
-  genesisBlock.nextVoters = genesisData.nextVoters;
+
+  const f = fs.readFile('./src/Block/genesisBlock.json', (err, data) => {
+    if (err) {
+      return console.log('Error reading file from disk:', err);
+    }
+    try {
+      const genesisData = JSON.parse(data);
+      console.log(genesisData);
+      genesisBlock.timestamp = genesisData.timestamp;
+      genesisBlock.hash = genesisData.hash;
+      genesisBlock.nextCreator = genesisData.nextCreator;
+      genesisBlock.nextVoters = genesisData.nextVoters;
+    } catch (err) {
+      console.log('Error parsing JSON string:', err);
+    }
+  });
+
   this.chain.push(genesisBlock); // create Genesis Block
 }
 
