@@ -25,8 +25,14 @@ function Blockchain(MPT) {
   this.networkNodes = [];
   // pase json to get data
 
-  var txn_pool = new Txn_Pool();
-  txn_pool.create(1, MPT);
+
+  var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
+  let InitTxs = []
+  for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
+    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].v, block1Txs.txs[i].r, block1Txs.txs[i].s, MPT))
+  }
+  const txn_pool = new Txn_Pool(InitTxs);
+
 
   let genesisData;
   const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');

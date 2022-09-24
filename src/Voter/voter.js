@@ -101,7 +101,7 @@ Voter.prototype.GenerateResponse = function(cHex) {
   this.cosig = new Cosig();
   this.response = this.cosig.GenerateResponse(cHex, this.secretv, this.wallet.privateKey);
 
-  return this.response;
+  return this.response; // hex
 };
 
 
