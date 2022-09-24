@@ -24,8 +24,8 @@ describe('jump step selection test', () => {
     txns = [];
     for (let i = 1; i <= quantity; i++) {
       const ecdsa = new elliptic.ec('secp256k1');
-      console.log(data[i][2])
-      console.log(keytable.get(data[i][2]))
+      // console.log(data[i][2])
+      // console.log(keytable.get(data[i][2]))
       const sig = ecdsa.sign(data[i][0], keytable.get(data[i][2]), 'hex', {canonical: true});
       txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig.recoveryParam, sig.r, sig.s, T));
     }

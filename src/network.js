@@ -775,7 +775,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.constructNewBlock(tempBlock);
+    blockToVote = creator.startCosig(tempBlock);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -1065,7 +1065,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     }
 
     console.log('Creator.GetBlock start');
-    const newBlock = creator.completeBlock(tempBlock.hash, lastBlock);
+    const newBlock = creator.constructNewBlock(pending_txn_pool);
 
     console.log('update Dbit start');
     if (tempBlock.height % 2 === 1) {

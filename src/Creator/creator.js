@@ -118,6 +118,7 @@ Creator.prototype.aggregateResponse = function() {
 
   if (this.verifyCoSig()) {
     this.voteblock.CoSig = this.cosig;
+    this.completeCosig();
   }
 };
 
