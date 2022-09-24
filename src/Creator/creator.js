@@ -145,17 +145,17 @@ Creator.prototype.completeCosig = function () {
 Creator.prototype.constructNewBlock = function (txspool) {
   this.block = new Block(this.voteblock.height+1, txspool.transactions, this.voteblock.hash, this.MPT);
   if (this.block.height % 2 === 1) {
-    const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT, [1, 1]);
+    const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [1, 1]);
     this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < this.voteblock.nextVoters.length; i++) {
-      const voterPoRT = new PoRT(this.voterPubKey[i], this.MPT, [1, 2]);
+    for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
+      const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [1, 2]);
       this.block.nextVoters.push(voterPoRT.nextMaintainer);
     }
   } else {
-    const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT, [2, 1]);
+    const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [2, 1]);
     this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < this.voterPubKey.length; i++) {
-      const voterPoRT = new PoRT(this.voterPubKey[i], this.MPT, [2, 2]);
+    for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
+      const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [2, 2]);
       this.block.nextVoters.push(voterPoRT.nextMaintainer);
     }
   }

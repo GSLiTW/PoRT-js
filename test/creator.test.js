@@ -101,7 +101,7 @@ describe('jump step selection test', () => {
   const voter3Wallet = new Wallet('b8cd965482d2c15b8c383a589267498be98c2880618ec168424efd4337fc9aee', '0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4');
   const creator = new Creator(3002, creatorWallet, T, chain);
   const voter1 = new Voter(3004, voter1Wallet, T, chain);
-  // console.log('voter1 publicV', voter1.publicV);
+  console.log('voter1 publicV', voter1.publicV);
   const voter2 = new Voter(3006, voter2Wallet, T, chain);
   // console.log('voter2 publicV', voter2.publicV);
   const voter3 = new Voter(3008, voter3Wallet, T, chain);
@@ -129,13 +129,13 @@ describe('jump step selection test', () => {
   });
   creator.generateChallenge();
   console.log('challenge', creator.getChallenge());
-  if (voter1.VerifyBlock(creator.block)) {
+  if (voter1.VerifyBlock(creator.voteblock)) {
     voter1.GenerateResponse(creator.getChallenge());
   }
-  if (voter2.VerifyBlock(creator.block)) {
+  if (voter2.VerifyBlock(creator.voteblock)) {
     voter2.GenerateResponse(creator.getChallenge());
   }
-  if (voter3.VerifyBlock(creator.block)) {
+  if (voter3.VerifyBlock(creator.voteblock)) {
     voter3.GenerateResponse(creator.getChallenge());
   }
   creator.getResponses(voter1.response);
