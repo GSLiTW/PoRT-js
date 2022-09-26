@@ -14,7 +14,7 @@ const VOTER_NUM = 3;
 const Blockchain = require('./Block/blockchain.js');
 const Transaction = require('./Transaction/transaction');
 const MPT = require('./MPT/MPT');
-const Pending_Txn_Pool = require('./Transaction/Pending_transaction_pool');
+const Pending_Txn_Pool = require('./Transaction/pending_transaction_pool');
 const Wallet = require('./Utility/wallet');
 const backup = require('./Utility/backup');
 
@@ -26,6 +26,8 @@ const Block = require('./Block/block.js');
 
 const Cosig = require('./cosig.js');
 
+// constants
+const BASE = 1000000000000
 
 // will be set to false in ("/Creator/GetBlock")
 let CreatorStartThisRound = false; // if true, means Creator already call ("Creator"), don't let him call again
@@ -53,11 +55,11 @@ w = undefined;
 const Tree = new MPT(true);
 
 for (let i = 0; i < 14; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [0, 0]);
+  if (i == 2) Tree.Insert(data[i][2], 100 * BASE, 1 * BASE * 0.0001, [2, 1]); // dbit == 1 means creator
+  else if (i == 4) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 6) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 8) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [0, 0]);
 }
 
 
