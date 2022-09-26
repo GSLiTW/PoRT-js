@@ -13,7 +13,7 @@ const VOTER_NUM = 3;
 const Blockchain = require('./Block/blockchain.js');
 const Transaction = require('./Transaction/transaction');
 const MPT = require('./MPT/MPT');
-const Pending_Txn_Pool = require('./Transaction/Pending_transaction_pool');
+const Pending_Txn_Pool = require('./Transaction/pending_transaction_pool');
 const Wallet = require('./Utility/wallet');
 const backup = require('./Utility/backup');
 
