@@ -86,10 +86,10 @@ Voter.prototype.VerifyBlock = function (block_to_vote) {
       }
       let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
       let pubKeyRecovered = ec.recoverPubKey(
-          hexToDecimal(tx.id), tx.signature, tx.signature.recoveryParam, "hex");
+          hexToDecimal(tx.id.substr(2)), tx.signature, tx.signature.recoveryParam, "hex");
       console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
 
-      let validSig = ec.verify(tx.id, tx.signature, pubKeyRecovered);
+      let validSig = ec.verify(tx.id.substr(2), tx.signature, pubKeyRecovered);
       if (validSig == false) {
           return 0;
       }
@@ -99,10 +99,11 @@ Voter.prototype.VerifyBlock = function (block_to_vote) {
 }
 Voter.prototype.GenerateResponse = function(cHex) {
   this.cosig = new Cosig();
-  this.response = this.cosig.GenerateResponse(cHex);
+  this.response = this.cosig.GenerateResponse(cHex, this.secretv, this.wallet.privateKey);
 
-  return this.response;
+  return this.response; // hex
 };
+
 
 
 module.exports = Voter;
