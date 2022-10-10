@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -5,19 +6,18 @@ const port = process.argv[2];
 const rp = require('promise-request-retry');
 const CSV_data = require('./Transaction/CSV_data');
 const fs = require('fs');
+const elliptic = require('elliptic');
 
 // macros
 const VOTER_NUM = 3;
 
 // local modules
-const Blockchain = require("./Block/blockchain.js");
-const Transaction = require("./Transaction/transaction")
+const Blockchain = require('./Block/blockchain.js');
+const Transaction = require('./Transaction/transaction');
 const MPT = require('./MPT/MPT');
-const Pending_Txn_Pool = require('./Transaction/Pending_transaction_pool');
+const Pending_Txn_Pool = require('./Transaction/pending_transaction_pool');
 const Wallet = require('./Utility/wallet');
 const backup = require('./Utility/backup');
-
-
 
 const Backup = new backup();
 const Creator = require('./Creator/creator');
@@ -27,6 +27,8 @@ const Block = require('./Block/block.js');
 
 const Cosig = require('./cosig.js');
 
+// constants
+const BASE = 1000000000000
 
 // will be set to false in ("/Creator/GetBlock")
 let CreatorStartThisRound = false; // if true, means Creator already call ("Creator"), don't let him call again
@@ -48,17 +50,22 @@ let w = fs.readFileSync('./data/private_public_key.csv')
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
+const keytable = new Map();
+w.forEach(w => {
+  keytable.set(w[2], w[1])
+})
+
 w = undefined;
 
 
 const Tree = new MPT(true);
 
-for (let i = 0; i < 157; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 1]); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 2]); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [0, 0]);
+for (let i = 0; i < 14; i++) {
+  if (i == 2) Tree.Insert(data[i][2], 100 * BASE, 1 * BASE * 0.0001, [2, 1]); // dbit == 1 means creator
+  else if (i == 4) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 6) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 8) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [0, 0]);
 }
 
 
@@ -75,8 +82,12 @@ const pending_txn_pool = new Pending_Txn_Pool();
 
 function insertCSVData(quantity, data) {
   txns = [];
-  for (let i = 1; i < quantity; i++) {
-    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+  for (let i = 1; i <= quantity; i++) {
+    const ecdsa = new elliptic.ec('secp256k1');
+    console.log(data[i][2])
+    console.log(keytable.get(data[i][2]))
+    const sig = ecdsa.sign(data[i][0], keytable.get(data[i][2]), 'hex', {canonical: true});
+    txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree));
   }
   return txns;
 };
@@ -85,16 +96,16 @@ function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num); // get data of block1
   if (num == 1 || num == 2) {
-    return insertCSVData(44, data_);
+    return insertCSVData(4, data_);
   } else if (num == 3) {
-    return insertCSVData(50, data_);
+    return insertCSVData(4, data_);
   } else console.log('wrong block number.');
 };
 
 
 pending_txn_pool.addTxs(createtxs(2));
 
-let tempBlock = new Block(4000719, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
+let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
 tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
 tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
@@ -440,7 +451,7 @@ app.post('/receive-new-block', function(req, res) {
 
     if (correctHash && correctIndex) {
       // refund creator's & voter's tax
-      if (lastBlock['height'] >= 4000718) {
+      if (lastBlock['height'] >= 1) {
         Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
         for (let i = 0; i < lastBlock.nextVoters.length; i++) {
           Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
@@ -765,7 +776,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getMilliseconds();
 
     // Create new temporary block
-    blockToVote = creator.constructNewBlock(pending_txn_pool, tempBlock.height + 1, tempBlock.hash);
+    blockToVote = creator.startCosig(tempBlock);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -1047,7 +1058,7 @@ app.post('/Creator/GetBlock', function(req, res) {
 
     console.log('refund start');
     // refund creator's & voter's tax
-    if (lastBlock['height'] >= 4000718) {
+    if (lastBlock['height'] >= 1) {
       Tree.RefundTax(lastBlock.nextCreator, Tree.Search(lastBlock.nextCreator)[1]);
       for (let i = 0; i < lastBlock.nextVoters.length; i++) {
         Tree.RefundTax(lastBlock.nextVoters[i], (Tree.Search(lastBlock.nextVoters[i])[1]) * 0.7);
@@ -1055,7 +1066,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     }
 
     console.log('Creator.GetBlock start');
-    const newBlock = creator.completeBlock(tempBlock.hash, lastBlock);
+    const newBlock = creator.constructNewBlock(pending_txn_pool);
 
     console.log('update Dbit start');
     if (tempBlock.height % 2 === 1) {

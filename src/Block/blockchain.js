@@ -25,32 +25,37 @@ function Blockchain(MPT) {
   this.networkNodes = [];
   // pase json to get data
 
-  var txn_pool = new Txn_Pool();
-  txn_pool.create(1,MPT);
 
-  let genesisData = require("../Block/genesisBlock.json");
-  fs.readFile("../Block/genesisBlock.json", (err, data) => {
-    if (err) {
-      return console.log("Error reading file from disk:", err);
-    }
-    try {
-      genesisData = JSON.parse(data);
-      console.log("JSON string:", "utf8", genesisData);
-    } catch (err) {
-      console.log("Error parsing JSON string:", err);
-    }
-  });
-  var genesisBlock = new Block(
-    4000718,
-    txn_pool.transactions,
-    genesisData.hash, //好難
-    MPT
+  var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
+  let InitTxs = []
+  for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
+    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, MPT))
+  }
+  const txn_pool = new Txn_Pool(InitTxs);
+
+
+  let genesisData;
+  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
+  try {
+    genesisData = JSON.parse(dataFile);
+    // console.log('JSON string:', 'utf8', genesisData);
+  } catch (err) {
+    console.log('Error parsing JSON string:', err);
+  }
+  const genesisBlock = new Block(
+      1, // height
+      txn_pool.transactions,
+      '0', // previous Hash
+      MPT,
   );
   genesisBlock.timestamp = genesisData.timestamp;
-  genesisBlock.hash = genesisData.hash;
+  // genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
-  this.chain.push(genesisBlock); //create Genesis Block
+  hashValue = genesisBlock.hashBlock(0, genesisBlock);
+  console.log(hashValue);
+  genesisBlock.hash = hashValue;
+  this.chain.push(genesisBlock); // create Genesis Block
 }
 
 /**
@@ -128,6 +133,7 @@ Blockchain.prototype.getTransaction = function (transactionId) {
   let correctTransaction = null;
   let correctBlock = null;
   this.chain.forEach((block) => {
+    console.log(block);
     block.transactions.forEach((transaction) => {
       if (transaction.transactionId == transactionId) {
         correctTransaction = transaction;

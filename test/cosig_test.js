@@ -46,7 +46,7 @@ console.log("\nV0_aggr:", V0_aggr.encode('hex'));
 // console.log(w.NewKeyPair("85")[1].encode('hex'));
 
 // 3) Challenge: The leader computes a collective challenge c =
-// H( ˆV0 || S), then multicasts c down through the tree, along
+// H( ˆV0 || S), then multicasts c down through the tree, along
 // with the statement S to be signed if it was not already
 // announced in phase 1.
 hash.update(V0_aggr.encode('hex') + S);

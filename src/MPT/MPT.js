@@ -372,8 +372,9 @@ MPT.prototype.ModifyValue = function(key, Update_flag = null, Update_value = nul
       if (this.key == key) {
         if (Update_flag == '-') {
           if (this.value.balance >= Update_value) {
-            this.value.balance -= Update_value * 1.0001;
-            this.value.tax += Update_value * 0.0001;
+            tx_tax = parseInt((Update_value * 0.0001).toFixed(0))
+            this.value.balance = this.value.balance - Update_value - tx_tax;
+            this.value.tax += tx_tax;
             return this.value.balance;
           } else {
             return null;
@@ -422,7 +423,7 @@ MPT.prototype.Verify = function(key) {
       if (this.key == key) {
         return this.value.DirtyBit;
       } else {
-        return -1;
+        return [-1, -1];
       }
     } else if (this.mode == 'extension') {
       let i = 0;
@@ -435,18 +436,18 @@ MPT.prototype.Verify = function(key) {
       if (i == this.key.length) {
         return this.next.Verify(key.substr(i));
       } else {
-        return -1;
+        return [-1, -1];
       }
     } else if (this.mode == 'branch') {
       if (this.branch[parseInt(key[0], 16)] != null) {
         return this.branch[parseInt(key[0], 16)].Verify(key.substr(1));
       } else {
-        return -1;
+        return [-1, -1];
       }
     }
   } else if (this.type == 'receipt') {
     console.log('TypeError: No Verify function in receipt tree!');
-    return -2;
+    return [-1, -1];
   }
 };
 
