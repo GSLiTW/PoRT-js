@@ -164,10 +164,11 @@ Creator.prototype.constructNewBlock = function (txspool) {
 };
 
 Creator.prototype.selectMaintainer = function () {
-  const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [1, 1]);
+  const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
   this.block.nextCreator = creatorPoRT.nextMaintainer;
-  for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
-    const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [1, 2]);
+  const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
+  for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
+    const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.MPT);
     this.block.nextVoters.push(voterPoRT.nextMaintainer);
   }
 }
