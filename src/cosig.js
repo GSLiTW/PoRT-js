@@ -60,10 +60,6 @@ Cosig.prototype.verifyCosig = function(gr0, x0c, challenge, block) {
   hashVerify.update(newpubV.encode('hex') + block);
   const newchallenge = new BN(hashVerify.copy().digest(), 'hex');
   const result = newchallenge.eq(challenge);
-
-    this.challenge = this.challenge.toString('hex');
-    this.r0 = this.r0.toString('hex');
-  
   return result;
 };
 

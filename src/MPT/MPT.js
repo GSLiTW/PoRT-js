@@ -78,7 +78,7 @@ MPT.prototype.Insert = function(key, balance, tax = 0, dbit = [0, 0]) {
   if (this.type == 'account') {
     if (this.mode == 'leaf') {
       if (key == this.key) {
-        console.log('>Weird request. User already exist');
+        // console.log('>Weird request. User already exist');
         return null;
       }
     }
