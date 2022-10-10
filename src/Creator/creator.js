@@ -54,8 +54,6 @@ Creator.prototype.startCosig = function(voteblock) {
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
     }*/
   this.cosig = new Cosig();
-  this.voteblock = voteblock;
-  return this.voteblock;
 };
 
 /**
@@ -118,7 +116,7 @@ Creator.prototype.aggregateResponse = function() {
 
   if (this.verifyCoSig()) {
     this.voteblock.CoSig = this.cosig;
-    this.completeCosig();
+    this.completeBlock();
   }
 };
 
@@ -131,9 +129,26 @@ Creator.prototype.verifyCoSig = function () {
   return checkResult;
 };
 
-Creator.prototype.completeCosig = function () {
-  this.voteblock.hash = this.voteblock.hashBlock(this.blockchain.getLastBlock().hash, this.voteblock);
-  // this.blockchain.chain.push(this.voteblock);
+Creator.prototype.completeBlock = function () {
+  const nextCreator = this.blockchain.getLastBlock().nextCreator;
+  this.block.hash = this.block.hashBlock(this.blockchain.getLastBlock().hash, this.block);
+  this.blockchain.chain.push(this.block);
+  this.Tree.UpdateDbit(this.wallet.publicKey, [0, 0]);
+  for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
+    this.Tree.UpdateDbit(this.blockchain.getLastBlock().nextVoters[i], [0, 0]);
+  }
+  if (this.block.height % 2 === 1) {
+    this.Tree.UpdateDbit(nextCreator, [2, 1]);
+    for (let i = 0; i < this.block.nextVoters.length; i++) {
+      this.Tree.UpdateDbit(this.block.nextVoters[i], [1, 2]);
+    }
+  } else {
+    this.Tree.UpdateDbit(nextCreator, [1, 1]);
+    for (let i = 0; i < this.block.nextVoters.length; i++) {
+      this.Tree.UpdateDbit(this.block.nextVoters[i], [2, 2]);
+    }
+  }
+  //TODO: change maintainer
 };
 
 /**
@@ -143,38 +158,18 @@ Creator.prototype.completeCosig = function () {
  * @return {Block} the completed new block
  */
 Creator.prototype.constructNewBlock = function (txspool) {
-  this.block = new Block(this.voteblock.height+1, txspool.transactions, this.voteblock.hash, this.MPT);
-  if (this.block.height % 2 === 1) {
-    const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [1, 1]);
-    this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
-      const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [1, 2]);
-      this.block.nextVoters.push(voterPoRT.nextMaintainer);
-    }
-  } else {
-    const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [2, 1]);
-    this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
-      const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [2, 2]);
-      this.block.nextVoters.push(voterPoRT.nextMaintainer);
-    }
-  }
+  this.block = new Block(this.blockchain.getLastBlock().height + 1, txspool.transactions, this.blockchain.getLastBlock().hash, this.MPT);
+  this.MPT = this.block.updateMPT();
   return this.block;
 };
 
-/**
- * Select corresponding new maintainers
- * @param  {string} rootMaintainerAddress - current block maintainer address as the seed of next maintainers
- * @return {string} selectedMainter - next-next round maintainer address
- */
-Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress) {
-  const newPoRT = new PoRT(rootMaintainerAddress, this.MPT, rootMaintainerAddress.dbit); // Question: need NodeVal.Dbit.
-  const selectedMainter = newPoRT.nextMaintainer;
-  return selectedMainter;
-};
-
-Creator.prototype.endWork = function () {
-  this.blockchain.chain.push(this.voteblock);
+Creator.prototype.selectMaintainer = function () {
+  const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [1, 1]);
+  this.block.nextCreator = creatorPoRT.nextMaintainer;
+  for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
+    const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [1, 2]);
+    this.block.nextVoters.push(voterPoRT.nextMaintainer);
+  }
 }
 
 

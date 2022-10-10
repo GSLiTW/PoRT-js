@@ -112,7 +112,7 @@ describe('jump step selection test', () => {
     expect(voter2.IsValid()).toBeTruthy();
     expect(voter3.IsValid()).toBeTruthy();
   });
-  creator.startCosig(secondBlock);
+  const blockToVote = creator.startCosig(secondBlock);
   test('#test4: check voteBlock', () => {
     expect(creator.voteblock).toEqual(secondBlock);
   });
