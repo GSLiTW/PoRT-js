@@ -70,7 +70,8 @@ Pending_Transaction_Pool.prototype.validate = function(tx) {
     return false;
   }
   pubkey = ecdsa.recoverPubKey(tx.id, {r:tx.r, s:tx.s}, tx.v, "hex");
-  if (!ecdsa.verify(tx.id, {r:tx.r, s:tx.s}, pubkey)){
+  if (!pubkey){
+    console.log('verifyfail')
     return false
   }
   return true;

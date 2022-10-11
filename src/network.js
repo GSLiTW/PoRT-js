@@ -142,7 +142,7 @@ function createtxs(num) {
 
 //pending_txn_pool.addTxs(createtxs(2));
 
-init()
+//init()
 
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
@@ -181,17 +181,17 @@ if (port >= 3002) {
   }
 }
 
-init()
+//init()
 
-createtxs(2)
+// createtxs(2)
 
-let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
-tempBlock.timestamp = 1604671786702;
-tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
-tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
-tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
+// let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
+// tempBlock.timestamp = 1604671786702;
+// tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
+// tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
+// tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
 
-pending_txn_pool.clean();
+// pending_txn_pool.clean();
 //pending_txn_pool.addTxs(createtxs(3));
 //createtxs(3)
 
@@ -432,6 +432,32 @@ app.post('/transaction/launch', function(req, res) {
   Promise.all(requestPromises).then((data) => {
     res.json({note: 'Transaction created and broadcast successfully.'});
   });
+});
+
+app.post('/transaction/AddTx', function(req, res) {
+  const rawtx = req.body.NewTx;
+  const sig = wallet.Sign(rawtx.id);
+  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig.recoveryParam, sig.r, sig.s, Tree);
+  console.log(newTransaction);
+  const isexist = chain.addTransactionToPendingTransaction(newTransaction);
+
+  if (!isexist) {
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/transaction/broadcast',
+        method: 'POST',
+        body: {NewTxs: newTransaction},
+        json: true,
+      };
+
+      requestPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(requestPromises).then((data) => {
+      res.json({note: 'Transaction created and broadcast successfully.'});
+    });
+  }
 });
 
 app.post('/transaction/broadcast', function(req, res) {
