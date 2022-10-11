@@ -17,12 +17,14 @@ const Cosig = require('../cosig.js');
  * @param  {string} wallet - Wallet public key of the creator
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the creator
  * @param {Blockchain} blockchain - Local  blockchain
+ * @param {MPT} tmpMPT - Temporary MPT for unchecked MPT
  */
 function Creator(port, wallet, MPT, blockchain) {
   this.MPT = MPT;
   this.port = port;
   this.wallet = wallet;
   this.blockchain = blockchain;
+  this.tmpMPT = MPT;
 }
 
 /**
@@ -115,8 +117,9 @@ Creator.prototype.aggregateResponse = function() {
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
 
   if (this.verifyCoSig()) {
-    this.voteblock.CoSig = this.cosig;
+    this.block.CoSig = this.cosig;
     this.completeBlock();
+    this.MPT = this.tmpMPT;
   }
 };
 
@@ -133,22 +136,21 @@ Creator.prototype.completeBlock = function () {
   const nextCreator = this.blockchain.getLastBlock().nextCreator;
   this.block.hash = this.block.hashBlock(this.blockchain.getLastBlock().hash, this.block);
   this.blockchain.chain.push(this.block);
-  this.Tree.UpdateDbit(this.wallet.publicKey, [0, 0]);
+  this.MPT.UpdateDbit(this.wallet.publicKey, [0, 0]);
   for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
-    this.Tree.UpdateDbit(this.blockchain.getLastBlock().nextVoters[i], [0, 0]);
+    this.MPT.UpdateDbit(this.blockchain.getLastBlock().nextVoters[i], [0, 0]);
   }
   if (this.block.height % 2 === 1) {
-    this.Tree.UpdateDbit(nextCreator, [2, 1]);
+    this.MPT.UpdateDbit(nextCreator, [2, 1]);
     for (let i = 0; i < this.block.nextVoters.length; i++) {
-      this.Tree.UpdateDbit(this.block.nextVoters[i], [1, 2]);
+      this.MPT.UpdateDbit(this.block.nextVoters[i], [1, 2]);
     }
   } else {
-    this.Tree.UpdateDbit(nextCreator, [1, 1]);
+    this.MPT.UpdateDbit(nextCreator, [1, 1]);
     for (let i = 0; i < this.block.nextVoters.length; i++) {
-      this.Tree.UpdateDbit(this.block.nextVoters[i], [2, 2]);
+      this.MPT.UpdateDbit(this.block.nextVoters[i], [2, 2]);
     }
   }
-  //TODO: change maintainer
 };
 
 /**
@@ -158,17 +160,17 @@ Creator.prototype.completeBlock = function () {
  * @return {Block} the completed new block
  */
 Creator.prototype.constructNewBlock = function (txspool) {
-  this.block = new Block(this.blockchain.getLastBlock().height + 1, txspool.transactions, this.blockchain.getLastBlock().hash, this.MPT);
-  this.MPT = this.block.updateMPT();
+  this.block = new Block(this.blockchain.getLastBlock().height + 1, txspool.transactions, this.blockchain.getLastBlock().hash, this.tmpMPT);
+  this.tmpMPT = this.block.updateMPT();
   return this.block;
 };
 
 Creator.prototype.selectMaintainer = function () {
-  const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
+  const creatorPoRT = new PoRT(this.wallet.publicKey, this.tmpMPT);
   this.block.nextCreator = creatorPoRT.nextMaintainer;
   const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
   for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
-    const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.MPT);
+    const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.tmpMPT);
     this.block.nextVoters.push(voterPoRT.nextMaintainer);
   }
 }
