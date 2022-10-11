@@ -30,7 +30,7 @@ function Blockchain(MPT) {
   for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
     InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, MPT))
   }
-  const txn_pool = new Txn_Pool(InitTxs);
+  this.txn_pool = new Txn_Pool(InitTxs);
 
 
   let genesisData;
@@ -43,7 +43,7 @@ function Blockchain(MPT) {
   }
   const genesisBlock = new Block(
       1, // height
-      txn_pool.transactions,
+      this.txn_pool.transactions,
       '0', // previous Hash
       MPT,
   );
