@@ -12,5 +12,6 @@
         "ecmaVersion": "latest"
     },
     "rules": {
+        "enable":false
     }
 }

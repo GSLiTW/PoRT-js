@@ -60,6 +60,10 @@ Cosig.prototype.verifyCosig = function(gr0, x0c, challenge, block) {
   hashVerify.update(newpubV.encode('hex') + block);
   const newchallenge = new BN(hashVerify.copy().digest(), 'hex');
   const result = newchallenge.eq(challenge);
+
+    this.challenge = this.challenge.toString('hex');
+    this.r0 = this.r0.toString('hex');
+  
   return result;
 };
 
@@ -72,10 +76,10 @@ Cosig.prototype.computePubkeyMulWithChallenge = function(voterPubKey, challenge)
   return x0;
 };
 
-Cosig.prototype.GenerateResponse = function(cHex) {
+Cosig.prototype.GenerateResponse = function(cHex, secretv, privateKey) {
   const c = new BN(cHex, 'hex');
-  const v = new BN(this.secretv.toString('hex'), 'hex');
-  const x = new BN(this.wallet.privateKey.toString('hex'), 'hex');
+  const v = new BN(secretv.toString('hex'), 'hex');
+  const x = new BN(privateKey.toString('hex'), 'hex');
   this.response = v.sub(c.mul(x));
 
   return this.response.toString('hex');

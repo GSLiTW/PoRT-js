@@ -71,38 +71,35 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do w
   }
 };
 */
+
+Voter.prototype.VerifyTx = function (transaction) {
+  let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
+      let pubKeyRecovered = ec.recoverPubKey(
+          hexToDecimal(transaction.id.substr(2)), transaction.sig, transaction.sig.recoveryParam, "hex");
+      console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
+
+      let validSig = ec.verify(transaction.id.substr(2), transaction.sig, pubKeyRecovered);
+      return validSig;
+}
 Voter.prototype.VerifyBlock = function (block_to_vote) {
   const txs = block_to_vote.transactions;
   let tx = null;
-  let sender_value = null;
-
-
   for (let i = 0; i < txs.length; i++) {
       tx = txs[i];
-      sender_value = this.MPT.Search(tx.sender);
-
-      if (tx.value > sender_value) {
-          return 0;
+      if(this.VerifyTx(tx) == false) {
+        return false;
       }
-      let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
-      let pubKeyRecovered = ec.recoverPubKey(
-          hexToDecimal(tx.id), tx.signature, tx.signature.recoveryParam, "hex");
-      console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
-
-      let validSig = ec.verify(tx.id, tx.signature, pubKeyRecovered);
-      if (validSig == false) {
-          return 0;
-      }
-
   }
-  return 1;
-}
+  return true;
+};
+
 Voter.prototype.GenerateResponse = function(cHex) {
   this.cosig = new Cosig();
-  this.response = this.cosig.GenerateResponse(cHex);
+  this.response = this.cosig.GenerateResponse(cHex, this.secretv, this.wallet.privateKey);
 
-  return this.response;
+  return this.response; // hex
 };
+
 
 
 module.exports = Voter;

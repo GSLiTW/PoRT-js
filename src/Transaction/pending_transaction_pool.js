@@ -21,28 +21,9 @@ function Pending_Transaction_Pool(tx = []) {
 // Pending_Transaction_Pool.prototype.insertCSVData = function(quantity, data, MPT) {
 //   txns = [];
 //   for (let i = 1; i < quantity; i++) {
-//     if(data[i][2] === wallet.publicKey){
-//       const sig = wallet.Sign(data[i][0])
-//       const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig.recoveryParam, sig.r, sig.s,Tree)
-//       const requestPromises = [];
-//       chain.networkNodes.forEach((networkNodeUrl) => {
-//         const requestOptions = {
-//           uri: networkNodeUrl + '/transaction/broadcast',
-//           method: 'POST',
-//           body: {NewTxs: newTx},
-//           json: true,
-//         };
-  
-//         requestPromises.push(rp(requestOptions));
-//       });
-  
-//       Promise.all(requestPromises).then((data) => {
-//         res.json({note: 'Transaction created and broadcast successfully.'});
-//       });
-//     }
-//     //txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
+//     txns.push(new Transaction_MT(data[i][0], data[i][2], data[i][3], data[i][4], MPT));
 //   }
-//   return null;
+//   return txns;
 // };
 
 Pending_Transaction_Pool.prototype.clean = function() {
@@ -69,7 +50,11 @@ Pending_Transaction_Pool.prototype.validate = function(tx) {
   if (tx.value < 0) {
     return false;
   }
-  pubkey = ecdsa.recoverPubKey(tx.id, {r:tx.r, s:tx.s}, tx.v, "hex");
+
+  let hexToDecimal = (x) => ecdsa.keyFromPrivate(x, "hex").getPrivate().toString(10);
+  let pubkey = ecdsa.recoverPubKey(
+          hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, "hex");
+  
   if (!pubkey){
     console.log('verifyfail')
     return false

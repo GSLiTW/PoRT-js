@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 const Block = require('../Block/block');
-const PoRT = require('./PoRT.js');
+const PoRT = require('../Creator/PoRT.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
@@ -49,13 +49,13 @@ Creator.prototype.isValid = function() {
  * @param  {string} previousHash
  * @return {Block.block} created block
  */
-Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash) {
+Creator.prototype.startCosig = function(voteblock) {
   /* for (var i = 0; i < pendingTxs.length; i++) {
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
     }*/
   this.cosig = new Cosig();
-  this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
-  return this.block;
+  this.voteblock = voteblock;
+  return this.voteblock;
 };
 
 /**
@@ -86,12 +86,12 @@ Creator.prototype.setVoterIndex = function(index) {
 };
 
 Creator.prototype.generateChallenge = function() {
-  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block);
+  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.voteblock);
   return this.challenge.toString('hex');
 };
 
 Creator.prototype.generateChallengeWithIndex = function() {
-  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block, this.voterIndex);
+  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.voteblock, this.voterIndex);
   return this.challenge.toString('hex');
 };
 
@@ -117,17 +117,23 @@ Creator.prototype.aggregateResponse = function() {
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
 
   if (this.verifyCoSig()) {
-    this.block.Cosig = this.cosig;
+    this.voteblock.CoSig = this.cosig;
+    this.completeCosig();
   }
 };
 
-Creator.prototype.verifyCoSig = function() {
+Creator.prototype.verifyCoSig = function () {
   const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
   const gr0 = responseKeypair.getPublic();
-  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
-  const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
+  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.getChallenge());
+  const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.voteblock);
 
   return checkResult;
+};
+
+Creator.prototype.completeCosig = function () {
+  this.voteblock.hash = this.voteblock.hashBlock(this.blockchain.getLastBlock().hash, this.voteblock);
+  // this.blockchain.chain.push(this.voteblock);
 };
 
 /**
@@ -136,23 +142,23 @@ Creator.prototype.verifyCoSig = function() {
  * @param {Block} lastBlock - last block
  * @return {Block} the completed new block
  */
-Creator.prototype.completeBlock = function(previousHash, lastBlock) {
-  if (lastBlock.height % 2 === 1) {
-    const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, [1, 1]);
+Creator.prototype.constructNewBlock = function (txspool) {
+  this.block = new Block(this.voteblock.height+1, txspool.transactions, this.voteblock.hash, this.MPT);
+  if (this.block.height % 2 === 1) {
+    const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [1, 1]);
     this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-      const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, [1, 2]);
+    for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
+      const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [1, 2]);
       this.block.nextVoters.push(voterPoRT.nextMaintainer);
     }
   } else {
-    const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, [2, 1]);
+    const creatorPoRT = new PoRT(this.blockchain.getLastBlock().nextCreator, this.MPT, [2, 1]);
     this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-      const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, [2, 2]);
+    for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
+      const voterPoRT = new PoRT(this.blockchain.getLastBlock().nextVoters[i], this.MPT, [2, 2]);
       this.block.nextVoters.push(voterPoRT.nextMaintainer);
     }
   }
-  this.block.hash = this.block.hashBlock(previousHash, this.block);
   return this.block;
 };
 
@@ -166,6 +172,10 @@ Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress) {
   const selectedMainter = newPoRT.nextMaintainer;
   return selectedMainter;
 };
+
+Creator.prototype.endWork = function () {
+  this.blockchain.chain.push(this.voteblock);
+}
 
 
 module.exports = Creator;
