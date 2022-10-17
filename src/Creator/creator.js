@@ -35,7 +35,7 @@ Creator.prototype.isValid = function() {
   const roundOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0]%2;
   const identityOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[1];
   const lastBlock = this.blockchain.getLastBlock();
-  const roundNum = lastBlock.height%2;
+  const roundNum = (lastBlock.height+1)%2;
   let checksum;
   if (roundNum == roundOfCreator && identityOfCreator == 1) {
     checksum = 1;
