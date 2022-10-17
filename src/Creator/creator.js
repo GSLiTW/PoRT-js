@@ -51,7 +51,7 @@ Creator.prototype.isValid = function() {
  * @param  {string} previousHash
  * @return {Block.block} created block
  */
-Creator.prototype.startCosig = function(voteblock) {
+Creator.prototype.startCosig = function() {
   /* for (var i = 0; i < pendingTxs.length; i++) {
         this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
     }*/
@@ -86,12 +86,12 @@ Creator.prototype.setVoterIndex = function(index) {
 };
 
 Creator.prototype.generateChallenge = function() {
-  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.voteblock);
+  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block);
   return this.challenge.toString('hex');
 };
 
 Creator.prototype.generateChallengeWithIndex = function() {
-  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.voteblock, this.voterIndex);
+  this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block, this.voterIndex);
   return this.challenge.toString('hex');
 };
 
@@ -127,7 +127,7 @@ Creator.prototype.verifyCoSig = function () {
   const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
   const gr0 = responseKeypair.getPublic();
   const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.getChallenge());
-  const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.voteblock);
+  const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
 
   return checkResult;
 };

@@ -63,22 +63,26 @@ describe('jump step selection test', () => {
   let T = new MPT();
 
   for (let i = 0; i <= 14; i++) {
-    if (i == 2) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 1]); // dbit == 1 means creator
+    if (i == 1) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.001, [2, 1]);
+    else if (i == 2) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 1]); // dbit == 1 means creator
+    else if (i == 3) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2])
     else if (i == 4) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
+    else if (i == 5) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2])
     else if (i == 6) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
+    else if (i == 7) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2])
     else if (i == 8) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
     else T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [0, 0]);
   }
   const txspool = new TxnPool();
   let chain = new Blockchain(T);
-  const targetblock = chain.getLastBlock();
+  const genesisblock = chain.getLastBlock();
   test('#test1: genesisBlock', () => {
-    expect(targetblock.previousBlockHash).toEqual('0');
-    expect(targetblock.timestamp).toEqual(1604671786702);
-    expect(targetblock.height).toEqual(1);
-    expect(targetblock.nextCreator).toEqual('04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b');
-    expect(targetblock.nextVoters[0]).toEqual('046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
-    expect(targetblock.hash).toEqual('2c840dd2496890a4ad40e191838dacccc5193dd39adbb0ac94fa1abd388c139c');
+    expect(genesisblock.previousBlockHash).toEqual('0');
+    expect(genesisblock.timestamp).toEqual(1604671786702);
+    expect(genesisblock.height).toEqual(1);
+    expect(genesisblock.nextCreator).toEqual('04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b');
+    expect(genesisblock.nextVoters[0]).toEqual('046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
+    expect(genesisblock.hash).toEqual('2c840dd2496890a4ad40e191838dacccc5193dd39adbb0ac94fa1abd388c139c');
   });
 
   txspool.addTxs(createtxs(2));
@@ -94,6 +98,10 @@ describe('jump step selection test', () => {
     expect(secondBlock.nextCreator).toEqual('04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8');
     expect(secondBlock.nextVoters[0]).toEqual('040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b');
   });
+
+  chain.chain[0].push(secondBlock);
+  txspool.clean();
+  txspool.addTxs(createtxs(3));
 
   const creatorWallet = new Wallet('157938f922fa2b56d96c11b26b548583ee4ee15694f36d7c368a67833cd6e6d3', '04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b');
   const voter1Wallet = new Wallet('d03e5191333fe476a8d18b141093bde4bbc618763836c3cd9d9b2bb07c30f900', '046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
@@ -146,8 +154,8 @@ describe('jump step selection test', () => {
 
   creator.completeCosig();
 
-  txspool.clean();
-  txspool.addTxs(createtxs(3));
+  // txspool.clean();
+  // txspool.addTxs(createtxs(3));
   creator.constructNewBlock(txspool);
   console.log(creator.block);
   // test('#test7: check PoRT', () => {
