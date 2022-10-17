@@ -6,7 +6,7 @@ const sha256 = require('sha256');
 */
 function PoRT(address, MPT) {
   this.address = address,
-  this.Tree = MPT,
+  this.Tree = MPT;
 
   const T = this.Tree.TotalTax().toString();
   const tmp = sha256(T + this.address);

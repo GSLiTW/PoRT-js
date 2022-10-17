@@ -82,6 +82,8 @@ describe('jump step selection test', () => {
     expect(genesisblock.height).toEqual(1);
     expect(genesisblock.nextCreator).toEqual('04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b');
     expect(genesisblock.nextVoters[0]).toEqual('046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
+    expect(genesisblock.nextVoters[1]).toEqual('0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd');
+    expect(genesisblock.nextVoters[2]).toEqual('0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4');
     expect(genesisblock.hash).toEqual('2c840dd2496890a4ad40e191838dacccc5193dd39adbb0ac94fa1abd388c139c');
   });
 
