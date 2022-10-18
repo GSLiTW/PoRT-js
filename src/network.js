@@ -50,10 +50,6 @@ let w = fs.readFileSync('./data/private_public_key.csv')
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
-// const keytable = new Map();
-// w.forEach(w => {
-//   keytable.set(w[2], w[1])
-// })
 
 w = undefined;
 
@@ -84,28 +80,6 @@ const pending_txn_pool = new Pending_Txn_Pool();
 
 //createtxs(1)
 
-//helper func to extract txs w/sig
-// function storeData (data, path) {
-//   try {
-//     fs.writeFileSync(path, JSON.stringify(data))
-//   } catch (err) {
-//     console.error(err)
-//   }
-// }
-// //
-function init() {
-  console.log(1);
-  sleep(10000).then(() => {
-    console.log("one second has elapsed")
-  });
-  console.log(2);
-}
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 function insertCSVData(quantity, data) {
   txns = [];
   for (let i = 1; i <= quantity; i++) {
@@ -132,13 +106,6 @@ function insertCSVData(quantity, data) {
         console.log('Transaction created and broadcast successfully.');
       });
     }
-    //txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], Tree));
-
-    // const ecdsa = new elliptic.ec('secp256k1');
-    // console.log(data[i][2])
-    // console.log(keytable.get(data[i][2]))
-    // const sig = ecdsa.sign(data[i][0], keytable.get(data[i][2]), 'hex', {canonical: true});
-    // txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree));
 
   }
   return null;
@@ -154,10 +121,6 @@ function createtxs(num) {
   } else console.log('wrong block number.');
 };
 
-
-//pending_txn_pool.addTxs(createtxs(2));
-
-//init()
 
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
@@ -196,8 +159,6 @@ if (port >= 3002) {
   }
 }
 
-//init()
-
 createtxs(2)
 
 let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
@@ -207,8 +168,7 @@ tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2c
 tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
 
 pending_txn_pool.clean();
-//pending_txn_pool.addTxs(createtxs(3));
-//createtxs(3)
+createtxs(3)
 
 seqList = [0];
 
