@@ -48,8 +48,8 @@ Block.prototype.updateMPT = function () {
     const receiver = this.transactions[i].get_receiver();
     const value = this.transactions[i].get_value();
     this.MPT.UpdateValue(sender, receiver, value);
-    this.MPT.UpdateTax(sender, value*creatorTaxRate);
-    this.MPT.UpdateTax(receiver, value*receiverTaxRate);
+    // this.MPT.UpdateTax(sender, value*creatorTaxRate);
+    // this.MPT.UpdateTax(receiver, value*receiverTaxRate);
   }
   return this.MPT;
 }
