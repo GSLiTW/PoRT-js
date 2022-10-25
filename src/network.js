@@ -822,7 +822,6 @@ app.get('/Creator', function(req, res) {
             currentdate.getSeconds() + '.' +
             currentdate.getMilliseconds();
 
-    // Create new temporary block
     blockToVote = creator.startCosig(tempBlock);
 
     const seq = seqList[seqList.length - 1] + 1;
