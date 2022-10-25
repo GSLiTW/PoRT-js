@@ -30,11 +30,15 @@ function Blockchain() {
   const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
 
 
-  const allocData = JSON.parse(fs.readFileSync('./src/Block/InitialAlloc.json', 'utf8'));
+  // const allocData = JSON.parse(fs.readFileSync('./src/Block/InitialAlloc.json', 'utf8'));
   const genesisData = JSON.parse(dataFile);
 
-  for (let allocid = 0; allocid < Object.keys(allocData.alloc).length; allocid++) {
-    this.MPT.Insert(allocData.alloc[allocid].pubKey, allocData.alloc[allocid].balance, allocData.alloc[allocid].tax, allocData.alloc[allocid].dbit);
+  // for (let allocid = 0; allocid < Object.keys(allocData.alloc).length; allocid++) {
+  //   this.MPT.Insert(allocData.alloc[allocid].pubKey, allocData.alloc[allocid].balance, allocData.alloc[allocid].tax, allocData.alloc[allocid].dbit);
+  // }
+
+  for (let allocid in genesisData.alloc) {
+    this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
   }
 
   var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));

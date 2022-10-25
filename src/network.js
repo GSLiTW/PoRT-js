@@ -54,9 +54,7 @@ const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
 w = undefined;
 
 
-const Tree = new MPT(true);
-
-
+/*
 for (let i = 0; i < 14; i++) {
   if (i == 2) Tree.Insert(data[i][2], 100 * BASE, 1 * BASE * 0.0001, [2, 1]); // dbit == 1 means creator
   else if (i == 4) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
@@ -64,9 +62,9 @@ for (let i = 0; i < 14; i++) {
   else if (i == 8) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
   else Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [0, 0]);
 }
-
+*/
 const chain = new Blockchain(Tree);
-
+const Tree = chain.MPT;
 
 
 for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
