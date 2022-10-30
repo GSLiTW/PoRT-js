@@ -55,6 +55,8 @@ function Blockchain() {
   );
 
   this.MPT = genesisBlock.updateMPT();
+  this.MPT.Cal_old_hash();
+  this.MPT.ResetSaved();
 
   genesisBlock.timestamp = genesisData.timestamp;
   // genesisBlock.hash = genesisData.hash;
