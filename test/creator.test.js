@@ -59,28 +59,18 @@ describe('jump step selection test', () => {
   w.forEach(w => {
     keytable.set(w[2], w[1])
   })
-/*
-  for (let i = 6; i <= 14; i++) {
-    if (i == 1) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 1]);
-    else if (i == 2) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 1]); // dbit == 1 means creator
-    else if (i == 3) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2])
-    else if (i == 4) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
-    else if (i == 5) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2])
-    else if (i == 6) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
-    else if (i == 7) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [2, 2])
-    else if (i == 8) T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [1, 2]); // dbit == 2 means voter
-    else T.Insert(data[i][2], 100000000000000, 100000000000000 * 0.0001, [0, 0]);
-  }
-*/
+
   const txspool = new TxnPool();
   let chain = new Blockchain();
   let T = chain.MPT;
   const genesisblock = chain.getLastBlock();
+  
   test('# test0: mpt test', () => {
     // console.log(genesisblock);
     console.log(T.Search('04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8'));
   })
-  /*
+  
+  
   test('#test1: genesisBlock', () => {
     expect(genesisblock.previousBlockHash).toEqual('0');
     expect(genesisblock.timestamp).toEqual(1604671786702);
@@ -89,7 +79,7 @@ describe('jump step selection test', () => {
     expect(genesisblock.nextVoters[0]).toEqual('046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
     expect(genesisblock.nextVoters[1]).toEqual('0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd');
     expect(genesisblock.nextVoters[2]).toEqual('0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4');
-    expect(genesisblock.hash).toEqual('bf291629ef15da5805a5de6e0c1e8278af22259497762f1b3740d11cafb21c2c');
+    expect(genesisblock.hash).toEqual('b41929cec19cb011013c0de5c40ee084096d4d990f64537709db99a44ebbd5f0');
     console.log(genesisblock);
     // console.log(T.Search('04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b'));
   });
@@ -99,23 +89,60 @@ describe('jump step selection test', () => {
   const creatorWallet = new Wallet(keytable.get(data[1][2]), data[1][2]);
   const creator = new Creator(3001, creatorWallet, T, chain);
   test('#test2: creator is valid', () => {
+    // console.log(creator.MPT.Verify(creator.wallet.publicKey.encode('hex')));
     expect(creator.isValid()).toBeTruthy();
   });
   const newBlock = creator.constructNewBlock(txspool);
   test('#test3: creator construct new block', () => {
-    console.log(newBlock);
+    expect(newBlock).toEqual(creator.block);
     expect(newBlock.transactions).toEqual(txspool.get_transaction());
-    // console.log(creator.tmpMPT.Search('0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd'));
+    console.log(creator.MPT.Search('0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd'));
   });
 
   const voter1Wallet = new Wallet(keytable.get(data[4][2]),data[4][2]);
   const voter2Wallet = new Wallet(keytable.get(data[6][2]),data[6][2]);
   const voter3Wallet = new Wallet(keytable.get(data[8][2]), data[8][2]);
   
-*/
+  const voter1 = new Voter(3004, voter1Wallet, T, chain);
+  const voter2 = new Voter(3006, voter2Wallet, T, chain);
+  const voter3 = new Voter(3008, voter3Wallet, T, chain);
+  test('#test4: voter is valid', () => {
+    expect(voter1.IsValid()).toBeTruthy();
+    expect(voter2.IsValid()).toBeTruthy();
+    expect(voter3.IsValid()).toBeTruthy();
+  });
 
-  // const secondBlock = new Block(2, txspool.transactions, chain.chain[0].hash, T);
-  // secondBlock.timestamp = 1604671786702;
+  creator.startCosig();
+  creator.getVoter(voter1.port, voter1.wallet.publicKey, voter1.publicV);
+  creator.getVoter(voter2.port, voter2.wallet.publicKey, voter2.publicV);
+  creator.getVoter(voter3.port, voter3.wallet.publicKey, voter3.publicV);
+  test('#test5: getVoter finish', () => {
+    expect(creator.voterPubKey[0]).toEqual(voter1Wallet.publicKey);
+    expect(creator.voterPubKey[1]).toEqual(voter2Wallet.publicKey);
+    expect(creator.voterPubKey[2]).toEqual(voter3Wallet.publicKey);
+    expect(creator.voterPubV[0]).toEqual(voter1.publicV);
+    expect(creator.voterPubV[1]).toEqual(voter2.publicV);
+    expect(creator.voterPubV[2]).toEqual(voter3.publicV);
+  });
+
+  creator.generateChallenge();
+  console.log('challenge', creator.getChallenge());
+  if (voter1.VerifyBlock(creator.block)) {
+    voter1.GenerateResponse(creator.getChallenge());
+  }
+  if (voter2.VerifyBlock(creator.block)) {
+    voter2.GenerateResponse(creator.getChallenge());
+  }
+  if (voter3.VerifyBlock(creator.block)) {
+    voter3.GenerateResponse(creator.getChallenge());
+  }
+  creator.getResponses(voter1.response);
+  creator.getResponses(voter2.response);
+  creator.getResponses(voter3.response);
+  // creator.aggregateResponse();
+
+
+
   // secondBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
   // secondBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
   // test('#test3: Second genesisBlock', () => {
@@ -126,52 +153,7 @@ describe('jump step selection test', () => {
   //   expect(secondBlock.nextVoters[0]).toEqual('040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b');
   // });
 
-  // txspool.clean();
-  // txspool.addTxs(createtxs(3));
 
-
-  // const voter1 = new Voter(3004, voter1Wallet, T, chain);
-  // console.log('voter1 publicV', voter1.publicV);
-  // const voter2 = new Voter(3006, voter2Wallet, T, chain);
-  // // console.log('voter2 publicV', voter2.publicV);
-  // const voter3 = new Voter(3008, voter3Wallet, T, chain);
-  // // console.log('voter3 publicV', voter3.publicV);
-  // test('#test3: maintainer id', () => {
-  //   expect(creator.isValid()).toBeTruthy();
-  //   expect(voter1.IsValid()).toBeTruthy();
-  //   expect(voter2.IsValid()).toBeTruthy();
-  //   expect(voter3.IsValid()).toBeTruthy();
-  // });
-  // const blockToVote = creator.startCosig(secondBlock);
-  // test('#test4: check voteBlock', () => {
-  //   expect(creator.block).toEqual(secondBlock);
-  // });
-  // creator.getVoter(voter1.port, voter1.wallet.publicKey, voter1.publicV);
-  // creator.getVoter(voter2.port, voter2.wallet.publicKey, voter2.publicV);
-  // creator.getVoter(voter3.port, voter3.wallet.publicKey, voter3.publicV);
-  // test('#test5: getVoter finish', () => {
-  //   expect(creator.voterPubKey[0]).toEqual(voter1.wallet.publicKey);
-  //   expect(creator.voterPubKey[1]).toEqual(voter2Wallet.publicKey);
-  //   expect(creator.voterPubKey[2]).toEqual(voter3Wallet.publicKey);
-  //   expect(creator.voterPubV[0]).toEqual(voter1.publicV);
-  //   expect(creator.voterPubV[1]).toEqual(voter2.publicV);
-  //   expect(creator.voterPubV[2]).toEqual(voter3.publicV);
-  // });
-  // creator.generateChallenge();
-  // console.log('challenge', creator.getChallenge());
-  // if (voter1.VerifyBlock(creator.block)) {
-  //   voter1.GenerateResponse(creator.getChallenge());
-  // }
-  // if (voter2.VerifyBlock(creator.block)) {
-  //   voter2.GenerateResponse(creator.getChallenge());
-  // }
-  // if (voter3.VerifyBlock(creator.block)) {
-  //   voter3.GenerateResponse(creator.getChallenge());
-  // }
-  // creator.getResponses(voter1.response);
-  // creator.getResponses(voter2.response);
-  // creator.getResponses(voter3.response);
-  // creator.aggregateResponse();
   // console.log(creator.cosig);
 
   // creator.completeBlock();

@@ -17,7 +17,7 @@ test("#BLOCK_test: func", () => {
       .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 
   Bchain.txn_pool = new Txn_Pool();
-  Bchain.txn_pool.create(1, T);
+  // Bchain.txn_pool.create(1, T);
 
   for (let i = 0; i < 157; i++) {
     if (i == 2) T.Insert(data[i][2], 1000000000, 1000000000 * 0.0001, [2, 1]);
@@ -67,4 +67,3 @@ test("#BLOCK_test: func", () => {
   //   transaction: 0x43a1a360188faaa2b227c1133d66e155c240816b33d6cba682e9ab27dbc77012,
   // });
 });
-*/

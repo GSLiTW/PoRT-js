@@ -28,8 +28,6 @@ function Blockchain() {
 
   // pase json to get data
   const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
-
-
   // const allocData = JSON.parse(fs.readFileSync('./src/Block/InitialAlloc.json', 'utf8'));
   const genesisData = JSON.parse(dataFile);
 
