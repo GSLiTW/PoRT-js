@@ -25,10 +25,174 @@ const Cosig = require('./cosig.js');
 
 // constructor
 const Backup = new backup();
-const chain = new Blockchain();
-
-// preprocess
+const pendingTxnPool = new Pending_Txn_Pool();
 
 
 // constants
 const BASE = 1000000000000;
+
+// Lock
+let CreatorStartThisRound = false; // if true, means Creator already call ("Creator"), don't let him call again
+let FirstRoundLock = false; // if is true, means ("/Creator/Challenge") overtime, Creator will not wait for rest of voters
+let FirstRountSetTimeout = null; // record setTimeout in ("/Creator/Challenge"), confirm that only one timeout a time
+let FirstRoundVoterNum = 0; // record when First Round Lock, how many Voters attend this round
+let GetResponsesSetTimeout = null;
+
+// preprocess
+const data = fs.readFileSync('./data/node_address_mapping_table.csv')
+    .toString() // convert Buffer to string
+    .split('\n') // split string to lines
+    .map((e) => e.trim()) // remove white spaces for each line
+    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+
+let w = fs.readFileSync('./data/private_public_key.csv')
+    .toString() // convert Buffer to string
+    .split('\n') // split string to lines
+    .map((e) => e.trim()) // remove white spaces for each line
+    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
+
+w = undefined;
+
+// temp insert tx function
+function insertCSVData(quantity, data) {
+  txns = [];
+  for (let i = 1; i <= quantity; i++) {
+    if(data[i][2] === wallet.publicKey.encode('hex')){
+      const sig = wallet.Sign(data[i][0])
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree)
+      const requestPromises = [];
+      console.log(chain.networkNodes)
+      chain.networkNodes.forEach((networkNodeUrl) => {
+        const requestOptions = {
+          uri: networkNodeUrl + '/transaction/broadcast',
+          method: 'POST',
+          body: {NewTxs: newTx},
+          json: true,
+          retry: 2,
+          delay: 10000,
+        };
+  
+        requestPromises.push(rp(requestOptions));
+      });
+  
+      Promise.all(requestPromises).then((data) => {
+        console.log('Transaction created and broadcast successfully.');
+      });
+    }
+
+  }
+  return null;
+};
+
+function createtxs(num) {
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num); // get data of block1
+  if (num == 1 || num == 2) {
+    return insertCSVData(4, data_);
+  } else if (num == 3) {
+    return insertCSVData(4, data_);
+  } else console.log('wrong block number.');
+};
+
+// create a blockchain
+const chain = new Blockchain();
+
+// register nodes initially
+if (port >= 3002) {
+  for (let p = port - 2; p < port; p++) {
+    const newNodeUrl = 'http://localhost:' + p;
+    if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
+      chain.networkNodes.push(newNodeUrl);
+    }
+
+    const regNodesPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/register-node',
+        method: 'POST',
+        body: {newNodeUrl: newNodeUrl},
+        json: true,
+        retry: 10,
+        delay: 10000,
+      };
+
+      regNodesPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(regNodesPromises).then((data) => {
+      // use the data
+      const bulkRegisterOptions = {
+        uri: newNodeUrl + '/register-nodes-bulk',
+        method: 'POST',
+        body: {allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl]},
+        json: true,
+        retry: 10,
+        delay: 1000,
+      };
+
+      return rp(bulkRegisterOptions);
+    });
+  }
+}
+
+// register a new node and broadcast it to network nodes
+app.get('/register-and-broadcast-node', function(req, res) {
+  const newNodeUrl = 'http://localhost:' + port;
+  if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
+    chain.networkNodes.push(newNodeUrl);
+  }
+
+  const regNodesPromises = [];
+  chain.networkNodes.forEach((networkNodeUrl) => {
+    const requestOptions = {
+      uri: networkNodeUrl + '/register-node',
+      method: 'POST',
+      body: {newNodeUrl: newNodeUrl},
+      json: true,
+    };
+
+    regNodesPromises.push(rp(requestOptions));
+  });
+
+  Promise.all(regNodesPromises).then((data) => {
+    // use the data
+    const bulkRegisterOptions = {
+      uri: newNodeUrl + '/register-nodes-bulk',
+      method: 'POST',
+      body: {allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl]},
+      json: true,
+    };
+
+    return rp(bulkRegisterOptions);
+  })
+      .then((data) => {
+        res.json({note: 'New node registered with network successfully.'});
+      });
+});
+
+// network nodes register the new node
+app.post('/register-node', function(req, res) {
+  const newNodeUrl = req.body.newNodeUrl;
+  const nodeNotAlreadyPresent = chain.networkNodes.indexOf(newNodeUrl) == -1;
+  const notCurrentNode = chain.currentNodeUrl !== newNodeUrl;
+  if (nodeNotAlreadyPresent && notCurrentNode) {
+    chain.networkNodes.push(newNodeUrl);
+  }
+  res.json({note: 'New node registerd successfully with node.'});
+});
+
+// new node registers all network nodes
+app.post('/register-nodes-bulk', function(req, res) {
+  const allNetworkNodes = req.body.allNetworkNodes;
+  allNetworkNodes.forEach((networkNodeUrl) => {
+    const nodeNotAlreadyPresent = chain.networkNodes.indexOf(networkNodeUrl) == -1;
+    const notCurrentNode = chain.currentNodeUrl !== networkNodeUrl;
+    if (nodeNotAlreadyPresent && notCurrentNode) {
+      chain.networkNodes.push(networkNodeUrl);
+    }
+  });
+
+  res.json({note: 'Bulk registeration successful.'});
+});
+
