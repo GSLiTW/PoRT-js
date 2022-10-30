@@ -63,13 +63,14 @@ for (let i = 0; i < 14; i++) {
   else Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [0, 0]);
 }
 */
-const chain = new Blockchain(Tree);
+const chain = new Blockchain();
 const Tree = chain.MPT;
 
-
+/*
 for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
+*/
 
 Tree.Cal_old_hash();
 Tree.ResetSaved();
