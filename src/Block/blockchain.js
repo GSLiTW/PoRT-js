@@ -28,12 +28,7 @@ function Blockchain() {
 
   // pase json to get data
   const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
-  // const allocData = JSON.parse(fs.readFileSync('./src/Block/InitialAlloc.json', 'utf8'));
   const genesisData = JSON.parse(dataFile);
-
-  // for (let allocid = 0; allocid < Object.keys(allocData.alloc).length; allocid++) {
-  //   this.MPT.Insert(allocData.alloc[allocid].pubKey, allocData.alloc[allocid].balance, allocData.alloc[allocid].tax, allocData.alloc[allocid].dbit);
-  // }
 
   for (let allocid in genesisData.alloc) {
     this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
@@ -59,7 +54,6 @@ function Blockchain() {
   this.MPT.ResetSaved();
 
   genesisBlock.timestamp = genesisData.timestamp;
-  // genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
   hashValue = genesisBlock.hashBlock(0, genesisBlock);
@@ -115,7 +109,6 @@ Blockchain.prototype.addTransactionToPendingTransaction = function (
   if (!isexist) {
     this.txn_pool.addTx(transactionObj);
   }
-  // return this.getLastBlock()["height"]+1;
   return isexist;
 };
 

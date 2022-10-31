@@ -18,8 +18,8 @@ const BN = require('bn.js');
  * @param  {string} pubKey - Wallet public key of the voter
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the voter
  */
-function Voter(port, wallet, MPT, blockchain) {
-  this.MPT = MPT;
+function Voter(port, wallet, blockchain) {
+  this.MPT = blockchain.MPT;
   this.port = port;
   this.wallet = wallet;
   const kp = wallet.NewKeyPair();
@@ -31,7 +31,7 @@ function Voter(port, wallet, MPT, blockchain) {
  * Check if the caller is selected as voter to perform actions for the current round of block construction
  * @return {bool} True if the caller is the voter of the current round of block construction; False otherwise
  */
-Voter.prototype.IsValid = function() {
+Voter.prototype.isValid = function() {
   const roundOfVoter = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0]%2;
   const identityOfVoter = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[1];
   const lastBlock = this.blockchain.getLastBlock();

@@ -25,7 +25,6 @@ const Cosig = require('./cosig.js');
 
 // constructor
 const Backup = new backup();
-const pendingTxnPool = new Pending_Txn_Pool();
 
 
 // constants
@@ -281,7 +280,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getSeconds() + '.' +
             currentdate.getMilliseconds();
 
-    blockToVote = creator.constructNewBlock(pendingTxnPool);
+    blockToVote = creator.constructNewBlock(this.blockchain.txn_pool);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -309,4 +308,49 @@ app.get('/Creator', function(req, res) {
 
     res.json('Error: Not Creator');
   }
+});
+
+// voter start
+app.post('/Voter', function(req, res) {
+  console.log('********** Voter start  **********');
+  const seq = req.body.SeqNum;
+
+  if (seqList.indexOf(seq) == -1) {
+    voter = new Voter(port, wallet, chain);
+    if (voter.IsValid()) {
+      // console.log('i am voter');
+
+      voter.CreatorUrl(req.body.CreatorUrl);
+
+      const requestPromises = [];
+
+      const requestOptions = {
+        uri: voter.CreatorUrl + '/Creator/Challenge',
+        method: 'POST',
+        body: {VoterUrl: chain.currentNodeUrl,
+          publicKey: wallet.publicKey.encode('hex'),
+          publicV: voter.publicV.encode('hex')},
+        json: true,
+      };
+      requestPromises.push(rp(requestOptions));
+    } else {
+      voter = null;
+    }
+
+    seqList.push(seq);
+
+
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/Voter',
+        method: 'POST',
+        body: {SeqNum: seq, CreatorUrl: req.body.CreatorUrl},
+        json: true,
+      };
+      requestPromises.push(rp(requestOptions));
+    });
+  }
+
+  res.json('Voter triggered');
 });
