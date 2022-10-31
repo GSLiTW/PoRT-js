@@ -197,6 +197,50 @@ app.post('/register-nodes-bulk', function(req, res) {
 });
 
 // add tx to txpool
+app.post('/transaction/launch', function(req, res) {
+  const newTransaction = Transaction('1000', 'Amy', 'John');
+  const isexist = chain.addTransactionToPendingTransaction(newTransaction);
+  const requestPromises = [];
+  chain.networkNodes.forEach((networkNodeUrl) => {
+    const requestOptions = {
+      uri: networkNodeUrl + '/transaction/broadcast',
+      method: 'POST',
+      body: {NewTxs: newTransaction},
+      json: true,
+    };
+
+    requestPromises.push(rp(requestOptions));
+  });
+  Promise.all(requestPromises).then((data) => {
+    res.json({note: 'Transaction created and broadcast successfully.'});
+  });
+});
+
+app.post('/transaction/AddTx', function(req, res) {
+  const rawtx = req.body.NewTx;
+  const sig = wallet.Sign(rawtx.id);
+  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig.recoveryParam, sig.r, sig.s, Tree);
+  console.log(newTransaction);
+  const isexist = chain.addTransactionToPendingTransaction(newTransaction);
+
+  if (!isexist) {
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/transaction/broadcast',
+        method: 'POST',
+        body: {NewTxs: newTransaction},
+        json: true,
+      };
+
+      requestPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(requestPromises).then((data) => {
+      res.json({note: 'Transaction created and broadcast successfully.'});
+    });
+  }
+});
 app.post('/transaction/broadcast', function(req, res) {
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
   
@@ -237,7 +281,7 @@ app.get('/Creator', function(req, res) {
             currentdate.getSeconds() + '.' +
             currentdate.getMilliseconds();
 
-    blockToVote = creator.startCosig(tempBlock);
+    blockToVote = creator.constructNewBlock(pendingTxnPool);
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
