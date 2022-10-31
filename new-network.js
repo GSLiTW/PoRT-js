@@ -60,7 +60,7 @@ function insertCSVData(quantity, data) {
   for (let i = 1; i <= quantity; i++) {
     if(data[i][2] === wallet.publicKey.encode('hex')){
       const sig = wallet.Sign(data[i][0])
-      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree)
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT);
       const requestPromises = [];
       console.log(chain.networkNodes)
       chain.networkNodes.forEach((networkNodeUrl) => {
@@ -196,3 +196,73 @@ app.post('/register-nodes-bulk', function(req, res) {
   res.json({note: 'Bulk registeration successful.'});
 });
 
+// add tx to txpool
+app.post('/transaction/broadcast', function(req, res) {
+  const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
+  
+  if (!isexist) {
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/transaction/broadcast',
+        method: 'POST',
+        body: {NewTxs: req.body.NewTxs},
+        json: true,
+      };
+
+      requestPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(requestPromises).then((data) => {
+      res.json({note: 'Transaction created and broadcast successfully.'});
+    });
+  }
+});
+
+
+// Creator start
+app.get('/Creator', function(req, res) {
+  console.log('********** Creator start  **********');
+  creator = new Creator(port, wallet, chain);
+
+
+  if (creator.isValid() && !CreatorStartThisRound) {
+    CreatorStartThisRound = true;
+    const currentdate = new Date();
+    const datetime = 'Last Sync: ' + currentdate.getDate() + '/' +
+            (currentdate.getMonth() + 1) + '/' +
+            currentdate.getFullYear() + ' @ ' +
+            currentdate.getHours() + ':' +
+            currentdate.getMinutes() + ':' +
+            currentdate.getSeconds() + '.' +
+            currentdate.getMilliseconds();
+
+    blockToVote = creator.startCosig(tempBlock);
+
+    const seq = seqList[seqList.length - 1] + 1;
+    seqList.push(seq);
+    for (let i=0; i<seqList.length; i++) {
+      console.log(seqList[i]);
+    }
+
+    // Broadcast to find Voters
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/Voter',
+        method: 'POST',
+        body: {SeqNum: seq, CreatorUrl: chain.currentNodeUrl},
+        json: true,
+      };
+      requestPromises.push(rp(requestOptions));
+    });
+
+    res.json({
+      SeqNum: seq, CreatorUrl: chain.currentNodeUrl, Time: datetime, tempBlock: tempBlock,
+    });
+  } else {
+    creator = null;
+
+    res.json('Error: Not Creator');
+  }
+});

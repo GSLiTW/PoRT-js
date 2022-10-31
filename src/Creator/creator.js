@@ -18,7 +18,7 @@ const Cosig = require('../cosig.js');
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the creator
  * @param {Blockchain} blockchain - Local  blockchain
  */
-function Creator(port, wallet, MPT, blockchain) {
+function Creator(port, wallet, blockchain) {
   this.MPT = blockchain.MPT;
   this.port = port;
   this.wallet = wallet;
@@ -112,7 +112,7 @@ Creator.prototype.aggregateResponse = function() {
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
 
   if (this.verifyCoSig()) {
-    this.block.CoSig = this.cosig;
+    this.block.cosig = this.cosig;
     this.completeBlock();
     this.blockchain.MPT = this.MPT;
   }

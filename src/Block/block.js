@@ -9,7 +9,7 @@ const Cosig = require('../cosig.js');
  * @param  {Transaction_MT} pendingTransactions
  * @param  {string} previousHash
  * @param  {MPT} MPT
- * @param {Cosig} Cosig
+ * @param {Cosig} cosig
  */
 function Block(height, pendingTransactions, previousHash, MPT) {
   // fixed area
@@ -22,7 +22,7 @@ function Block(height, pendingTransactions, previousHash, MPT) {
 
   // variable area
   this.receiptTree = null,
-  this.CoSig = null,
+  this.cosig = null,
   this.nextCreator = null,
   this.nextVoters = [],
   this.hash = null;

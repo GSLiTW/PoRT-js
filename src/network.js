@@ -66,11 +66,10 @@ for (let i = 0; i < 14; i++) {
 const chain = new Blockchain();
 const Tree = chain.MPT;
 
-/*
+
 for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
-*/
 
 Tree.Cal_old_hash();
 Tree.ResetSaved();
