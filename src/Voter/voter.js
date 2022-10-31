@@ -48,7 +48,7 @@ Voter.prototype.isValid = function() {
  * Receive creator's network url from creator and save it in Voter's data structure
  * @param  {string} url - Creator's network url
  */
-Voter.prototype.CreatorUrl = function(url) {
+Voter.prototype.creatorUrl = function(url) {
   this.CreatorUrl = url;
 };
 

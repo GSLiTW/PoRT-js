@@ -41,15 +41,11 @@ Block.prototype.hashBlock = function(previousBlockHash, currentBlockData) {
 };
 
 Block.prototype.updateMPT = function () {
-  const creatorTaxRate = 1;
-  const receiverTaxRate = 0.1;
   for (let i = 0; i < this.transactions.length; i++) {
     const sender = this.transactions[i].get_sender();
     const receiver = this.transactions[i].get_receiver();
     const value = this.transactions[i].get_value();
     this.MPT.UpdateValue(sender, receiver, value);
-    // this.MPT.UpdateTax(sender, value*creatorTaxRate);
-    // this.MPT.UpdateTax(receiver, value*receiverTaxRate);
   }
   return this.MPT;
 }

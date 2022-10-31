@@ -280,8 +280,9 @@ app.get('/Creator', function(req, res) {
             currentdate.getSeconds() + '.' +
             currentdate.getMilliseconds();
 
+    // creator construct tempBlock
     blockToVote = creator.constructNewBlock(this.blockchain.txn_pool);
-
+    creator.startCosig();
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
     for (let i=0; i<seqList.length; i++) {
