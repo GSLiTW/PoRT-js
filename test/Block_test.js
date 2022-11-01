@@ -67,4 +67,4 @@ test("#BLOCK_test: func", () => {
   //   transaction: 0x43a1a360188faaa2b227c1133d66e155c240816b33d6cba682e9ab27dbc77012,
   // });
 });
-*/
+
