@@ -12,7 +12,7 @@ port.forEach((port) => {
         });
         
     test("#PORT_test: func", () => {
-        // app.listen(port, () => console.log("port running in " + { port }));
+        // app.ligit sten(port, () => console.log("port running in " + { port }));
         });
 
 });

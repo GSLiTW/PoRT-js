@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 const Block = require('../Block/block');
-const PoRT = require('./PoRT.js');
+const PoRT = require('../Creator/PoRT.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
@@ -19,7 +19,7 @@ const Cosig = require('../cosig.js');
  * @param {Blockchain} blockchain - Local  blockchain
  */
 function Creator(port, wallet, MPT, blockchain) {
-  this.MPT = MPT;
+  this.MPT = blockchain.MPT;
   this.port = port;
   this.wallet = wallet;
   this.blockchain = blockchain;
@@ -33,7 +33,7 @@ Creator.prototype.isValid = function() {
   const roundOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0]%2;
   const identityOfCreator = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[1];
   const lastBlock = this.blockchain.getLastBlock();
-  const roundNum = lastBlock.height%2;
+  const roundNum = (lastBlock.height+1)%2;
   let checksum;
   if (roundNum == roundOfCreator && identityOfCreator == 1) {
     checksum = 1;
@@ -49,13 +49,8 @@ Creator.prototype.isValid = function() {
  * @param  {string} previousHash
  * @return {Block.block} created block
  */
-Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash) {
-  /* for (var i = 0; i < pendingTxs.length; i++) {
-        this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
-    }*/
+Creator.prototype.startCosig = function() {
   this.cosig = new Cosig();
-  this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
-  return this.block;
 };
 
 /**
@@ -117,17 +112,40 @@ Creator.prototype.aggregateResponse = function() {
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
 
   if (this.verifyCoSig()) {
-    this.block.Cosig = this.cosig;
+    this.block.CoSig = this.cosig;
+    this.completeBlock();
+    this.blockchain.MPT = this.MPT;
   }
 };
 
-Creator.prototype.verifyCoSig = function() {
+Creator.prototype.verifyCoSig = function () {
   const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
   const gr0 = responseKeypair.getPublic();
-  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
+  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.getChallenge());
   const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
 
   return checkResult;
+};
+
+Creator.prototype.completeBlock = function () {
+  const nextCreator = this.blockchain.getLastBlock().nextCreator;
+  this.block.hash = this.block.hashBlock(this.blockchain.getLastBlock().hash, this.block);
+  this.blockchain.chain.push(this.block);
+  this.blockchain.MPT.UpdateDbit(this.wallet.publicKey, [0, 0]);
+  for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
+    this.blockchain.MPT.UpdateDbit(this.blockchain.getLastBlock().nextVoters[i], [0, 0]);
+  }
+  if (this.block.height % 2 === 1) {
+    this.blockchain.MPT.UpdateDbit(nextCreator, [2, 1]);
+    for (let i = 0; i < this.block.nextVoters.length; i++) {
+      this.blockchain.MPT.UpdateDbit(this.block.nextVoters[i], [1, 2]);
+    }
+  } else {
+    this.blockchain.MPT.UpdateDbit(nextCreator, [1, 1]);
+    for (let i = 0; i < this.block.nextVoters.length; i++) {
+      this.blockchain.MPT.UpdateDbit(this.block.nextVoters[i], [2, 2]);
+    }
+  }
 };
 
 /**
@@ -136,36 +154,21 @@ Creator.prototype.verifyCoSig = function() {
  * @param {Block} lastBlock - last block
  * @return {Block} the completed new block
  */
-Creator.prototype.completeBlock = function(previousHash, lastBlock) {
-  if (lastBlock.height % 2 === 1) {
-    const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, [1, 1]);
-    this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-      const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, [1, 2]);
-      this.block.nextVoters.push(voterPoRT.nextMaintainer);
-    }
-  } else {
-    const creatorPoRT = new PoRT(lastBlock.nextCreator, this.MPT, [2, 1]);
-    this.block.nextCreator = creatorPoRT.nextMaintainer;
-    for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-      const voterPoRT = new PoRT(lastBlock.nextVoters[i], this.MPT, [2, 2]);
-      this.block.nextVoters.push(voterPoRT.nextMaintainer);
-    }
-  }
-  this.block.hash = this.block.hashBlock(previousHash, this.block);
+Creator.prototype.constructNewBlock = function (txspool) {
+  this.block = new Block(this.blockchain.getLastBlock().height + 1, txspool.transactions, this.blockchain.getLastBlock().hash, this.MPT);
+  this.MPT = this.block.updateMPT();
   return this.block;
 };
 
-/**
- * Select corresponding new maintainers
- * @param  {string} rootMaintainerAddress - current block maintainer address as the seed of next maintainers
- * @return {string} selectedMainter - next-next round maintainer address
- */
-Creator.prototype.selectNewMaintainer = function(rootMaintainerAddress) {
-  const newPoRT = new PoRT(rootMaintainerAddress, this.MPT, rootMaintainerAddress.dbit); // Question: need NodeVal.Dbit.
-  const selectedMainter = newPoRT.nextMaintainer;
-  return selectedMainter;
-};
+Creator.prototype.selectMaintainer = function () {
+  const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
+  this.block.nextCreator = creatorPoRT.nextMaintainer;
+  const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
+  for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
+    const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.MPT);
+    this.block.nextVoters.push(voterPoRT.nextMaintainer);
+  }
+}
 
 
 module.exports = Creator;
