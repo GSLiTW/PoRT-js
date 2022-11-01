@@ -12,19 +12,20 @@ const elliptic = require('elliptic');
 const VOTER_NUM = 3;
 
 // local modules
-const Blockchain = require('./Block/blockchain.js');
+const Blockchain = require('./Block/Blockchain');
 const Transaction = require('./Transaction/transaction');
 const MPT = require('./MPT/MPT');
 const Pending_Txn_Pool = require('./Transaction/pending_transaction_pool');
 const Wallet = require('./Utility/wallet');
 const backup = require('./Utility/backup');
 
+const Preprocess = require('./Block/Preprocess');
+
 const Backup = new backup();
 const Creator = require('./Creator/creator');
 const Voter = require('./Voter/voter');
 
 const Block = require('./Block/block.js');
-
 const Cosig = require('./cosig.js');
 
 // constants
@@ -38,6 +39,17 @@ let FirstRoundVoterNum = 0; // record when First Round Lock, how many Voters att
 let GetResponsesSetTimeout = null;
 
 // preprocess
+<<<<<<< HEAD
+console.log("Preprocess init ")
+const init_data = new Preprocess();
+init_data.initialize(port);
+// const data = Preprocess.getData();
+const chain = init_data.chain;
+const data = init_data.data;
+const Tree = init_data.tree;
+const pending_txn_pool=init_data.pending_txn_pool;
+const wallet=init_data.wallet;
+=======
 const data = fs.readFileSync('./data/node_address_mapping_table.csv')
     .toString() // convert Buffer to string
     .split('\n') // split string to lines
@@ -75,6 +87,7 @@ Tree.Cal_old_hash();
 Tree.ResetSaved();
 
 const pending_txn_pool = new Pending_Txn_Pool();
+>>>>>>> db58d5e0c5e08204dfe6aec03ffc72f0403f9637
 
 //createtxs(1)
 
@@ -120,6 +133,22 @@ function createtxs(num) {
 };
 
 
+<<<<<<< HEAD
+pending_txn_pool.addTxs(createtxs(2));
+
+let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
+tempBlock.timestamp = 1604671786702;
+tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
+tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
+tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
+
+
+pending_txn_pool.clean();
+pending_txn_pool.addTxs(createtxs(3));
+
+
+=======
+>>>>>>> db58d5e0c5e08204dfe6aec03ffc72f0403f9637
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
     const newNodeUrl = 'http://localhost:' + p;
@@ -193,7 +222,7 @@ app.get('/MPT/Search/:key', function(req, res) {
   const key = req.params.key;
   res.json({key: key, balance: Tree.Search(key)});
 });
-
+// ! preprocess
 app.post('/MPT/UpdateValues', function(req, res) {
   const UpdateList = req.body.UpdateList;
   for (let i = 0; i < UpdateList.length; i++) {
@@ -219,6 +248,7 @@ app.post('/MPT/UpdateValues', function(req, res) {
   });
 });
 
+// ! add ckeck
 app.post('/MPT/ReceiveUpdateValues', function(req, res) {
   const UpdateList = req.body.UpdateList;
   const seq = req.body.SeqNum;
@@ -245,6 +275,7 @@ app.post('/MPT/ReceiveUpdateValues', function(req, res) {
   res.sendStatus(200);
 });
 
+// !
 app.post('/MPT/UpdateTax', function(req, res) {
   const UpdateList = req.body.UpdateList;
   for (let i = 0; i < UpdateList.length; i++) {

@@ -2,7 +2,6 @@ const currentNodeUrl = process.argv[3];
 
 // local modules
 const Block = require("./block");
-const MPT = require("../MPT/MPT");
 const Transaction_MT = require("../Transaction/transaction.js");
 const Txn_Pool = require("../Transaction/pending_transaction_pool");
 const fs = require("fs"); //for reading Genesis.json
@@ -18,44 +17,31 @@ const TRANSACTION_TYPE = {
  * @class The main data structure of PORT blockchain
  * @param  {MPT} MPT
  */
-function Blockchain() {
+function Blockchain(MPT) {
   this.chain = [];
   // this.pendingTransactions = [];
-  this.MPT = new MPT();
 
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
-
   // pase json to get data
+
+  var txn_pool = new Txn_Pool();
+  txn_pool.create(1, MPT);
+
+  let genesisData;
   const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
-  // const allocData = JSON.parse(fs.readFileSync('./src/Block/InitialAlloc.json', 'utf8'));
-  const genesisData = JSON.parse(dataFile);
-
-  // for (let allocid = 0; allocid < Object.keys(allocData.alloc).length; allocid++) {
-  //   this.MPT.Insert(allocData.alloc[allocid].pubKey, allocData.alloc[allocid].balance, allocData.alloc[allocid].tax, allocData.alloc[allocid].dbit);
-  // }
-
-  for (let allocid in genesisData.alloc) {
-    this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
+  try {
+    genesisData = JSON.parse(dataFile);
+    // console.log('JSON string:', 'utf8', genesisData);
+  } catch (err) {
+    console.log('Error parsing JSON string:', err);
   }
-
-  var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
-  let InitTxs = []
-  for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
-    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT))
-  }
-  this.txn_pool = new Txn_Pool(InitTxs);
-
-
   const genesisBlock = new Block(
       1, // height
-      this.txn_pool.transactions,
+      txn_pool.transactions,
       '0', // previous Hash
-      this.MPT,
+      MPT,
   );
-
-  this.MPT = genesisBlock.updateMPT();
-
   genesisBlock.timestamp = genesisData.timestamp;
   // genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
@@ -73,7 +59,11 @@ function Blockchain() {
  * @param  {MPT} MPT
  * @return {Block} New Block
  */
-Blockchain.prototype.createNewBlock = function (pendingTransactions, previousHash, MPT) {
+Blockchain.prototype.createNewBlock = function (
+  pendingTransactions,
+  previousHash,
+  MPT
+) {
   var newBlock = new Block(
     this.getLastBlock().height + 1,
     pendingTransactions,
@@ -102,16 +92,14 @@ Blockchain.prototype.addTransactionToPendingTransaction = function (
   transactionObj
 ) {
   let isexist = false;
-  //console.log(transactionObj)
-  txs = this.txn_pool.get_transaction()
-  for (let i = 0; i < txs.length; i++) {
-    if (txs[i].id === transactionObj.id) {
-      //isexist = true;
-      return true;
+  for (let i = 0; i < this.pendingTransactions.length; i++) {
+    if (this.pendingTransactions[i] == transactionObj) {
+      isexist = true;
+      break;
     }
   }
   if (!isexist) {
-    this.txn_pool.addTx(transactionObj);
+    this.pendingTransactions.push(transactionObj);
   }
   // return this.getLastBlock()["height"]+1;
   return isexist;
