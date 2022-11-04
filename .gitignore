@@ -12,3 +12,5 @@ coverage/*
 
 .DS_Store
 
+#local test 
+local_temp/

@@ -81,7 +81,7 @@ Wallet.prototype.Address = function() {
  */
 Wallet.prototype.Sign = function(dataHash) {
   const ecdsa = new elliptic.ec('secp256k1');
-  const signature = ecdsa.sign(dataHash, privateKey, 'hex', {canonical: true});
+  const signature = ecdsa.sign(dataHash, this.privateKey, 'hex', {canonical: true});
   return signature;
 };
 /**

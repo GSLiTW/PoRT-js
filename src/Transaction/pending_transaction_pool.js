@@ -8,23 +8,6 @@ function Pending_Transaction_Pool(tx = []) {
   this.transactions = tx;
 };
 
-// Pending_Transaction_Pool.prototype.create = function(num, MPT) {
-//   const data = new CSV_data();
-//   const data_ = data.getData(num); // get data of block1
-//   if (num == 1 || num == 2) {
-//     Pending_Transaction_Pool.prototype.addTxs.call(this, Pending_Transaction_Pool.prototype.insertCSVData.call(this, 4, data_, MPT));
-//   } else if (num == 3) {
-//     Pending_Transaction_Pool.prototype.addTxs.call(this, Pending_Transaction_Pool.prototype.insertCSVData.call(this, 4, data_, MPT));
-//   } else console.log('wrong block number.');
-// };
-
-// Pending_Transaction_Pool.prototype.insertCSVData = function(quantity, data, MPT) {
-//   txns = [];
-//   for (let i = 1; i < quantity; i++) {
-//     txns.push(new Transaction_MT(data[i][0], data[i][2], data[i][3], data[i][4], MPT));
-//   }
-//   return txns;
-// };
 
 Pending_Transaction_Pool.prototype.clean = function() {
   this.transactions = [];
