@@ -101,7 +101,7 @@ const chain = new Blockchain();
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
     const newNodeUrl = 'http://localhost:' + p;
-    console.log(newNodeUrl);
+    console.log("a");
     if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
       chain.networkNodes.push(newNodeUrl);
     }
@@ -143,6 +143,7 @@ seqList = [0];
 // register a new node and broadcast it to network nodes
 app.get('/register-and-broadcast-node', function(req, res) {
   const newNodeUrl = 'http://localhost:' + port;
+  console.log("b");
   if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
     chain.networkNodes.push(newNodeUrl);
   }
@@ -176,8 +177,10 @@ app.get('/register-and-broadcast-node', function(req, res) {
 });
 
 // network nodes register the new node
-app.post('/register-node', function(req, res) {
+app.post('/register-node', function (req, res) {
+  console.log("c");
   const newNodeUrl = req.body.newNodeUrl;
+  console.log("d");
   const nodeNotAlreadyPresent = chain.networkNodes.indexOf(newNodeUrl) == -1;
   const notCurrentNode = chain.currentNodeUrl !== newNodeUrl;
   if (nodeNotAlreadyPresent && notCurrentNode) {
@@ -537,16 +540,7 @@ app.post('/Creator/GetBlock', function(req, res) {
 
 
     console.log('before delete all tx: '+pending_txn_pool.transactions);
-    for (let i=0; i<newBlock.transactions.length; i++) {
-      pending_txn_pool.transactions.forEach(function(tx, index, arr) {
-        if (tx.id == newBlock.transactions[i].id) {
-          arr.splice(index, 1);
-        }
-      });
-    }
     console.log('after delete all tx: '+pending_txn_pool.transactions);
-    console.log(pending_txn_pool.transactions.length);
-    console.log(newBlock.transactions.length);
 
 
     const currentdate = new Date();
