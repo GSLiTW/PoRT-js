@@ -123,6 +123,7 @@ function createtxs(num) {
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
     const newNodeUrl = 'http://localhost:' + p;
+    console.log(newNodeUrl);
     if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
       chain.networkNodes.push(newNodeUrl);
     }
@@ -843,7 +844,7 @@ app.get('/Creator', function(req, res) {
     });
 
     res.json({
-      SeqNum: seq, CreatorUrl: chain.currentNodeUrl, Time: datetime, tempBlock: tempBlock,
+      SeqNum: seq, CreatorUrl: chain.currentNodeUrl, Time: datetime, tempBlock: blockToVote,
     });
   } else {
     creator = null;
@@ -926,7 +927,7 @@ app.post('/Creator/Challenge', function(req, res) {
         body: {
           index: index,
           challenge: challenge,
-          message: tempBlock,
+          message: creator.block,
         },
         json: true,
       };
@@ -956,7 +957,7 @@ app.post('/Creator/Challenge', function(req, res) {
             body: {
               index: index,
               challenge: challenge,
-              message: tempBlock,
+              message: creator.block,
             },
             json: true,
           };
@@ -1007,6 +1008,7 @@ app.post('/Creator/Challenge', function(req, res) {
 app.post('/Voter/Response', function(req, res) {
   console.log('********** Voter/Response start  **********');
   const isBlockValid = voter.VerifyBlock(req.body.message);
+  console.log('block is valid: ' + isBlockValid);
   if (isBlockValid) {
     const challenge = req.body.challenge;
     const index = req.body.index;

@@ -42,9 +42,9 @@ Block.prototype.hashBlock = function(previousBlockHash, currentBlockData) {
 
 Block.prototype.updateMPT = function () {
   for (let i = 0; i < this.transactions.length; i++) {
-    const sender = this.transactions[i].get_sender();
-    const receiver = this.transactions[i].get_receiver();
-    const value = this.transactions[i].get_value();
+    const sender = this.transactions[i].sender;
+    const receiver = this.transactions[i].receiver;
+    const value = this.transactions[i].value;
     this.MPT.UpdateValue(sender, receiver, value);
   }
   return this.MPT;

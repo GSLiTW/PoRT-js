@@ -128,6 +128,7 @@ Creator.prototype.verifyCoSig = function () {
 };
 
 Creator.prototype.completeBlock = function () {
+  this.blockchain.txn_pool.clean();
   const nextCreator = this.blockchain.getLastBlock().nextCreator;
   this.block.hash = this.block.hashBlock(this.blockchain.getLastBlock().hash, this.block);
   this.blockchain.chain.push(this.block);

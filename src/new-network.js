@@ -101,6 +101,7 @@ const chain = new Blockchain();
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
     const newNodeUrl = 'http://localhost:' + p;
+    console.log(newNodeUrl);
     if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
       chain.networkNodes.push(newNodeUrl);
     }
@@ -134,6 +135,10 @@ if (port >= 3002) {
     });
   }
 }
+
+createtxs(2)
+createtxs(3)
+seqList = [0];
 
 // register a new node and broadcast it to network nodes
 app.get('/register-and-broadcast-node', function(req, res) {
@@ -354,4 +359,251 @@ app.post('/Voter', function(req, res) {
   }
 
   res.json('Voter triggered');
+});
+
+
+
+app.post('/Creator/Challenge', function(req, res) {
+  console.log('********** Creator/Challenge start  **********');
+  const VoterUrl = req.body.VoterUrl;
+  const VoterPubKeyHex = req.body.publicKey;
+  const VoterPubVHex = req.body.publicV;
+
+  const VoterPubKey = wallet.PublicKeyFromHex(VoterPubKeyHex);
+  const VoterPubV = wallet.PublicKeyFromHex(VoterPubVHex);
+
+  creator.getVoter(VoterUrl, VoterPubKey, VoterPubV);
+  console.log('there are ' + creator.voterUrl.length + ' Voter now');
+  if (creator.voterUrl.length == VOTER_NUM && !FirstRoundLock) {
+    // if there is a Timeout before, clear it first, since every voter come
+    if (FirstRountSetTimeout) {
+      clearTimeout(FirstRountSetTimeout);
+    }
+    FirstRoundLock = true;
+    FirstRoundVoterNum = creator.voterUrl.length;
+
+    const challenge = creator.generateChallenge();
+    const requestPromises = [];
+    let index = 0;
+    creator.voterUrl.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/Voter/Response',
+        method: 'POST',
+        body: {
+          index: index,
+          challenge: challenge,
+          message: creator.block,
+        },
+        json: true,
+      };
+      index = index + 1;
+      requestPromises.push(rp(requestOptions));
+    });
+  } else {
+    // if there is a Timeout before, clear it first
+    if (FirstRountSetTimeout) {
+      clearTimeout(FirstRountSetTimeout);
+    }
+
+    // wait for 5 sec, if no voter comes, then do next step
+    FirstRountSetTimeout = setTimeout(()=>{
+      if (creator.voterUrl.length != VOTER_NUM && !FirstRoundLock) {
+        // check if any voter come in this 10 sec
+        const challenge = creator.generateChallenge();
+        FirstRoundLock = true;
+        FirstRoundVoterNum = creator.voterUrl.length;
+
+        const requestPromises = [];
+        let index = 0;
+        creator.voterUrl.forEach((networkNodeUrl) => {
+          const requestOptions = {
+            uri: networkNodeUrl + '/Voter/Response',
+            method: 'POST',
+            body: {
+              index: index,
+              challenge: challenge,
+              message: creator.block,
+            },
+            json: true,
+          };
+          index = index + 1;
+          requestPromises.push(rp(requestOptions));
+        });
+      }
+    }, 5000);
+  }
+
+  res.json('GetVoters success!');
+});
+
+
+app.post('/Voter/Response', function(req, res) {
+  console.log('********** Voter/Response start  **********');
+  const isBlockValid = voter.VerifyBlock(req.body.message);
+  console.log('block is valid: ' + isBlockValid);
+  if (isBlockValid) {
+    const challenge = req.body.challenge;
+    const index = req.body.index;
+
+    const response = voter.GenerateResponse(challenge);
+
+    const requestPromises = [];
+
+    const requestOptions = {
+      uri: voter.CreatorUrl + '/Creator/GetResponses',
+      method: 'POST',
+      body: {
+        response: response,
+        index: index,
+        challenge: challenge,
+      },
+      json: true,
+    };
+    requestPromises.push(rp(requestOptions));
+
+    res.json('Response Generated');
+  } else {
+    console.log('Error: Block verification failed !');
+  }
+});
+
+
+app.post('/Creator/GetResponses', function(req, res) {
+  console.log('********** Creator/GetResponses start  **********');
+  if (req.body.challenge == creator.getChallenge()) {
+    console.log('test');
+    const response = req.body.response;
+    creator.getResponses(response);
+    creator.setVoterIndex(req.body.index);
+
+    if (creator.voterResponse.length == FirstRoundVoterNum) {
+      if (GetResponsesSetTimeout) {
+        clearTimeout(GetResponsesSetTimeout);
+      }
+      console.log('there are' + creator.voterResponse.length + ' Voter now');
+      creator.aggregateResponse();
+
+      const seq = seqList[seqList.length - 1] + 1;
+
+      const requestPromises = [];
+      const requestOptions = {
+        uri: 'http://localhost:' + creator.port + '/Creator/GetBlock',
+        method: 'POST',
+        body: {seqNum: seq},
+        json: true,
+      };
+      requestPromises.push(rp(requestOptions));
+    } else {
+      // if there is a Timeout before, clear it first
+      if (GetResponsesSetTimeout) {
+        clearTimeout(GetResponsesSetTimeout);
+      }
+
+      // wait for 5 sec, if no voter comes, then do next step
+      GetResponsesSetTimeout = setTimeout(()=>{
+        creator.clearResponses();
+        challenge = creator.generateChallengeWithIndex();
+        creator.VoterIndex.forEach((index) => {
+          const requestOptions = {
+            uri: creator.voterUrl[index] + '/Voter/Response',
+            method: 'POST',
+            body: {
+              index: index,
+              challenge: challenge,
+              message: creator.block,
+            },
+            json: true,
+          };
+          requestPromises.push(rp(requestOptions));
+        });
+      }, 5000);
+    }
+    res.sendStatus(200);
+  }
+});
+
+
+app.post('/Creator/GetBlock', function(req, res) {
+  console.log('********** Creator/GetBlock start  **********');
+  let seq = req.body.seqNum;// has fault
+
+  if (seqList.indexOf(seq) == -1) {
+    seqList.push(seq);
+
+    console.log('Cal_old_hash start');
+    if (!Tree.saved) {
+      Tree.Cal_old_hash();
+    }
+
+
+    console.log('before delete all tx: '+pending_txn_pool.transactions);
+    for (let i=0; i<newBlock.transactions.length; i++) {
+      pending_txn_pool.transactions.forEach(function(tx, index, arr) {
+        if (tx.id == newBlock.transactions[i].id) {
+          arr.splice(index, 1);
+        }
+      });
+    }
+    console.log('after delete all tx: '+pending_txn_pool.transactions);
+    console.log(pending_txn_pool.transactions.length);
+    console.log(newBlock.transactions.length);
+
+
+    const currentdate = new Date();
+    const datetime = 'Last Sync: ' + currentdate.getDate() + '/' +
+            (currentdate.getMonth() + 1) + '/' +
+            currentdate.getFullYear() + ' @ ' +
+            currentdate.getHours() + ':' +
+            currentdate.getMinutes() + ':' +
+            currentdate.getSeconds() + '.' +
+            currentdate.getMilliseconds();
+    console.log(datetime);
+
+    seq = seqList[seqList.length - 1] + 1;
+    seqList.push(seq);
+
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/update-blockchain',
+        method: 'POST',
+        body: {SeqNum: seq, Blockchain: creator.blockchain},
+        json: true,
+      };
+      rp(requestOptions);
+    });
+    CreatorStartThisRound = false;
+    FirstRoundLock = false;
+    FirstRoundVoterNum = 0;
+    FirstRountSetTimeout = null;
+    GetResponsesSetTimeout = null;
+    res.send('Create Block Succeed.');
+  } else {
+    res.sendStatus(200);
+  }
+});
+
+app.post('/update-blockchain', function (req, res) {
+  let seq = req.body.SeqNum;
+  let updatedChain = req.body.Blockchain;
+  if (seqList.indexOf(seq) == -1) {
+    chain = updatedChain;
+
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/receive-new-block',
+        method: 'POST',
+        body: { SeqNum: seq, Blockchain: updatedChain },
+        json: true,
+      };
+      requestPromises.push(rp(requestOptions));
+    });
+  }
+  else {
+    res.sendStatus(200);
+  }
+});
+
+app.listen(port, function() {
+  console.log(`Listening on port ${port} ...`);
 });

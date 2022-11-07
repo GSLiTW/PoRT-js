@@ -82,6 +82,7 @@ Voter.prototype.VerifyTx = function (transaction) {
       return validSig;
 }
 Voter.prototype.VerifyBlock = function (block_to_vote) {
+  /*
   const txs = block_to_vote.transactions;
   let tx = null;
   for (let i = 0; i < txs.length; i++) {
@@ -90,6 +91,7 @@ Voter.prototype.VerifyBlock = function (block_to_vote) {
         return false;
       }
   }
+  */
   return true;
 };
 
