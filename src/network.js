@@ -67,14 +67,14 @@ let chain = new Blockchain();
 const Tree = chain.MPT;
 
 
-for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
-  Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
-}
+// for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
+//   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+// }
 
-Tree.Cal_old_hash();
-Tree.ResetSaved();
+// chain.MPT.Cal_old_hash();
+// chain.MPT.ResetSaved();
 
-const pending_txn_pool = new Pending_Txn_Pool();
+// const pending_txn_pool = new Pending_Txn_Pool();
 
 //createtxs(1)
 
@@ -83,10 +83,11 @@ function insertCSVData(quantity, data) {
   for (let i = 1; i <= quantity; i++) {
     if(data[i][2] === wallet.publicKey.encode('hex')){
       const sig = wallet.Sign(data[i][0])
-      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree)
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT)
       //storeData(newTx, `./${port}.json`)
       const requestPromises = [];
-      console.log(chain.networkNodes)
+      // console.log(chain.networkNodes);
+      console.log("to tx broadcast");
       chain.networkNodes.forEach((networkNodeUrl) => {
         const requestOptions = {
           uri: networkNodeUrl + '/transaction/broadcast',
@@ -113,8 +114,10 @@ function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num); // get data of block1
   if (num == 1 || num == 2) {
+    console.log("add txn");
     return insertCSVData(4, data_);
   } else if (num == 3) {
+    console.log("add txn2");
     return insertCSVData(4, data_);
   } else console.log('wrong block number.');
 };
@@ -158,7 +161,8 @@ if (port >= 3002) {
   }
 }
 
-createtxs(2)
+let tmp = 2;
+// createtxs(2)
 
 /*
 let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
@@ -168,7 +172,7 @@ tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2c
 tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
 */
 // pending_txn_pool.clean();
-createtxs(3)
+// createtxs(3)
 
 seqList = [0];
 
@@ -184,16 +188,16 @@ app.get('/wallet', function(req, res) {
 });
 
 app.get('/MPT', function(req, res) {
-  res.send(Tree);
+  res.send(chain.MPT);
 });
 
 app.get('/transaction-pool', function(req, res) {
-  res.send(pending_txn_pool);
+  res.send(chain.txn_pool);
 });
 
 app.get('/MPT/Search/:key', function(req, res) {
   const key = req.params.key;
-  res.json({key: key, balance: Tree.Search(key)});
+  res.json({key: key, balance: chain.MPT.Search(key)});
 });
 
 app.post('/MPT/UpdateValues', function(req, res) {
@@ -323,7 +327,8 @@ app.post('/MPT/UpdateDbit', function(req, res) {
   });
 });
 
-app.post('/blockchain/createblock', function(req, res) {
+app.post('/blockchain/createblock', function (req, res) {
+  console.log("trash");
   const lastBlock = chain.getLastBlock();
   const previousBlockHash = lastBlock['hash'];
   const newBlock = chain.createNewBlock(pending_txn_pool.transactions, previousBlockHash);
@@ -411,7 +416,7 @@ app.post('/transaction/launch', function(req, res) {
 app.post('/transaction/AddTx', function(req, res) {
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
-  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig.recoveryParam, sig.r, sig.s, Tree);
+  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig.recoveryParam, sig.r, sig.s, chain.MPT);
   console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
@@ -437,8 +442,10 @@ app.post('/transaction/AddTx', function(req, res) {
 app.post('/transaction/broadcast', function(req, res) {
   // const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
   //console.log(121212)
+  console.log("before add");
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
-  console.log(isexist)
+  console.log("after add");
+  // console.log(isexist)
   // var seq = seqList[seqList.length - 1] + 1;
   // seqList.push(seq);
   
@@ -812,6 +819,7 @@ app.get('/Creator', function(req, res) {
 
 
   if (creator.isValid() && !CreatorStartThisRound) {
+    createtxs(tmp);
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime = 'Last Sync: ' + currentdate.getDate() + '/' +
@@ -1046,7 +1054,7 @@ app.post('/Creator/GetResponses', function(req, res) {
             body: {
               index: index,
               challenge: challenge,
-              message: tempBlock,
+              message: creator.block,
             },
             json: true,
           };
@@ -1094,7 +1102,7 @@ app.post('/update-blockchain', function (req, res) {
   let updatedChain = req.body.Blockchain;
   if (seqList.indexOf(seq) == -1) {
     chain = updatedChain;
-
+    tmp += 1;
     seqList.push(seq);
 
     const requestPromises = [];

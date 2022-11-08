@@ -113,6 +113,7 @@ Creator.prototype.aggregateResponse = function() {
 
   if (this.verifyCoSig()) {
     this.block.cosig = this.cosig;
+    this.selectMaintainer();
     this.blockchain.MPT = this.MPT;
     this.completeBlock();
   }
@@ -166,9 +167,15 @@ Creator.prototype.constructNewBlock = function (txspool) {
 };
 
 Creator.prototype.selectMaintainer = function () {
+  // this.MPT.RefundTax(this.wallet.publicKey, this.MPT.Search(this.wallet.publicKey).tax);
+  const tmpBlock = this.blockchain.getLastBlock();
+  // for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
+  //   this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i]).tax);
+  // }
+  
   const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
   this.block.nextCreator = creatorPoRT.nextMaintainer;
-  const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
+  // const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
   for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
     const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.MPT);
     this.block.nextVoters.push(voterPoRT.nextMaintainer);

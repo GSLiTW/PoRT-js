@@ -60,6 +60,7 @@ function Blockchain() {
   console.log(hashValue);
   genesisBlock.hash = hashValue;
   this.chain.push(genesisBlock); // create Genesis Block
+  this.txn_pool.clean();
 }
 
 /**
@@ -76,8 +77,6 @@ Blockchain.prototype.createNewBlock = function (pendingTransactions, previousHas
     previousHash,
     MPT
   );
-
-  this.pendingTransactions = [];
   this.chain.push(newBlock);
 
   return newBlock;
@@ -94,14 +93,12 @@ Blockchain.prototype.getLastBlock = function () {
  * @param  {Transaction_MT} transactionObj
  * @return {Block} Last Block
  */
-Blockchain.prototype.addTransactionToPendingTransaction = function (
-  transactionObj
-) {
+Blockchain.prototype.addTransactionToPendingTransaction = function (transactionObj) {
   let isexist = false;
   //console.log(transactionObj)
   txs = this.txn_pool.get_transaction()
   for (let i = 0; i < txs.length; i++) {
-    if (txs[i].id === transactionObj.id) {
+    if (txs[i].id == transactionObj.id) {
       //isexist = true;
       return true;
     }

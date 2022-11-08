@@ -95,7 +95,7 @@ function createtxs(num) {
 };
 
 // create a blockchain
-const chain = new Blockchain();
+let chain = new Blockchain();
 
 // register nodes initially
 if (port >= 3002) {
@@ -268,6 +268,15 @@ app.post('/transaction/broadcast', function(req, res) {
       res.json({note: 'Transaction created and broadcast successfully.'});
     });
   }
+});
+
+// get blockchain
+app.get('/blockchain', function(req, res) {
+  res.send(chain);
+});
+// get wallet
+app.get('/wallet', function(req, res) {
+  res.send({wallet: wallet, backupinfo: Backup});
 });
 
 
@@ -577,15 +586,17 @@ app.post('/Creator/GetBlock', function(req, res) {
 });
 
 app.post('/update-blockchain', function (req, res) {
-  let seq = req.body.SeqNum;
+  const  seq = req.body.SeqNum;
   let updatedChain = req.body.Blockchain;
   if (seqList.indexOf(seq) == -1) {
     chain = updatedChain;
 
+    seqList.push(seq);
+
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
-        uri: networkNodeUrl + '/receive-new-block',
+        uri: networkNodeUrl + '/update-blockchain',
         method: 'POST',
         body: { SeqNum: seq, Blockchain: updatedChain },
         json: true,
