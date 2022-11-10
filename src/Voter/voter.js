@@ -18,8 +18,8 @@ const BN = require('bn.js');
  * @param  {string} pubKey - Wallet public key of the voter
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the voter
  */
-function Voter(port, wallet, MPT, blockchain) {
-  this.MPT = MPT;
+function Voter(port, wallet, blockchain) {
+  this.MPT = blockchain.MPT;
   this.port = port;
   this.wallet = wallet;
   const kp = wallet.NewKeyPair();
@@ -31,7 +31,7 @@ function Voter(port, wallet, MPT, blockchain) {
  * Check if the caller is selected as voter to perform actions for the current round of block construction
  * @return {bool} True if the caller is the voter of the current round of block construction; False otherwise
  */
-Voter.prototype.IsValid = function() {
+Voter.prototype.isValid = function() {
   const roundOfVoter = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[0]%2;
   const identityOfVoter = this.MPT.Verify(this.wallet.publicKey.encode('hex'))[1];
   const lastBlock = this.blockchain.getLastBlock();
@@ -48,7 +48,7 @@ Voter.prototype.IsValid = function() {
  * Receive creator's network url from creator and save it in Voter's data structure
  * @param  {string} url - Creator's network url
  */
-Voter.prototype.CreatorUrl = function(url) {
+Voter.prototype.creatorUrl = function(url) {
   this.CreatorUrl = url;
 };
 
@@ -58,7 +58,7 @@ Voter.prototype.CreatorUrl = function(url) {
  * @param  {MPT} voterMPT - voter's local MPT copy
  * @return {bool} True if merkleRoot is valid; False otherwise
  */
-/*
+
 Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do we need to pass voter MPT?
   const hash = voterMPT.oldHash;
   console.log('merkleRoot: ', merkleRoot);
@@ -70,34 +70,39 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do w
     return 0;
   }
 };
-*/
 
-Voter.prototype.VerifyTx = function (transaction) {
-  let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
-      let pubKeyRecovered = ec.recoverPubKey(
-          hexToDecimal(transaction.id.substr(2)), transaction.sig, transaction.sig.recoveryParam, "hex");
-      console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
-
-      let validSig = ec.verify(transaction.id.substr(2), transaction.sig, pubKeyRecovered);
-      return validSig;
-}
 Voter.prototype.VerifyBlock = function (block_to_vote) {
+  
   const txs = block_to_vote.transactions;
   let tx = null;
+  let sender_value = null;
+
+
   for (let i = 0; i < txs.length; i++) {
       tx = txs[i];
-      if(this.VerifyTx(tx) == false) {
-        return false;
-      }
-  }
-  return true;
-};
+      sender_value = this.MPT.Search(tx.sender);
 
+      if (tx.value > sender_value) {
+          return 0;
+      }
+      let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
+      let pubKeyRecovered = ec.recoverPubKey(
+          hexToDecimal(tx.id), tx.signature, tx.signature.recoveryParam, "hex");
+      console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
+
+      let validSig = ec.verify(tx.id, tx.signature, pubKeyRecovered);
+      if (validSig == false) {
+          return 0;
+      }
+
+  }
+  return 1;
+}
 Voter.prototype.GenerateResponse = function(cHex) {
   this.cosig = new Cosig();
   this.response = this.cosig.GenerateResponse(cHex, this.secretv, this.wallet.privateKey);
 
-  return this.response; // hex
+  return this.response;
 };
 
 

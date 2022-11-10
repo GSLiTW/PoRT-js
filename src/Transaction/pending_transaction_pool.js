@@ -33,11 +33,7 @@ Pending_Transaction_Pool.prototype.validate = function(tx) {
   if (tx.value < 0) {
     return false;
   }
-
-  let hexToDecimal = (x) => ecdsa.keyFromPrivate(x, "hex").getPrivate().toString(10);
-  let pubkey = ecdsa.recoverPubKey(
-          hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, "hex");
-  
+  pubkey = ecdsa.recoverPubKey(tx.id, {r:tx.r, s:tx.s}, tx.v, "hex");
   if (!pubkey){
     console.log('verifyfail')
     return false

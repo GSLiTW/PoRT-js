@@ -9,7 +9,7 @@ const Cosig = require('../cosig.js');
  * @param  {Transaction_MT} pendingTransactions
  * @param  {string} previousHash
  * @param  {MPT} MPT
- * @param {Cosig} Cosig
+ * @param {Cosig} cosig
  */
 function Block(height, pendingTransactions, previousHash, MPT) {
   // fixed area
@@ -18,10 +18,11 @@ function Block(height, pendingTransactions, previousHash, MPT) {
   this.timestamp = Date.now(),
   this.height = height,
   this.transactions = pendingTransactions.slice(0), // copy whole tx array
+  this.MPT = MPT,
 
   // variable area
   this.receiptTree = null,
-  this.CoSig = null,
+  this.cosig = null,
   this.nextCreator = null,
   this.nextVoters = [],
   this.hash = null;
@@ -38,5 +39,15 @@ Block.prototype.hashBlock = function(previousBlockHash, currentBlockData) {
   const hash = sha256(dataAsString);
   return hash;
 };
+
+Block.prototype.updateMPT = function () {
+  for (let i = 0; i < this.transactions.length; i++) {
+    const sender = this.transactions[i].sender;
+    const receiver = this.transactions[i].receiver;
+    const value = this.transactions[i].value;
+    this.MPT.UpdateValue(sender, receiver, value);
+  }
+  return this.MPT;
+}
 
 module.exports = Block;

@@ -5,6 +5,7 @@ const Block = require("./block");
 const Transaction_MT = require("../Transaction/transaction.js");
 const Txn_Pool = require("../Transaction/pending_transaction_pool");
 const fs = require("fs"); //for reading Genesis.json
+const MPT = require("../MPT/MPT")
 
 const TRANSACTION_TYPE = {
   transaction: "TRANSACTION",
@@ -17,45 +18,55 @@ const TRANSACTION_TYPE = {
  * @class The main data structure of PORT blockchain
  * @param  {MPT} MPT
  */
-function Blockchain(MPT) {
+function Blockchain() {
   this.chain = [];
   // this.pendingTransactions = [];
-
+  this.MPT = new MPT(true);
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
   // pase json to get data
+  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
+  const genesisData = JSON.parse(dataFile);
+
+  for (let allocid in genesisData.alloc) {
+    this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
+  }
 
   var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
   let InitTxs = []
   for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
-    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, MPT))
+    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT))
   }
   this.txn_pool = new Txn_Pool(InitTxs);
 
 
-  let genesisData;
-  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
-  try {
-    genesisData = JSON.parse(dataFile);
-    // console.log('JSON string:', 'utf8', genesisData);
-  } catch (err) {
-    console.log('Error parsing JSON string:', err);
-  }
+  // let genesisData;
+  // const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
+  // try {
+  //   genesisData = JSON.parse(dataFile);
+  //   // console.log('JSON string:', 'utf8', genesisData);
+  // } catch (err) {
+  //   console.log('Error parsing JSON string:', err);
+  // }
   const genesisBlock = new Block(
       1, // height
       this.txn_pool.transactions,
       '0', // previous Hash
-      MPT,
+      this.MPT,
   );
-  this.txn_pool.clean()
+
+  this.MPT = genesisBlock.updateMPT();
+  this.MPT.Cal_old_hash();
+  this.MPT.ResetSaved();
+
   genesisBlock.timestamp = genesisData.timestamp;
-  // genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
   hashValue = genesisBlock.hashBlock(0, genesisBlock);
   console.log(hashValue);
   genesisBlock.hash = hashValue;
   this.chain.push(genesisBlock); // create Genesis Block
+  this.txn_pool.clean();
 }
 
 /**
@@ -76,8 +87,6 @@ Blockchain.prototype.createNewBlock = function (
     previousHash,
     MPT
   );
-
-  this.pendingTransactions = [];
   this.chain.push(newBlock);
 
   return newBlock;
@@ -94,22 +103,19 @@ Blockchain.prototype.getLastBlock = function () {
  * @param  {Transaction_MT} transactionObj
  * @return {Block} Last Block
  */
-Blockchain.prototype.addTransactionToPendingTransaction = function (
-  transactionObj
-) {
+Blockchain.prototype.addTransactionToPendingTransaction = function (transactionObj) {
   let isexist = false;
   //console.log(transactionObj)
   txs = this.txn_pool.get_transaction()
   for (let i = 0; i < txs.length; i++) {
-    if (txs[i].id === transactionObj.id) {
+    if (txs[i].id == transactionObj.id) {
       //isexist = true;
       return true;
     }
   }
   if (!isexist) {
-    this.txn_pool.addTx(transactionObj);
+    this.pendingTransactions.push(transactionObj);
   }
-  // return this.getLastBlock()["height"]+1;
   return isexist;
 };
 
