@@ -39,8 +39,8 @@ let FirstRountSetTimeout = null; // record setTimeout in ("/Creator/Challenge"),
 let FirstRoundVoterNum = 0; // record when First Round Lock, how many Voters attend this round
 let GetResponsesSetTimeout = null;
 
+/*
 // preprocess
-<<<<<<< HEAD
 console.log("Preprocess init ")
 const init_data = new Preprocess();
 init_data.initialize(port);
@@ -50,61 +50,26 @@ const data = init_data.data;
 const Tree = init_data.tree;
 const pending_txn_pool=init_data.pending_txn_pool;
 const wallet=init_data.wallet;
-=======
+*/
+
 const data = fs.readFileSync('./data/node_address_mapping_table.csv')
     .toString() // convert Buffer to string
     .split('\n') // split string to lines
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 
-let w = fs
-  .readFileSync("./data/private_public_key.csv")
-  .toString() // convert Buffer to string
-  .split("\n") // split string to lines
-  .map((e) => e.trim()) // remove white spaces for each line
-  .map((e) => e.split(",").map((e) => e.trim())); // split each line to array
+let w = fs.readFileSync('./data/private_public_key.csv')
+    .toString() // convert Buffer to string
+    .split('\n') // split string to lines
+    .map((e) => e.trim()) // remove white spaces for each line
+    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
-const keytable = new Map();
-w.forEach(w => {
-  keytable.set(w[2], w[1])
-})
 
 w = undefined;
-
-
-const Tree = new MPT(true);
-
-for (let i = 0; i < 14; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 100 * BASE, 1 * BASE * 0.0001, [2, 1]); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [0, 0]);
-}
-*/
-const chain = new Blockchain(Tree);
-const Tree = chain.MPT;
-
-
-for (
-  let i = 0, UpdateList = chain.chain[0].transactions;
-  i < UpdateList.length;
-  i++
-) {
-  Tree.UpdateValue(
-    UpdateList[i].sender,
-    UpdateList[i].receiver,
-    parseFloat(UpdateList[i].value)
-  );
-}
-
-Tree.Cal_old_hash();
-Tree.ResetSaved();
-
-const pending_txn_pool = new Pending_Txn_Pool();
->>>>>>> db58d5e0c5e08204dfe6aec03ffc72f0403f9637
-
 //createtxs(1)
+
+const chain = new Blockchain();
+const Tree = chain.MPT;
 
 function insertCSVData(quantity, data) {
   txns = [];
@@ -147,8 +112,7 @@ function createtxs(num) {
   } else console.log("wrong block number.");
 }
 
-
-<<<<<<< HEAD
+/*
 pending_txn_pool.addTxs(createtxs(2));
 
 let tempBlock = new Block(
@@ -166,10 +130,8 @@ tempBlock.nextVoters = tempData.nextVoters;
 
 pending_txn_pool.clean();
 pending_txn_pool.addTxs(createtxs(3));
+*/
 
-
-=======
->>>>>>> db58d5e0c5e08204dfe6aec03ffc72f0403f9637
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
     const newNodeUrl = "http://localhost:" + p;
@@ -210,7 +172,7 @@ if (port >= 3002) {
 }
 
 createtxs(2)
-
+/*
 let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
 tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
@@ -219,7 +181,7 @@ tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96
 
 pending_txn_pool.clean();
 createtxs(3)
-
+*/
 seqList = [0];
 
 app.use(bodyParser.json());

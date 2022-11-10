@@ -58,7 +58,7 @@ Voter.prototype.CreatorUrl = function(url) {
  * @param  {MPT} voterMPT - voter's local MPT copy
  * @return {bool} True if merkleRoot is valid; False otherwise
  */
-/*
+
 Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do we need to pass voter MPT?
   const hash = voterMPT.oldHash;
   console.log('merkleRoot: ', merkleRoot);
@@ -70,7 +70,7 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do w
     return 0;
   }
 };
-*/
+
 Voter.prototype.VerifyBlock = function (block_to_vote) {
   const txs = block_to_vote.transactions;
   let tx = null;
