@@ -114,7 +114,7 @@ Blockchain.prototype.addTransactionToPendingTransaction = function (transactionO
     }
   }
   if (!isexist) {
-    this.pendingTransactions.push(transactionObj);
+    this.txn_pool.addTx(transactionObj);
   }
   return isexist;
 };
