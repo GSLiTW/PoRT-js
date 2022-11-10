@@ -49,13 +49,14 @@ Creator.prototype.isValid = function() {
  * @param  {string} previousHash
  * @return {Block.block} created block
  */
-Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash) {
-  /* for (var i = 0; i < pendingTxs.length; i++) {
-        this.MPT.UpdateValue(pendingTxs[i].sender, pendingTxs[i].receiver, pendingTxs[i].value);
-    }*/
+// Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash) {
+//   this.cosig = new Cosig();
+//   this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
+//   return this.block;
+// };
+
+Creator.prototype.startCosig = function() {
   this.cosig = new Cosig();
-  this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
-  return this.block;
 };
 
 /**
