@@ -50,7 +50,6 @@ let w = fs.readFileSync('./data/private_public_key.csv')
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
-
 w = undefined;
 
 
@@ -77,8 +76,6 @@ Tree.Cal_old_hash();
 Tree.ResetSaved();
 
 const pending_txn_pool = new Pending_Txn_Pool();
-
-//createtxs(1)
 
 function insertCSVData(quantity, data) {
   txns = [];
@@ -121,6 +118,39 @@ function createtxs(num) {
   } else console.log('wrong block number.');
 };
 
+// if(port != 3000){
+//   const newNodeUrl = 'http://localhost:' + '3000';
+//   if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
+//     chain.networkNodes.push(newNodeUrl);
+//   }
+
+//   const regNodesPromises = [];
+//   chain.networkNodes.forEach((networkNodeUrl) => {
+//     const requestOptions = {
+//       uri: networkNodeUrl + '/register-node',
+//       method: 'POST',
+//       body: {newNodeUrl: newNodeUrl},
+//       json: true,
+//       retry: 10,
+//       delay: 10000,
+//     };
+
+//     regNodesPromises.push(rp(requestOptions));
+//   });
+
+//   Promise.all(regNodesPromises).then((data) => {
+//     // use the data
+//     const bulkRegisterOptions = {
+//       uri: newNodeUrl + '/register-nodes-bulk',
+//       method: 'POST',
+//       body: {allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl]},
+//       json: true,
+//       retry: 10,
+//       delay: 1000,
+//     };
+//     return rp(bulkRegisterOptions);
+//   });
+// }
 
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
@@ -411,7 +441,39 @@ app.post('/transaction/launch', function(req, res) {
 app.post('/transaction/AddTx', function(req, res) {
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
-  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig.recoveryParam, sig.r, sig.s, Tree);
+  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig, Tree);
+  console.log(newTransaction);
+  const isexist = chain.addTransactionToPendingTransaction(newTransaction);
+
+  if (!isexist) {
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/transaction/broadcast',
+        method: 'POST',
+        body: {NewTxs: newTransaction},
+        json: true,
+      };
+
+      requestPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(requestPromises).then((data) => {
+      res.json({note: 'Transaction created and broadcast successfully.'});
+    });
+  }
+});
+
+app.post('/transaction/port2portTx', function(req, res) {
+  const receiverPort = req.body.receiverPort;
+  const sendValue = req.body.sendValue;
+  const senderPUbKey = wallet.getPubKey(Number(port));
+  const receiverPUbKey = wallet.getPubKey(Number(receiverPort));
+  console.log(senderPUbKey);
+  //const txid = web3.utils.keccak256(senderPUbKey, receiverPUbKey, sendValue);
+  const txid = '0x184584a610f75fe56a1882625caadb3eee239d23c9d9a6b2c0e3ecedca79e82e';
+  const sig = wallet.Sign(txid);
+  const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, Tree);
   console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
