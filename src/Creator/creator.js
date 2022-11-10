@@ -18,7 +18,7 @@ const Cosig = require('../cosig.js');
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the creator
  * @param {Blockchain} blockchain - Local  blockchain
  */
-function Creator(port, wallet, MPT, blockchain) {
+function Creator(port, wallet, blockchain) {
   this.MPT = blockchain.MPT;
   this.port = port;
   this.wallet = wallet;
@@ -112,9 +112,10 @@ Creator.prototype.aggregateResponse = function() {
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
 
   if (this.verifyCoSig()) {
-    this.block.CoSig = this.cosig;
-    this.completeBlock();
+    this.block.cosig = this.cosig;
+    this.selectMaintainer();
     this.blockchain.MPT = this.MPT;
+    this.completeBlock();
   }
 };
 
@@ -128,6 +129,8 @@ Creator.prototype.verifyCoSig = function () {
 };
 
 Creator.prototype.completeBlock = function () {
+  this.blockchain.MPT.ResetSaved();
+  this.blockchain.txn_pool.clean();
   const nextCreator = this.blockchain.getLastBlock().nextCreator;
   this.block.hash = this.block.hashBlock(this.blockchain.getLastBlock().hash, this.block);
   this.blockchain.chain.push(this.block);
@@ -155,15 +158,24 @@ Creator.prototype.completeBlock = function () {
  * @return {Block} the completed new block
  */
 Creator.prototype.constructNewBlock = function (txspool) {
-  this.block = new Block(this.blockchain.getLastBlock().height + 1, txspool.transactions, this.blockchain.getLastBlock().hash, this.MPT);
-  this.MPT = this.block.updateMPT();
-  return this.block;
+  if (!this.MPT.saved) {
+    this.block = new Block(this.blockchain.getLastBlock().height + 1, txspool.transactions, this.blockchain.getLastBlock().hash, this.MPT);
+    this.MPT = this.block.updateMPT();
+    this.MPT.Cal_old_hash();
+    return this.block;
+  }
 };
 
 Creator.prototype.selectMaintainer = function () {
+  // this.MPT.RefundTax(this.wallet.publicKey, this.MPT.Search(this.wallet.publicKey).tax);
+  const tmpBlock = this.blockchain.getLastBlock();
+  // for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
+  //   this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i]).tax);
+  // }
+  
   const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
   this.block.nextCreator = creatorPoRT.nextMaintainer;
-  const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
+  // const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
   for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
     const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.MPT);
     this.block.nextVoters.push(voterPoRT.nextMaintainer);

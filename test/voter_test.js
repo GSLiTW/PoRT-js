@@ -43,15 +43,23 @@ describe('voter_test', () => {
   function insertCSVData(quantity, data) {
     txns = [];
     for (let i = 1; i <= quantity; i++) {
-      const ecdsa = new elliptic.ec('secp256k1');
-      // console.log(data[i][2])
-      // console.log(keytable.get(data[i][2]))
       const sig = ecdsa.sign(data[i][0], keytable.get(data[i][2]), 'hex', {canonical: true});
       txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree));
     }
     return txns;
   };
-
+/*
+  function insertCSVData(quantity, data) {
+    txns = [];
+    for (let i = 1; i <= quantity; i++) {
+      if(data[i][2] === wallet.publicKey.encode('hex')){
+        const sig = wallet.Sign(data[i][0])
+        const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree)
+      }
+    }
+    return null;
+  };
+*/
   function createtxs(num) {
     const csv = new CSVdata();
     const data_ = csv.getData(num); // get data of block1
