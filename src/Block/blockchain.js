@@ -24,7 +24,12 @@ function Blockchain(MPT) {
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
   // pase json to get data
+  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
+  const genesisData = JSON.parse(dataFile);
 
+  for (let allocid in genesisData.alloc) {
+    this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
+  }
 
   var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
   let InitTxs = []
@@ -34,28 +39,33 @@ function Blockchain(MPT) {
   const txn_pool = new Txn_Pool(InitTxs);
 
 
-  let genesisData;
-  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
-  try {
-    genesisData = JSON.parse(dataFile);
-    // console.log('JSON string:', 'utf8', genesisData);
-  } catch (err) {
-    console.log('Error parsing JSON string:', err);
-  }
+  // let genesisData;
+  // const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
+  // try {
+  //   genesisData = JSON.parse(dataFile);
+  //   // console.log('JSON string:', 'utf8', genesisData);
+  // } catch (err) {
+  //   console.log('Error parsing JSON string:', err);
+  // }
   const genesisBlock = new Block(
       1, // height
       txn_pool.transactions,
       '0', // previous Hash
       MPT,
   );
+
+  this.MPT = genesisBlock.updateMPT();
+  this.MPT.Cal_old_hash();
+  this.MPT.ResetSaved();
+
   genesisBlock.timestamp = genesisData.timestamp;
-  // genesisBlock.hash = genesisData.hash;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
   hashValue = genesisBlock.hashBlock(0, genesisBlock);
   console.log(hashValue);
   genesisBlock.hash = hashValue;
   this.chain.push(genesisBlock); // create Genesis Block
+  this.txn_pool.clean();
 }
 
 /**
@@ -76,8 +86,6 @@ Blockchain.prototype.createNewBlock = function (
     previousHash,
     MPT
   );
-
-  this.pendingTransactions = [];
   this.chain.push(newBlock);
 
   return newBlock;
@@ -94,20 +102,19 @@ Blockchain.prototype.getLastBlock = function () {
  * @param  {Transaction_MT} transactionObj
  * @return {Block} Last Block
  */
-Blockchain.prototype.addTransactionToPendingTransaction = function (
-  transactionObj
-) {
+Blockchain.prototype.addTransactionToPendingTransaction = function (transactionObj) {
   let isexist = false;
-  for (let i = 0; i < this.pendingTransactions.length; i++) {
-    if (this.pendingTransactions[i] == transactionObj) {
-      isexist = true;
-      break;
+  //console.log(transactionObj)
+  txs = this.txn_pool.get_transaction()
+  for (let i = 0; i < txs.length; i++) {
+    if (txs[i].id == transactionObj.id) {
+      //isexist = true;
+      return true;
     }
   }
   if (!isexist) {
     this.pendingTransactions.push(transactionObj);
   }
-  // return this.getLastBlock()["height"]+1;
   return isexist;
 };
 

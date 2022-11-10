@@ -68,7 +68,17 @@ const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
 w = undefined;
 //createtxs(1)
 
-const chain = new Blockchain();
+
+/*
+for (let i = 0; i < 14; i++) {
+  if (i == 2) Tree.Insert(data[i][2], 100 * BASE, 1 * BASE * 0.0001, [2, 1]); // dbit == 1 means creator
+  else if (i == 4) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 6) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else if (i == 8) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
+  else Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [0, 0]);
+}
+*/
+let chain = new Blockchain();
 const Tree = chain.MPT;
 
 function insertCSVData(quantity, data) {
@@ -76,10 +86,11 @@ function insertCSVData(quantity, data) {
   for (let i = 1; i <= quantity; i++) {
     if(data[i][2] === wallet.publicKey.encode('hex')){
       const sig = wallet.Sign(data[i][0])
-      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, Tree)
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT)
       //storeData(newTx, `./${port}.json`)
       const requestPromises = [];
-      console.log(chain.networkNodes)
+      // console.log(chain.networkNodes);
+      console.log("to tx broadcast");
       chain.networkNodes.forEach((networkNodeUrl) => {
         const requestOptions = {
           uri: networkNodeUrl + '/transaction/broadcast',
@@ -106,8 +117,10 @@ function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num); // get data of block1
   if (num == 1 || num == 2) {
+    console.log("add txn");
     return insertCSVData(4, data_);
   } else if (num == 3) {
+    console.log("add txn2");
     return insertCSVData(4, data_);
   } else console.log("wrong block number.");
 }
@@ -178,7 +191,10 @@ tempBlock.timestamp = 1604671786702;
 tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
 tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
 tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
-
+*/
+// pending_txn_pool.clean();
+// createtxs(3)
+/*
 pending_txn_pool.clean();
 createtxs(3)
 */
@@ -196,17 +212,17 @@ app.get("/wallet", function (req, res) {
   res.send({ wallet: wallet, backupinfo: Backup });
 });
 
-app.get("/MPT", function (req, res) {
-  res.send(Tree);
+app.get('/MPT', function(req, res) {
+  res.send(chain.MPT);
 });
 
-app.get("/transaction-pool", function (req, res) {
-  res.send(pending_txn_pool);
+app.get('/transaction-pool', function(req, res) {
+  res.send(chain.txn_pool);
 });
 
 app.get("/MPT/Search/:key", function (req, res) {
   const key = req.params.key;
-  res.json({ key: key, balance: Tree.Search(key) });
+  res.json({key: key, balance: chain.MPT.Search(key)});
 });
 
 app.post('/MPT/UpdateValues', function(req, res) {
@@ -439,7 +455,7 @@ app.post("/transaction/launch", function (req, res) {
 app.post('/transaction/AddTx', function(req, res) {
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
-  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig.recoveryParam, sig.r, sig.s, Tree);
+  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig.recoveryParam, sig.r, sig.s, chain.MPT);
   console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
@@ -465,8 +481,10 @@ app.post('/transaction/AddTx', function(req, res) {
 app.post('/transaction/broadcast', function(req, res) {
   // const newTransaction = Transaction(req.body.amount, req.body.sender, req.body.recipient)
   //console.log(121212)
+  console.log("before add");
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
-  console.log(isexist)
+  console.log("after add");
+  // console.log(isexist)
   // var seq = seqList[seqList.length - 1] + 1;
   // seqList.push(seq);
   
@@ -862,11 +880,12 @@ app.get("/block-explorer", function (req, res) {
   res.sendFile("./block-explorer/index.html", { root: __dirname });
 });
 
-app.get("/Creator", function (req, res) {
-  console.log("********** Creator start  **********");
-  creator = new Creator(port, wallet, Tree, chain);
+app.get('/Creator', function(req, res) {
+  console.log('********** Creator start  **********');
+  creator = new Creator(port, wallet, chain);
 
   if (creator.isValid() && !CreatorStartThisRound) {
+    createtxs(tmp);
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime =
@@ -885,7 +904,8 @@ app.get("/Creator", function (req, res) {
       "." +
       currentdate.getMilliseconds();
 
-    blockToVote = creator.startCosig(tempBlock);
+    blockToVote = creator.constructNewBlock(chain.txn_pool);
+    creator.startCosig();
 
     const seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
@@ -906,10 +926,7 @@ app.get("/Creator", function (req, res) {
     });
 
     res.json({
-      SeqNum: seq,
-      CreatorUrl: chain.currentNodeUrl,
-      Time: datetime,
-      tempBlock: tempBlock,
+      SeqNum: seq, CreatorUrl: chain.currentNodeUrl, Time: datetime, tempBlock: blockToVote,
     });
   } else {
     creator = null;
@@ -923,11 +940,10 @@ app.post("/Voter", function (req, res) {
   const seq = req.body.SeqNum;
 
   if (seqList.indexOf(seq) == -1) {
-    voter = new Voter(port, wallet, Tree, chain);
-    if (voter.IsValid()) {
-      // console.log('i am voter');
-
-      voter.CreatorUrl(req.body.CreatorUrl);
+    voter = new Voter(port, wallet, chain);
+    if (voter.isValid()) {
+      console.log("this is a voter");
+      voter.creatorUrl(req.body.CreatorUrl);
 
       const requestPromises = [];
 
@@ -944,6 +960,7 @@ app.post("/Voter", function (req, res) {
       requestPromises.push(rp(requestOptions));
     } else {
       voter = null;
+      res.json('Error: Not Voter');
     }
 
     seqList.push(seq);
@@ -992,7 +1009,7 @@ app.post("/Creator/Challenge", function (req, res) {
         body: {
           index: index,
           challenge: challenge,
-          message: tempBlock,
+          message: creator.block,
         },
         json: true,
       };
@@ -1022,7 +1039,7 @@ app.post("/Creator/Challenge", function (req, res) {
             body: {
               index: index,
               challenge: challenge,
-              message: tempBlock,
+              message: creator.block,
             },
             json: true,
           };
@@ -1036,42 +1053,11 @@ app.post("/Creator/Challenge", function (req, res) {
   res.json("GetVoters success!");
 });
 
-// app.post("/Creator/Challenge", function (req, res) {
-//     const VoterUrl = req.body.VoterUrl;
-//     const VoterPubKeyHex = req.body.publicKey;
-//     const VoterPubVHex = req.body.publicV;
 
-//     const VoterPubKey = wallet.PublicKeyFromHex(VoterPubKeyHex);
-//     const VoterPubV = wallet.PublicKeyFromHex(VoterPubVHex);
-
-//     creator.GetVoter(VoterUrl, VoterPubKey, VoterPubV);
-
-//     if (creator.VoterUrl.length == VOTER_NUM) {
-
-//         const challenge = creator.GenerateChallenge();
-
-//         const requestPromises = [];
-//         creator.VoterUrl.forEach(networkNodeUrl => {
-//             const requestOptions = {
-//                 uri: networkNodeUrl + "/Voter/Response",
-//                 method: "POST",
-//                 body: {
-//                     challenge: challenge,
-//                     message: tempBlock,
-//                 },
-//                 json: true
-//             };
-//             requestPromises.push(rp(requestOptions));
-//         });
-
-//     }
-
-//     res.json("GetVoters success!");
-// })
-
-app.post("/Voter/Response", function (req, res) {
-  console.log("********** Voter/Response start  **********");
+app.post('/Voter/Response', function(req, res) {
+  console.log('********** Voter/Response start  **********');
   const isBlockValid = voter.VerifyBlock(req.body.message);
+  console.log('block is valid: ' + isBlockValid);
   if (isBlockValid) {
     const challenge = req.body.challenge;
     const index = req.body.index;
@@ -1142,7 +1128,7 @@ app.post("/Creator/GetResponses", function (req, res) {
             body: {
               index: index,
               challenge: challenge,
-              message: tempBlock,
+              message: creator.block,
             },
             json: true,
           };
@@ -1160,109 +1146,15 @@ app.post("/Creator/GetBlock", function (req, res) {
 
   if (seqList.indexOf(seq) == -1) {
     seqList.push(seq);
-    const lastBlock = chain.getLastBlock();
-
-    console.log("Cal_old_hash start");
-    if (!Tree.saved) {
-      Tree.Cal_old_hash();
-    }
-
-    console.log("refund start");
-    // refund creator's & voter's tax
-    if (lastBlock["height"] >= 1) {
-      Tree.RefundTax(
-        lastBlock.nextCreator,
-        Tree.Search(lastBlock.nextCreator)[1]
-      );
-      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-        Tree.RefundTax(
-          lastBlock.nextVoters[i],
-          Tree.Search(lastBlock.nextVoters[i])[1] * 0.7
-        );
-      }
-    }
-
-    console.log("Creator.GetBlock start");
-    const newBlock = creator.completeBlock(tempBlock.hash, lastBlock);
-
-    console.log("update Dbit start");
-    if (tempBlock.height % 2 === 1) {
-      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
-      Tree.UpdateDbit(tempBlock.nextCreator, [1, 1]);
-      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
-      }
-      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
-        Tree.UpdateDbit(tempBlock.nextVoters[i], [1, 2]);
-      }
-    } else {
-      Tree.UpdateDbit(lastBlock.nextCreator, [0, 0]);
-      Tree.UpdateDbit(tempBlock.nextCreator, [2, 1]);
-      for (let i = 0; i < lastBlock.nextVoters.length; i++) {
-        Tree.UpdateDbit(lastBlock.nextVoters[i], [0, 0]);
-      }
-      for (let i = 0; i < tempBlock.nextVoters.length; i++) {
-        Tree.UpdateDbit(tempBlock.nextVoters[i], [2, 2]);
-      }
-    }
-
-    // console.log(tempBlock);
-    console.log("push tempblock" + tempBlock.height + " into chain");
-    chain.chain.push(tempBlock);
-
-    /* pending_txn_pool.clean();
-        if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
-
-    // only delete txs which are in new block
-    console.log("before delete all tx: " + pending_txn_pool.transactions);
-    for (let i = 0; i < newBlock.transactions.length; i++) {
-      pending_txn_pool.transactions.forEach(function (tx, index, arr) {
-        if (tx.id == newBlock.transactions[i].id) {
-          arr.splice(index, 1);
-        }
-      });
-    }
-    console.log("after delete all tx: " + pending_txn_pool.transactions);
-    console.log(pending_txn_pool.transactions.length);
-    console.log(newBlock.transactions.length);
-
-    /* console.log("new block tx:");
-        for(var i=0;i<newBlock.transactions.transactions.length;i++)
-        {
-            console.log(newBlock.transactions.transactions[i].id)
-        }
-        console.log("tx_pool tx:");
-        pending_txn_pool.transactions.forEach(function(tx,index,arr)
-        {
-            console.log(tx.id);
-        })*/
-
-    const currentdate = new Date();
-    const datetime =
-      "Last Sync: " +
-      currentdate.getDate() +
-      "/" +
-      (currentdate.getMonth() + 1) +
-      "/" +
-      currentdate.getFullYear() +
-      " @ " +
-      currentdate.getHours() +
-      ":" +
-      currentdate.getMinutes() +
-      ":" +
-      currentdate.getSeconds() +
-      "." +
-      currentdate.getMilliseconds();
-    console.log(datetime);
 
     seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
 
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
-        uri: networkNodeUrl + "/receive-new-block",
-        method: "POST",
-        body: { SeqNum: seq, newBlock: newBlock },
+        uri: networkNodeUrl + '/update-blockchain',
+        method: 'POST',
+        body: {SeqNum: seq, Blockchain: creator.blockchain},
         json: true,
       };
       rp(requestOptions);
@@ -1278,6 +1170,31 @@ app.post("/Creator/GetBlock", function (req, res) {
   }
 });
 
-app.listen(port, function () {
+app.post('/update-blockchain', function (req, res) {
+  console.log('********** update-blockchain start  **********');
+  const seq = req.body.SeqNum;
+  let updatedChain = req.body.Blockchain;
+  if (seqList.indexOf(seq) == -1) {
+    chain = updatedChain;
+    tmp += 1;
+    seqList.push(seq);
+
+    const requestPromises = [];
+    chain.networkNodes.forEach((networkNodeUrl) => {
+      const requestOptions = {
+        uri: networkNodeUrl + '/update-blockchain',
+        method: 'POST',
+        body: { SeqNum: seq, Blockchain: updatedChain },
+        json: true,
+      };
+      requestPromises.push(rp(requestOptions));
+    });
+  }
+  else {
+    res.sendStatus(200);
+  }
+});
+
+app.listen(port, function() {
   console.log(`Listening on port ${port} ...`);
 });
