@@ -58,7 +58,7 @@ Voter.prototype.creatorUrl = function(url) {
  * @param  {MPT} voterMPT - voter's local MPT copy
  * @return {bool} True if merkleRoot is valid; False otherwise
  */
-
+/*
 Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do we need to pass voter MPT?
   const hash = voterMPT.oldHash;
   console.log('merkleRoot: ', merkleRoot);
@@ -70,7 +70,7 @@ Voter.prototype.VerifyBlock = function(merkleRoot, voterMPT) { // TODO: why do w
     return 0;
   }
 };
-
+*/
 Voter.prototype.VerifyBlock = function (block_to_vote) {
   
   const txs = block_to_vote.transactions;
@@ -87,10 +87,10 @@ Voter.prototype.VerifyBlock = function (block_to_vote) {
       }
       let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
       let pubKeyRecovered = ec.recoverPubKey(
-          hexToDecimal(tx.id), tx.signature, tx.signature.recoveryParam, "hex");
+          hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, "hex");
       console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
 
-      let validSig = ec.verify(tx.id, tx.signature, pubKeyRecovered);
+      let validSig = ec.verify(tx.id.substr(2), tx.sig, pubKeyRecovered);
       if (validSig == false) {
           return 0;
       }

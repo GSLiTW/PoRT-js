@@ -173,11 +173,11 @@ Creator.prototype.constructNewBlock = function (txspool) {
 };
 
 Creator.prototype.selectMaintainer = function () {
-  // this.MPT.RefundTax(this.wallet.publicKey, this.MPT.Search(this.wallet.publicKey).tax);
+  this.MPT.RefundTax(this.wallet.publicKey.encode("hex"), this.MPT.Search(this.wallet.publicKey.encode("hex")).Tax());
   const tmpBlock = this.blockchain.getLastBlock();
-  // for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
-  //   this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i]).tax);
-  // }
+  for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
+    this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i]).Tax());
+  }
   
   const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
   this.block.nextCreator = creatorPoRT.nextMaintainer;

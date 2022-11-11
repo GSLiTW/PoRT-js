@@ -216,8 +216,8 @@ if (port >= 3002) {
   }
 }
 
-// createtxs(2)
-let tmp =1;
+createtxs(2)
+// let tmp =1;
 /*
 let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
 tempBlock.timestamp = 1604671786702;
@@ -950,8 +950,8 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, chain);
 
   if (creator.isValid() && !CreatorStartThisRound) {
-    tmp += 1;
-    createtxs(tmp);
+    // tmp += 1;
+    // createtxs(tmp);
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime =
@@ -1043,7 +1043,7 @@ app.post("/Voter", function (req, res) {
     });
   }
 
-  res.json("Voter triggered");
+  // res.json("Voter triggered");
 });
 
 app.post("/Creator/Challenge", function (req, res) {
@@ -1164,7 +1164,8 @@ app.post("/Creator/GetResponses", function (req, res) {
       if (GetResponsesSetTimeout) {
         clearTimeout(GetResponsesSetTimeout);
       }
-      console.log("there are" + creator.voterResponse.length + " Voter now");
+      console.log("there are " + creator.voterResponse.length + " Voter now");
+      // console.log("Creator owns tax:", creator.MPT.Search(creator.wallet.publicKey.encode("hex")));
       creator.aggregateResponse();
 
       const seq = seqList[seqList.length - 1] + 1;
