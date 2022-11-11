@@ -80,7 +80,7 @@ Voter.prototype.VerifyBlock = function (block_to_vote) {
 
   for (let i = 0; i < txs.length; i++) {
       tx = txs[i];
-      sender_value = this.MPT.Search(tx.sender);
+      sender_value = this.MPT.Search(tx.sender).Balance();
 
       if (tx.value > sender_value) {
           return 0;

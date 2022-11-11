@@ -25,14 +25,16 @@ function Blockchain() {
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
   // pase json to get data
-  const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
-  const genesisData = JSON.parse(dataFile);
+  const genesisBlockJSON = fs.readFileSync('./src/Block/genesisBlock.json');
+  const genesisData = JSON.parse(genesisBlockJSON);
+  const secondBlockJSON = fs.readFileSync('./src/Block/genesisBlock.json');
+  const secondData = JSON.parse(secondBlockJSON);
 
   for (let allocid in genesisData.alloc) {
     this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
   }
 
-  var block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
+  let block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
   let InitTxs = []
   for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
     InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT))
@@ -40,14 +42,6 @@ function Blockchain() {
   this.txn_pool = new Txn_Pool(InitTxs);
 
 
-  // let genesisData;
-  // const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
-  // try {
-  //   genesisData = JSON.parse(dataFile);
-  //   // console.log('JSON string:', 'utf8', genesisData);
-  // } catch (err) {
-  //   console.log('Error parsing JSON string:', err);
-  // }
   const genesisBlock = new Block(
       1, // height
       this.txn_pool.transactions,
@@ -62,10 +56,33 @@ function Blockchain() {
   genesisBlock.timestamp = genesisData.timestamp;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
-  hashValue = genesisBlock.hashBlock(0, genesisBlock);
-  console.log(hashValue);
-  genesisBlock.hash = hashValue;
+  genesisBlock.hash = '501cdbedcea248f8f5c832998b02b0b0a09d10ee13c9f38fd1e2aab73719bf6a';
   this.chain.push(genesisBlock); // create Genesis Block
+  this.txn_pool.clean();
+
+  //second Block
+  let block2Txs = JSON.parse(fs.readFileSync('./src/Block/Block2txs.json', 'utf8'));
+  let Init2Txs = []
+  for(let i = 0; i<Object.keys(block2Txs.txs).length; i++){
+    Init2Txs.push(new Transaction_MT(block2Txs.txs[i].id, block2Txs.txs[i].sender, block2Txs.txs[i].receiver, block2Txs.txs[i].value, block2Txs.txs[i].sig, this.MPT));
+  }
+  this.txn_pool = new Txn_Pool(Init2Txs);
+
+  const secondBlock = new Block(
+    2, // height
+    this.txn_pool.transactions,
+    '501cdbedcea248f8f5c832998b02b0b0a09d10ee13c9f38fd1e2aab73719bf6a', // previous Hash
+    this.MPT,
+  );
+  this.MPT = secondBlock.updateMPT();
+  this.MPT.Cal_old_hash();
+  this.MPT.ResetSaved();
+
+  secondBlock.timestamp = secondData.timestamp;
+  secondBlock.nextCreator = secondData.nextCreator;
+  secondBlock.nextVoters = secondData.nextVoters;
+  secondBlock.hash = '2fdddcadd3f85ebbdd233897fd4c416ee313f4a1148ff84f6011e0dc83c79e4a';
+  this.chain.push(secondBlock); // create Genesis Block
   this.txn_pool.clean();
 }
 

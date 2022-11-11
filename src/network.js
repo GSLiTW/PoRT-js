@@ -216,7 +216,7 @@ if (port >= 3002) {
   }
 }
 
-createtxs(2)
+createtxs(3)
 // let tmp =1;
 /*
 let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
