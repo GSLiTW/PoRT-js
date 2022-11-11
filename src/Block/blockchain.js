@@ -5,7 +5,7 @@ const Block = require("./block");
 const Transaction_MT = require("../Transaction/transaction.js");
 const Txn_Pool = require("../Transaction/pending_transaction_pool");
 const fs = require("fs"); //for reading Genesis.json
-
+const MPT =require("../MPT/MPT")
 const TRANSACTION_TYPE = {
   transaction: "TRANSACTION",
   stake: "STAKE",
@@ -17,16 +17,17 @@ const TRANSACTION_TYPE = {
  * @class The main data structure of PORT blockchain
  * @param  {MPT} MPT
  */
-function Blockchain(MPT) {
+function Blockchain() {
   this.chain = [];
   // this.pendingTransactions = [];
-
+  this.MPT=new MPT();
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
+
   // pase json to get data
   const dataFile = fs.readFileSync('./src/Block/genesisBlock.json');
   const genesisData = JSON.parse(dataFile);
-
+  
   for (let allocid in genesisData.alloc) {
     this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
   }
@@ -36,11 +37,12 @@ function Blockchain(MPT) {
   for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
     InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT))
   }
+  this.txn_pool = new Txn_Pool(InitTxs);
   const genesisBlock = new Block(
       1, // height
-      txn_pool.transactions,
+      this.txn_pool.transactions,
       '0', // previous Hash
-      MPT,
+      this.MPT,
   );
 
   this.MPT = genesisBlock.updateMPT();

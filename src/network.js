@@ -39,17 +39,19 @@ let FirstRoundVoterNum = 0; // record when First Round Lock, how many Voters att
 let GetResponsesSetTimeout = null;
 
 // preprocess
-<<<<<<< HEAD
-console.log("Preprocess init ")
-const init_data = new Preprocess();
-init_data.initialize(port);
+
+// console.log("Preprocess init ")
+// const init_data = new Preprocess();
+// init_data.initialize(port);
 // const data = Preprocess.getData();
-const chain = init_data.chain;
-const data = init_data.data;
-const Tree = init_data.tree;
-const pending_txn_pool=init_data.pending_txn_pool;
-const wallet=init_data.wallet;
-=======
+// const chain = init_data.chain;
+// const data = init_data.data;
+// const Tree = init_data.tree;
+// const pending_txn_pool=init_data.pending_txn_pool;
+// const wallet=init_data.wallet;
+//! MPT 什麼時候插入？
+//!問你喔，你目前xyhy-network能正常執行嗎？
+//!我目前裡面的network找不到MPT
 const data = fs.readFileSync('./data/node_address_mapping_table.csv')
     .toString() // convert Buffer to string
     .split('\n') // split string to lines
@@ -79,6 +81,8 @@ let chain = new Blockchain();
 const Tree = chain.MPT;
 
 
+
+
 // for (let i = 0, UpdateList = chain.chain[0].transactions; i < UpdateList.length; i++) {
 //   Tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 // }
@@ -86,7 +90,7 @@ const Tree = chain.MPT;
 // chain.MPT.Cal_old_hash();
 // chain.MPT.ResetSaved();
 
-const pending_txn_pool = new Pending_Txn_Pool();
+// const pending_txn_pool = new Pending_Txn_Pool();
 
 //createtxs(1)
 
