@@ -3,10 +3,10 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const port = process.argv[2];
-const rp = require("promise-request-retry");
-const CSV_data = require("./Transaction/CSV_data");
-const fs = require("fs");
-const elliptic = require("elliptic");
+const rp = require('promise-request-retry');
+
+// const fs = require('fs');
+// const elliptic = require('elliptic');
 
 // macros
 const VOTER_NUM = 3;
@@ -14,9 +14,6 @@ const VOTER_NUM = 3;
 // local modules
 const Blockchain = require('./Block/blockchain.js');
 const Transaction = require('./Transaction/transaction');
-const MPT = require('./MPT/MPT');
-const Pending_Txn_Pool = require('./Transaction/pending_transaction_pool');
-const Wallet = require('./Utility/wallet');
 const backup = require('./Utility/backup');
 
 const Preprocess = require('./Block/Preprocess');
@@ -39,143 +36,17 @@ let FirstRountSetTimeout = null; // record setTimeout in ("/Creator/Challenge"),
 let FirstRoundVoterNum = 0; // record when First Round Lock, how many Voters attend this round
 let GetResponsesSetTimeout = null;
 
-/*
+
 // preprocess
+
 console.log("Preprocess init ")
 const init_data = new Preprocess();
 init_data.initialize(port);
-// const data = Preprocess.getData();
 const chain = init_data.chain;
-const data = init_data.data;
 const Tree = init_data.tree;
 const pending_txn_pool=init_data.pending_txn_pool;
 const wallet=init_data.wallet;
-*/
 
-const data = fs.readFileSync('./data/node_address_mapping_table.csv')
-    .toString() // convert Buffer to string
-    .split('\n') // split string to lines
-    .map((e) => e.trim()) // remove white spaces for each line
-    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
-
-let w = fs.readFileSync('./data/private_public_key.csv')
-    .toString() // convert Buffer to string
-    .split('\n') // split string to lines
-    .map((e) => e.trim()) // remove white spaces for each line
-    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
-const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
-w = undefined;
-//createtxs(1)
-
-
-/*
-for (let i = 0; i < 14; i++) {
-  if (i == 2) Tree.Insert(data[i][2], 100 * BASE, 1 * BASE * 0.0001, [2, 1]); // dbit == 1 means creator
-  else if (i == 4) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 6) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
-  else if (i == 8) Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [2, 2]); // dbit == 2 means voter
-  else Tree.Insert(data[i][2], 1 * BASE, 1 * BASE * 0.0001, [0, 0]);
-}
-*/
-let chain = new Blockchain();
-const Tree = chain.MPT;
-
-function insertCSVData(quantity, data) {
-  txns = [];
-  for (let i = 1; i <= quantity; i++) {
-    if(data[i][2] === wallet.publicKey.encode('hex')){
-      const sig = wallet.Sign(data[i][0])
-      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT)
-      //storeData(newTx, `./${port}.json`)
-      const requestPromises = [];
-      // console.log(chain.networkNodes);
-      console.log("to tx broadcast");
-      chain.networkNodes.forEach((networkNodeUrl) => {
-        const requestOptions = {
-          uri: networkNodeUrl + '/transaction/broadcast',
-          method: 'POST',
-          body: {NewTxs: newTx},
-          json: true,
-          retry: 2,
-          delay: 10000,
-        };
-  
-        requestPromises.push(rp(requestOptions));
-      });
-  
-      Promise.all(requestPromises).then((data) => {
-        console.log('Transaction created and broadcast successfully.');
-      });
-    }
-
-  }
-  return null;
-};
-
-function createtxs(num) {
-  const csvdata = new CSV_data();
-  const data_ = csvdata.getData(num); // get data of block1
-  if (num == 1 || num == 2) {
-    console.log("add txn");
-    return insertCSVData(4, data_);
-  } else if (num == 3) {
-    console.log("add txn2");
-    return insertCSVData(4, data_);
-  } else console.log("wrong block number.");
-}
-
-// if(port != 3000){
-//   const newNodeUrl = 'http://localhost:' + '3000';
-//   if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
-//     chain.networkNodes.push(newNodeUrl);
-//   }
-
-//   const regNodesPromises = [];
-//   chain.networkNodes.forEach((networkNodeUrl) => {
-//     const requestOptions = {
-//       uri: networkNodeUrl + '/register-node',
-//       method: 'POST',
-//       body: {newNodeUrl: newNodeUrl},
-//       json: true,
-//       retry: 10,
-//       delay: 10000,
-//     };
-
-//     regNodesPromises.push(rp(requestOptions));
-//   });
-
-//   Promise.all(regNodesPromises).then((data) => {
-//     // use the data
-//     const bulkRegisterOptions = {
-//       uri: newNodeUrl + '/register-nodes-bulk',
-//       method: 'POST',
-//       body: {allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl]},
-//       json: true,
-//       retry: 10,
-//       delay: 1000,
-//     };
-//     return rp(bulkRegisterOptions);
-//   });
-// }
-/*
-pending_txn_pool.addTxs(createtxs(2));
-
-let tempBlock = new Block(
-  2,
-  pending_txn_pool.transactions,
-  chain.chain[0].hash,
-  Tree
-);
-tempBlock.timestamp = tempData.timestamp;
-tempBlock.hash = tempData.hash;
-tempBlock.nextCreator = tempData.nextCreator;
-tempBlock.nextVoters = tempData.nextVoters;
-
-
-
-pending_txn_pool.clean();
-pending_txn_pool.addTxs(createtxs(3));
-*/
 
 if (port >= 3002) {
   for (let p = port - 2; p < port; p++) {
@@ -216,21 +87,8 @@ if (port >= 3002) {
   }
 }
 
-createtxs(3)
-// let tmp =1;
-/*
-let tempBlock = new Block(2, pending_txn_pool.transactions, chain.chain[0].hash, Tree);
-tempBlock.timestamp = 1604671786702;
-tempBlock.hash = '0f274ddbe0d9031e4c599c494bddbdea481a5a5caf3d7f0ec28a05708b2302f1';
-tempBlock.nextCreator = '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8';
-tempBlock.nextVoters = ['040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b', '04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92', '04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d'];
-*/
-// pending_txn_pool.clean();
-// createtxs(3)
-/*
-pending_txn_pool.clean();
-createtxs(3)
-*/
+let tmp = 2; 
+
 seqList = [0];
 
 app.use(bodyParser.json());
@@ -427,8 +285,8 @@ app.post("/blockchain/createblock", function (req, res) {
 
   pending_txn_pool.clean();
   if (req.body.num == 2) {
-    //pending_txn_pool.addTxs(createtxs(3));
-    createtxs(3)
+    
+    init_data.createTxs(3)
   }
 
   res.json({
@@ -461,8 +319,7 @@ app.post("/MPT/ReceiveUpdateDbit", function (req, res) {
 });
 
 app.get('/transaction/third-block', function(req, res) {
-  //pending_txn_pool.addTxs(createtxs(3));
-  createtxs(3)
+  init_data.createTxs(3)
   res.json({note: `push transactions of the third etherscan into pending txn pool.`});
 });
 
@@ -581,9 +438,9 @@ app.post("/receive-new-block", function (req, res) {
     const correctHash = lastBlock.hash === tempBlock.previousBlockHash;
     const correctIndex = lastBlock["height"] + 1 == tempBlock["height"];
 
-    if (!Tree.saved) {
-      Tree.Cal_old_hash();
-    }
+//     if (!Tree.saved) {
+//       Tree.Cal_old_hash();
+//     }
 
     for (
       let i = 0, UpdateList = tempBlock.transactions;
@@ -631,8 +488,8 @@ app.post("/receive-new-block", function (req, res) {
       console.log("push tempblock" + tempBlock.height + " into chain");
       chain.chain.push(tempBlock);
 
-      /* pending_txn_pool.clean();
-            if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
+//       /* pending_txn_pool.clean();
+//             if (newBlock.height == 4000720) pending_txn_pool.create(3);*/
 
       // only delete txs which are in new block
       console.log("before delete all tx: " + pending_txn_pool.transactions);
@@ -673,11 +530,11 @@ app.post("/receive-new-block", function (req, res) {
       });
     }
 
-    seqList.push(seq);
+//     seqList.push(seq);
 
-    tempBlock = newBlock;
-    Tree.ResetSaved();
-    // console.log(tempBlock);
+//     tempBlock = newBlock;
+//     Tree.ResetSaved();
+//     // console.log(tempBlock);
 
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
@@ -950,8 +807,7 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, chain);
 
   if (creator.isValid() && !CreatorStartThisRound) {
-    // tmp += 1;
-    // createtxs(tmp);
+    // init_data.createTxs(tmp);
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime =

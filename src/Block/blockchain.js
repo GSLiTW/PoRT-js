@@ -5,8 +5,7 @@ const Block = require("./block");
 const Transaction_MT = require("../Transaction/transaction.js");
 const Txn_Pool = require("../Transaction/pending_transaction_pool");
 const fs = require("fs"); //for reading Genesis.json
-const MPT = require("../MPT/MPT")
-
+const MPT =require("../MPT/MPT")
 const TRANSACTION_TYPE = {
   transaction: "TRANSACTION",
   stake: "STAKE",
@@ -40,8 +39,6 @@ function Blockchain() {
     InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT))
   }
   this.txn_pool = new Txn_Pool(InitTxs);
-
-
   const genesisBlock = new Block(
       1, // height
       this.txn_pool.transactions,
