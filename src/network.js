@@ -5,26 +5,16 @@ const bodyParser = require("body-parser");
 const port = process.argv[2];
 const rp = require('promise-request-retry');
 
-// const fs = require('fs');
-// const elliptic = require('elliptic');
-
 // macros
 const VOTER_NUM = 3;
 
 // local modules
-const Blockchain = require('./Block/blockchain.js');
 const Transaction = require('./Transaction/transaction');
 const backup = require('./Utility/backup');
-
 const Preprocess = require('./Block/Preprocess');
-
 const Backup = new backup();
 const Creator = require("./Creator/creator");
 const Voter = require("./Voter/voter");
-
-const Block = require('./Block/block.js');
-
-const Cosig = require('./cosig.js');
 
 // constants
 const BASE = 1000000000000

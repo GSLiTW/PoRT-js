@@ -19,21 +19,22 @@ const TRANSACTION_TYPE = {
  */
 function Blockchain() {
   this.chain = [];
-  // this.pendingTransactions = [];
   this.MPT = new MPT(true);
   this.currentNodeUrl = currentNodeUrl;
   this.networkNodes = [];
-  // pase json to get data
-  const genesisBlockJSON = fs.readFileSync('./src/Block/genesisBlock.json');
-  const genesisData = JSON.parse(genesisBlockJSON);
-  const secondBlockJSON = fs.readFileSync('./src/Block/genesisBlock.json');
-  const secondData = JSON.parse(secondBlockJSON);
+  
+
+  const genesisData = JSON.parse(fs.readFileSync('./src/Block/genesisBlock.json'));
+  const secondData = JSON.parse(fs.readFileSync('./src/Block/genesisBlock.json'));
 
   for (let allocid in genesisData.alloc) {
     this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
   }
-
+  // dbit == 2 means voter
+  // dbit == 1 means Creator
+  
   let block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
+  
   let InitTxs = []
   for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
     InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT))
@@ -53,7 +54,7 @@ function Blockchain() {
   genesisBlock.timestamp = genesisData.timestamp;
   genesisBlock.nextCreator = genesisData.nextCreator;
   genesisBlock.nextVoters = genesisData.nextVoters;
-  genesisBlock.hash = '501cdbedcea248f8f5c832998b02b0b0a09d10ee13c9f38fd1e2aab73719bf6a';
+  genesisBlock.hash = genesisData.hash;
   this.chain.push(genesisBlock); // create Genesis Block
   this.txn_pool.clean();
 
@@ -68,7 +69,7 @@ function Blockchain() {
   const secondBlock = new Block(
     2, // height
     this.txn_pool.transactions,
-    '501cdbedcea248f8f5c832998b02b0b0a09d10ee13c9f38fd1e2aab73719bf6a', // previous Hash
+    genesisData.hash, // previous Hash
     this.MPT,
   );
   this.MPT = secondBlock.updateMPT();
@@ -78,8 +79,8 @@ function Blockchain() {
   secondBlock.timestamp = secondData.timestamp;
   secondBlock.nextCreator = secondData.nextCreator;
   secondBlock.nextVoters = secondData.nextVoters;
-  secondBlock.hash = '2fdddcadd3f85ebbdd233897fd4c416ee313f4a1148ff84f6011e0dc83c79e4a';
-  this.chain.push(secondBlock); // create Genesis Block
+  secondBlock.hash = secondData.hash;
+  this.chain.push(secondBlock); // push second Block into chain
   this.txn_pool.clean();
 }
 

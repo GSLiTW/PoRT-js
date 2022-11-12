@@ -1,18 +1,18 @@
 //propose :
 // know the relationship of the ports
 //who is creator and voter then who makes which block 
-
-const process = require("process");
 const mockArgv = require("mock-argv");
-const port = [3000];
+let app;
+let port=[];
+for(i=3000;i<3014;i++)
+    port.push(i);
 port.forEach((port) => {   
-    mockArgv([port], async () => {
-        const app = require("../src/network");
-        console.log(process.argv);
+    mockArgv([port], () => {
+         app = require("../src/network");
+        }).then(()=>{
+            app.listen(port, function(){
+                console.log("port"+{port})
         });
-        
-    test("#PORT_test: func", () => {
-        // app.ligit sten(port, () => console.log("port running in " + { port }));
-        });
-
+    });
 });
+
