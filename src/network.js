@@ -71,7 +71,16 @@ if(port != 3000){
   });
 
   Promise.all(regNodesPromises).then((res) => {
-    chain.networkNodes.push(...res[0].nodes)
+    //chain.networkNodes.push(...res[0].nodes)
+    const allNetworkNodes = res[0].nodes
+    allNetworkNodes.forEach((networkNodeUrl) => {
+      const nodeNotAlreadyPresent =
+        chain.networkNodes.indexOf(networkNodeUrl) == -1;
+      const notCurrentNode = chain.currentNodeUrl !== networkNodeUrl;
+      if (nodeNotAlreadyPresent && notCurrentNode) {
+        chain.networkNodes.push(networkNodeUrl);
+      }
+    });
   });
 }
 
