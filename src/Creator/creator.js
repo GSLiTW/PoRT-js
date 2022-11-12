@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 const Block = require('../Block/block');
-const PoRT = require('../Creator/PoRT.js');
+const PoRT = require('./PoRT.js');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 const BN = require('bn.js');
@@ -49,6 +49,12 @@ Creator.prototype.isValid = function() {
  * @param  {string} previousHash
  * @return {Block.block} created block
  */
+// Creator.prototype.constructNewBlock = function(pendingTxs, height, previousHash) {
+//   this.cosig = new Cosig();
+//   this.block = new Block(height, pendingTxs.transactions, previousHash, this.MPT);
+//   return this.block;
+// };
+
 Creator.prototype.startCosig = function() {
   this.cosig = new Cosig();
 };
@@ -119,10 +125,10 @@ Creator.prototype.aggregateResponse = function() {
   }
 };
 
-Creator.prototype.verifyCoSig = function () {
+Creator.prototype.verifyCoSig = function() {
   const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
   const gr0 = responseKeypair.getPublic();
-  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.getChallenge());
+  const x0c = this.cosig.computePubkeyMulWithChallenge(this.voterPubKey, this.challenge);
   const checkResult = this.cosig.verifyCosig(gr0, x0c, this.challenge, this.block);
 
   return checkResult;
@@ -167,15 +173,16 @@ Creator.prototype.constructNewBlock = function (txspool) {
 };
 
 Creator.prototype.selectMaintainer = function () {
-  // this.MPT.RefundTax(this.wallet.publicKey, this.MPT.Search(this.wallet.publicKey).tax);
-  const tmpBlock = this.blockchain.getLastBlock();
-  // for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
-  //   this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i]).tax);
-  // }
+  this.MPT.RefundTax(this.wallet.publicKey.encode("hex"), this.MPT.Search(this.wallet.publicKey.encode("hex")).Tax());
+  // const tmpBlock = this.blockchain.getLastBlock();
+  const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousBlockHash);
+  for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
+    this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i].toString('hex')).Tax());
+  }
   
   const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
   this.block.nextCreator = creatorPoRT.nextMaintainer;
-  // const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousHash);
+  
   for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
     const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.MPT);
     this.block.nextVoters.push(voterPoRT.nextMaintainer);
