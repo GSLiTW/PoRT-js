@@ -1,7 +1,6 @@
 const fs = require("fs");
 const MPT = require("../MPT/MPT");
 const Pending_Txn_Pool = require("../Transaction/pending_transaction_pool");
-const Block = require("./block");
 const Blockchain = require("./blockchain");
 const CSV_data = require('../Transaction/CSV_data');
 const Wallet = require('../Utility/wallet');
@@ -26,23 +25,37 @@ function Preprocess() {
   
 }
 
-// function insertCSVData(quantity, data) {
-//   txns = [];
-//   for (let i = 1; i < quantity; i++) {
-//     txns.push(new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], this.tree));
-//   }
-//   return txns;
-// };
-// function createtxs(num) {
-//   const csvdata = new CSV_data();
-//   if (num == 1 || num == 2) {
-//     return insertCSVData(4, data_);
-//   } else if (num == 3) {
-//     return insertCSVData(4, data_);
-//   } else console.log('wrong block number.');
-// };
+function insertCSVData(quantity, data) {
+  txns = [];
+  for (let i = 1; i <= quantity; i++) {
+    if(data[i][2] === wallet.publicKey.encode('hex')){
+      const sig = wallet.Sign(data[i][0])
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT)
+      //storeData(newTx, `./${port}.json`)
+      const requestPromises = [];
+      // console.log(chain.networkNodes);
+      console.log("to tx broadcast");
+      this.chain.networkNodes.forEach((networkNodeUrl) => {
+        const requestOptions = {
+          uri: networkNodeUrl + '/transaction/broadcast',
+          method: 'POST',
+          body: {NewTxs: newTx},
+          json: true,
+          retry: 2,
+          delay: 10000,
+        };
+  
+        requestPromises.push(rp(requestOptions));
+      });
+  
+      Promise.all(requestPromises).then((data) => {
+        console.log('Transaction created and broadcast successfully.');
+      });
+    }
 
-
+  }
+  return null;
+};
 
 /**
  * Set up all of following 
@@ -81,6 +94,7 @@ Preprocess.prototype.initialize = function (port_address) {
 for (let i = 0, UpdateList = this.chain.chain[0].transactions; i < UpdateList.length; i++) {
   this.tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
 }
+
 // ? 這啥。。。
 this.tree.Cal_old_hash();
 this.tree.ResetSaved();
@@ -105,11 +119,21 @@ this.pending_txn_pool = new Pending_Txn_Pool();
 
 /**
  * Generate node_address_mapping_table from csv file
+ * @param  {int} num
  * @return {} data
  */
-Preprocess.prototype.getData = function () {
-  
- 
+Preprocess.prototype.createTxs = function(num) {
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num); 
+  // get data of block_num
+  if (num == 1 || num == 2) {
+    console.log("add txn");
+    return insertCSVData(4, data_);
+  } else if (num == 3) {
+    console.log("add txn2");
+    return insertCSVData(4, data_);
+  } else console.log('wrong block number.');
+  return ;
 };
 
 module.exports = Preprocess;
