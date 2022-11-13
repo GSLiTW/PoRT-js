@@ -202,6 +202,7 @@
     "types": "^0.1.1",
     "underscore": ">=1.12.1",
     "uuid": "^3.4.0",
+    "web3": "^1.8.1",
     "ws": ">=7.4.6"
   },
   "devDependencies": {

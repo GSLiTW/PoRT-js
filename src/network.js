@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const port = process.argv[2];
 const rp = require('promise-request-retry');
+const web3 = require('web3')
 
 // macros
 const VOTER_NUM = 3;
@@ -38,44 +39,79 @@ const pending_txn_pool=init_data.pending_txn_pool;
 const wallet=init_data.wallet;
 
 
-if (port >= 3002) {
-  for (let p = port - 2; p < port; p++) {
-    const newNodeUrl = "http://localhost:" + p;
-    if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
-      chain.networkNodes.push(newNodeUrl);
-    }
-
-    const regNodesPromises = [];
-    chain.networkNodes.forEach((networkNodeUrl) => {
-      const requestOptions = {
-        uri: networkNodeUrl + "/register-node",
-        method: "POST",
-        body: { newNodeUrl: newNodeUrl },
-        json: true,
-        retry: 10,
-        delay: 10000,
-      };
-
-      regNodesPromises.push(rp(requestOptions));
-    });
-
-    Promise.all(regNodesPromises).then((data) => {
-      // use the data
-      const bulkRegisterOptions = {
-        uri: newNodeUrl + "/register-nodes-bulk",
-        method: "POST",
-        body: {
-          allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl],
-        },
-        json: true,
-        retry: 10,
-        delay: 1000,
-      };
-
-      return rp(bulkRegisterOptions);
-    });
+if(port != 3000){
+  const newNodeUrl = 'http://localhost:' + port;
+  const headNodeUrl = 'http://localhost:' + '3000';
+  if (chain.networkNodes.indexOf(headNodeUrl) == -1) {
+    chain.networkNodes.push(headNodeUrl);
   }
+
+  const regNodesPromises = [];
+  chain.networkNodes.forEach((networkNodeUrl) => {
+    const requestOptions = {
+      uri: networkNodeUrl + '/register-node',
+      method: 'POST',
+      body: {newNodeUrl: newNodeUrl},
+      json: true,
+      retry: 10,
+      delay: 10000,
+    };
+
+    regNodesPromises.push(rp(requestOptions));
+  });
+
+  Promise.all(regNodesPromises).then((res) => {
+    //chain.networkNodes.push(...res[0].nodes)
+    const allNetworkNodes = res[0].nodes
+    allNetworkNodes.forEach((networkNodeUrl) => {
+      const nodeNotAlreadyPresent =
+        chain.networkNodes.indexOf(networkNodeUrl) == -1;
+      const notCurrentNode = chain.currentNodeUrl !== networkNodeUrl;
+      if (nodeNotAlreadyPresent && notCurrentNode) {
+        chain.networkNodes.push(networkNodeUrl);
+      }
+    });
+  });
 }
+
+// if (port >= 3002) {
+//   for (let p = port - 2; p < port; p++) {
+//     const newNodeUrl = "http://localhost:" + p;
+//     if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
+//       chain.networkNodes.push(newNodeUrl);
+//     }
+
+//     const regNodesPromises = [];
+//     chain.networkNodes.forEach((networkNodeUrl) => {
+//       const requestOptions = {
+//         uri: networkNodeUrl + "/register-node",
+//         method: "POST",
+//         body: { newNodeUrl: newNodeUrl },
+//         json: true,
+//         retry: 10,
+//         delay: 10000,
+//       };
+
+//       regNodesPromises.push(rp(requestOptions));
+//     });
+
+//     Promise.all(regNodesPromises).then((data) => {
+//       // use the data
+//       const bulkRegisterOptions = {
+//         uri: newNodeUrl + "/register-nodes-bulk",
+//         method: "POST",
+//         body: {
+//           allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl],
+//         },
+//         json: true,
+//         retry: 10,
+//         delay: 1000,
+//       };
+
+//       return rp(bulkRegisterOptions);
+//     });
+//   }
+// }
 
 let tmp = 2; 
 
@@ -363,12 +399,10 @@ app.post('/transaction/port2portTx', function(req, res) {
   const sendValue = req.body.sendValue;
   const senderPUbKey = wallet.getPubKey(Number(port));
   const receiverPUbKey = wallet.getPubKey(Number(receiverPort));
-  console.log(senderPUbKey);
-  //const txid = web3.utils.keccak256(senderPUbKey, receiverPUbKey, sendValue);
-  const txid = '0x184584a610f75fe56a1882625caadb3eee239d23c9d9a6b2c0e3ecedca79e82e';
+  const txid = web3.utils.keccak256(senderPUbKey+receiverPUbKey+sendValue);
+  console.log(txid)
   const sig = wallet.Sign(txid);
   const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, Tree);
-  console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
   if (!isexist) {
@@ -745,7 +779,7 @@ app.post("/register-node", function (req, res) {
   if (nodeNotAlreadyPresent && notCurrentNode) {
     chain.networkNodes.push(newNodeUrl);
   }
-  res.json({ note: "New node registerd successfully with node." });
+  res.json({ nodes:chain.networkNodes });
 });
 
 // new node registers all network nodes
