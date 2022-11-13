@@ -26,7 +26,7 @@ function Blockchain() {
   // pase json to get data
   const genesisBlockJSON = fs.readFileSync('./src/Block/genesisBlock.json');
   const genesisData = JSON.parse(genesisBlockJSON);
-  const secondBlockJSON = fs.readFileSync('./src/Block/genesisBlock.json');
+  const secondBlockJSON = fs.readFileSync('./src/Block/secondBlock.json');
   const secondData = JSON.parse(secondBlockJSON);
 
   for (let allocid in genesisData.alloc) {
@@ -78,7 +78,7 @@ function Blockchain() {
   secondBlock.timestamp = secondData.timestamp;
   secondBlock.nextCreator = secondData.nextCreator;
   secondBlock.nextVoters = secondData.nextVoters;
-  secondBlock.hash = '2fdddcadd3f85ebbdd233897fd4c416ee313f4a1148ff84f6011e0dc83c79e4a';
+  secondBlock.hash = secondData.hash;
   this.chain.push(secondBlock); // create Genesis Block
   this.txn_pool.clean();
 }
