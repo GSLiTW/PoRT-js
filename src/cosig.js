@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /* From creator.js*/
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');

@@ -1,6 +1,4 @@
 // data structure for pending txns
-const CSV_data = require('./CSV_data.js');
-const Transaction_MT = require('./transaction.js');
 const elliptic = require('elliptic');
 const ecdsa = new elliptic.ec('secp256k1');
 
@@ -34,13 +32,13 @@ Pending_Transaction_Pool.prototype.validate = function(tx) {
     return false;
   }
 
-  let hexToDecimal = (x) => ecdsa.keyFromPrivate(x, "hex").getPrivate().toString(10);
-  let pubkey = ecdsa.recoverPubKey(
-          hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, "hex");
-  
-  if (!pubkey){
-    console.log('verifyfail')
-    return false
+  const hexToDecimal = (x) => ecdsa.keyFromPrivate(x, 'hex').getPrivate().toString(10);
+  const pubkey = ecdsa.recoverPubKey(
+      hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, 'hex');
+
+  if (!pubkey) {
+    console.log('verifyfail');
+    return false;
   }
   return true;
 };

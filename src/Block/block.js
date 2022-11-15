@@ -1,6 +1,4 @@
-const sha256 = require("sha256");
-const Pending_Transaction_Pool = require("../Transaction/pending_transaction_pool")
-const Cosig = require('../cosig.js');
+const sha256 = require('sha256');
 
 /**
  * Generate & Initialize Block Class
@@ -14,7 +12,7 @@ const Cosig = require('../cosig.js');
 function Block(height, pendingTransactions, previousHash, MPT) {
   // fixed area
   this.previousBlockHash = previousHash,
-  this.merkleRoot = MPT.Cal_hash(),
+  this.merkleRoot = this.MPT.Cal_hash(),
   this.timestamp = Date.now(),
   this.height = height,
   this.transactions = pendingTransactions.slice(0), // copy whole tx array
@@ -40,14 +38,15 @@ Block.prototype.hashBlock = function(previousBlockHash, currentBlockData) {
   return hash;
 };
 
-Block.prototype.updateMPT = function () {
+Block.prototype.updateMPT = function() {
   for (let i = 0; i < this.transactions.length; i++) {
     const sender = this.transactions[i].sender;
     const receiver = this.transactions[i].receiver;
     const value = this.transactions[i].value;
     this.MPT.UpdateValue(sender, receiver, value);
   }
+  this.merkleRoot = this.MPT.Cal_hash();
   return this.MPT;
-}
+};
 
 module.exports = Block;

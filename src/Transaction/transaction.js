@@ -1,5 +1,3 @@
-const sha256 = require('sha256');
-
 /**
  * @class Data Structure for a single transaction
  * @param  {string} id - Transaction Hash
@@ -18,7 +16,6 @@ function Transaction_MT(id, sender, receiver, value, sig, MPT) {
 }
 
 Transaction_MT.prototype.accountCheck = function(key, MPT) {
-  //console.log(MPT)
   if (MPT.Search(key) === undefined || MPT.Search(key) === null) {
     MPT.Insert(key, 0);
   }

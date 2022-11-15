@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
-const express = require("express");
+const express = require('express');
 const app = express();
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
-const web3 = require('web3')
+const web3 = require('web3');
 
 // const fs = require('fs');
 // const elliptic = require('elliptic');
@@ -20,15 +20,15 @@ const backup = require('./Utility/backup');
 const Preprocess = require('./Block/Preprocess');
 
 const Backup = new backup();
-const Creator = require("./Creator/creator");
-const Voter = require("./Voter/voter");
+const Creator = require('./Creator/creator');
+const Voter = require('./Voter/voter');
 
 const Block = require('./Block/block.js');
 
 const Cosig = require('./cosig.js');
 
 // constants
-const BASE = 1000000000000
+const BASE = 1000000000000;
 
 // will be set to false in ("/Creator/GetBlock")
 let CreatorStartThisRound = false; // if true, means Creator already call ("Creator"), don't let him call again
@@ -40,7 +40,7 @@ let GetResponsesSetTimeout = null;
 
 // preprocess
 
-console.log("Preprocess init ")
+console.log('Preprocess init ');
 const init_data = new Preprocess();
 init_data.initialize(port);
 const chain = init_data.chain;
@@ -49,7 +49,7 @@ const pending_txn_pool=init_data.pending_txn_pool;
 const wallet=init_data.wallet;
 
 
-if(port != 3000){
+if (port != 3000) {
   const newNodeUrl = 'http://localhost:' + port;
   const headNodeUrl = 'http://localhost:' + '3000';
   if (chain.networkNodes.indexOf(headNodeUrl) == -1) {
@@ -71,8 +71,8 @@ if(port != 3000){
   });
 
   Promise.all(regNodesPromises).then((res) => {
-    //chain.networkNodes.push(...res[0].nodes)
-    const allNetworkNodes = res[0].nodes
+    // chain.networkNodes.push(...res[0].nodes)
+    const allNetworkNodes = res[0].nodes;
     allNetworkNodes.forEach((networkNodeUrl) => {
       const nodeNotAlreadyPresent =
         chain.networkNodes.indexOf(networkNodeUrl) == -1;
@@ -123,20 +123,20 @@ if(port != 3000){
 //   }
 // }
 
-let tmp = 2; 
+const tmp = 2;
 
 seqList = [0];
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 
-app.get("/blockchain", function (req, res) {
+app.get('/blockchain', function(req, res) {
   res.send(chain);
   console.log('asd');
 });
 
-app.get("/wallet", function (req, res) {
-  res.send({ wallet: wallet, backupinfo: Backup });
+app.get('/wallet', function(req, res) {
+  res.send({wallet: wallet, backupinfo: Backup});
 });
 
 app.get('/MPT', function(req, res) {
@@ -147,34 +147,33 @@ app.get('/transaction-pool', function(req, res) {
   res.send(chain.txn_pool);
 });
 
-app.get("/MPT/Search/:key", function (req, res) {
+app.get('/MPT/Search/:key', function(req, res) {
   const key = req.params.key;
   res.json({key: key, balance: chain.MPT.Search(key)});
 });
 
 
-
 app.get('/transaction/third-block', function(req, res) {
-  init_data.createTxs(3)
+  init_data.createTxs(3);
   res.json({note: `push transactions of the third etherscan into pending txn pool.`});
 });
 
-app.post("/transaction/launch", function (req, res) {
-  const newTransaction = Transaction("1000", "Amy", "John");
+app.post('/transaction/launch', function(req, res) {
+  const newTransaction = Transaction('1000', 'Amy', 'John');
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
   const requestPromises = [];
   chain.networkNodes.forEach((networkNodeUrl) => {
     const requestOptions = {
-      uri: networkNodeUrl + "/transaction/broadcast",
-      method: "POST",
-      body: { NewTxs: newTransaction },
+      uri: networkNodeUrl + '/transaction/broadcast',
+      method: 'POST',
+      body: {NewTxs: newTransaction},
       json: true,
     };
 
     requestPromises.push(rp(requestOptions));
   });
   Promise.all(requestPromises).then((data) => {
-    res.json({ note: "Transaction created and broadcast successfully." });
+    res.json({note: 'Transaction created and broadcast successfully.'});
   });
 });
 
@@ -210,7 +209,7 @@ app.post('/transaction/port2portTx', function(req, res) {
   const senderPUbKey = wallet.getPubKey(Number(port));
   const receiverPUbKey = wallet.getPubKey(Number(receiverPort));
   const txid = web3.utils.keccak256(senderPUbKey+receiverPUbKey+sendValue);
-  console.log(txid)
+  console.log(txid);
   const sig = wallet.Sign(txid);
   const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, Tree);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
@@ -235,10 +234,10 @@ app.post('/transaction/port2portTx', function(req, res) {
 });
 
 app.post('/transaction/broadcast', function(req, res) {
-  console.log("before add");
+  console.log('before add');
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
-  console.log("after add");
-  
+  console.log('after add');
+
   if (!isexist) {
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
@@ -253,41 +252,41 @@ app.post('/transaction/broadcast', function(req, res) {
     });
 
     Promise.all(requestPromises).then((data) => {
-      res.json({ note: "Transaction created and broadcast successfully." });
+      res.json({note: 'Transaction created and broadcast successfully.'});
     });
   }
 });
 
-app.get("/PKA", function (req, res) {
+app.get('/PKA', function(req, res) {
   res.send(Backup.pka);
 });
 
-app.post("/addPKA/:port", function (req, res) {
+app.post('/addPKA/:port', function(req, res) {
   const trusteeport = req.params.port;
   const requestPromises = [];
   const requestOptions = {
-    uri: "http://localhost:" + trusteeport + "/returnPK",
-    method: "POST",
+    uri: 'http://localhost:' + trusteeport + '/returnPK',
+    method: 'POST',
     body: {
-      note: "hello from owner",
+      note: 'hello from owner',
       ownerPort: port,
     },
     json: true,
   };
   requestPromises.push(rp(requestOptions));
   Promise.all(requestPromises).then((data) => {
-    res.json({ PKA: Backup.pka });
+    res.json({PKA: Backup.pka});
   });
 });
 
-app.post("/returnPK", function (req, res) {
+app.post('/returnPK', function(req, res) {
   const ownerport = req.body.ownerPort;
   const requestPromises = [];
   const requestOptions = {
-    uri: "http://localhost:" + ownerport + "/getPK",
-    method: "POST",
+    uri: 'http://localhost:' + ownerport + '/getPK',
+    method: 'POST',
     body: {
-      note: "respones from trustee",
+      note: 'respones from trustee',
       trusteePK: wallet.publicKey,
       trusteeport: port,
     },
@@ -295,48 +294,48 @@ app.post("/returnPK", function (req, res) {
   };
   requestPromises.push(rp(requestOptions));
   Promise.all(requestPromises).then((data) => {
-    res.json({ note: "return pk finish" });
+    res.json({note: 'return pk finish'});
   });
 });
 
-app.post("/getPK", function (req, res) {
+app.post('/getPK', function(req, res) {
   Backup.pka[req.body.trusteeport] = req.body.trusteePK;
-  res.json({ note: "get PK finish" });
+  res.json({note: 'get PK finish'});
 });
 
-app.post("/deletePKA/:port", function (req, res) {
+app.post('/deletePKA/:port', function(req, res) {
   delete Backup.pka[req.params.port];
-  res.json({ PKA: Backup.pka });
+  res.json({PKA: Backup.pka});
 });
 
-app.get("/backup", async function (req, res) {
+app.get('/backup', async function(req, res) {
   let count = 0;
   let i;
   for (i in Backup.pka) {
     count++;
   }
   if (count < 6) {
-    res.json({ message: "Please add more trustee !" });
+    res.json({message: 'Please add more trustee !'});
   } else {
     myPrivateKey = wallet.privateKey;
     await Backup.init(myPrivateKey);
-    res.json({ message: "create file success !" });
+    res.json({message: 'create file success !'});
   }
 });
 
-app.post("/recoveryReq/:trusteeport", function (req, res) {
+app.post('/recoveryReq/:trusteeport', function(req, res) {
   const data = Backup.inputfile();
   const file = JSON.parse(data);
-  const pkshar = file["PK_Shares"];
-  const trusteeUrl = "http://localhost:" + req.params.trusteeport;
+  const pkshar = file['PK_Shares'];
+  const trusteeUrl = 'http://localhost:' + req.params.trusteeport;
   const requestPromises = [];
   const requestOptions = {
-    uri: trusteeUrl + "/decrypt",
-    method: "POST",
+    uri: trusteeUrl + '/decrypt',
+    method: 'POST',
     body: {
       share: pkshar,
       publicKey: wallet.publicKey,
-      ownerurl: "http://localhost:" + port,
+      ownerurl: 'http://localhost:' + port,
     },
     json: true,
   };
@@ -344,26 +343,26 @@ app.post("/recoveryReq/:trusteeport", function (req, res) {
   requestPromises.push(rp(requestOptions));
   Promise.all(requestPromises).then((data) => {
     res.json({
-      message: "finish",
+      message: 'finish',
       share: Backup.recoveryshare,
     });
   });
 });
 
-app.post("/recoveryReq", function (req, res) {
+app.post('/recoveryReq', function(req, res) {
   const data = Backup.inputfile();
   const file = JSON.parse(data);
-  const pkshar = file["PK_Shares"];
+  const pkshar = file['PK_Shares'];
   const requestPromises = [];
   for (const i in Backup.pka) {
-    const trusteeUrl = "http://localhost:" + i;
+    const trusteeUrl = 'http://localhost:' + i;
     const requestOptions = {
-      uri: trusteeUrl + "/decrypt",
-      method: "POST",
+      uri: trusteeUrl + '/decrypt',
+      method: 'POST',
       body: {
         share: pkshar,
         publicKey: wallet.publicKey,
-        ownerurl: "http://localhost:" + port,
+        ownerurl: 'http://localhost:' + port,
       },
       json: true,
     };
@@ -371,23 +370,23 @@ app.post("/recoveryReq", function (req, res) {
   }
   Promise.all(requestPromises).then((data) => {
     res.json({
-      message: "finish",
+      message: 'finish',
       share: Backup.recoveryshare,
     });
   });
 });
 
-app.post("/decrypt", async function (req, res) {
+app.post('/decrypt', async function(req, res) {
   ownerShare = await Backup.recovery(
-    wallet.privateKey,
-    req.body.publicKey,
-    req.body.share
+      wallet.privateKey,
+      req.body.publicKey,
+      req.body.share,
   );
 
   const requestPromises = [];
   const requestOptions = {
-    uri: req.body.ownerurl + "/getResponse",
-    method: "POST",
+    uri: req.body.ownerurl + '/getResponse',
+    method: 'POST',
     body: {
       share: ownerShare,
     },
@@ -396,29 +395,29 @@ app.post("/decrypt", async function (req, res) {
   requestPromises.push(rp(requestOptions));
   Promise.all(requestPromises).then((data) => {
     res.json({
-      message: "success",
+      message: 'success',
       decript_share: ownerShare,
     });
   });
 });
 
-app.post("/getResponse", function (req, res) {
+app.post('/getResponse', function(req, res) {
   const share = req.body.share;
   // console.log(share);
   Backup.recoveryshare.push(share);
-  res.json({ shares: Backup.recoveryshare });
+  res.json({shares: Backup.recoveryshare});
 });
 
-app.get("/combine", function (req, res) {
+app.get('/combine', function(req, res) {
   const data = Backup.inputfile();
   const file = JSON.parse(data);
-  const tksk = file["TK_SK"];
-  res.json({ your_privateKey: Backup.combine(Backup.recoveryshare, tksk) });
+  const tksk = file['TK_SK'];
+  res.json({your_privateKey: Backup.combine(Backup.recoveryshare, tksk)});
 });
 
 // register a new node and broadcast it to network nodes
-app.get("/register-and-broadcast-node", function (req, res) {
-  const newNodeUrl = "http://localhost:" + port;
+app.get('/register-and-broadcast-node', function(req, res) {
+  const newNodeUrl = 'http://localhost:' + port;
   if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
     chain.networkNodes.push(newNodeUrl);
   }
@@ -426,9 +425,9 @@ app.get("/register-and-broadcast-node", function (req, res) {
   const regNodesPromises = [];
   chain.networkNodes.forEach((networkNodeUrl) => {
     const requestOptions = {
-      uri: networkNodeUrl + "/register-node",
-      method: "POST",
-      body: { newNodeUrl: newNodeUrl },
+      uri: networkNodeUrl + '/register-node',
+      method: 'POST',
+      body: {newNodeUrl: newNodeUrl},
       json: true,
     };
 
@@ -436,37 +435,37 @@ app.get("/register-and-broadcast-node", function (req, res) {
   });
 
   Promise.all(regNodesPromises)
-    .then((data) => {
+      .then((data) => {
       // use the data
-      const bulkRegisterOptions = {
-        uri: newNodeUrl + "/register-nodes-bulk",
-        method: "POST",
-        body: {
-          allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl],
-        },
-        json: true,
-      };
+        const bulkRegisterOptions = {
+          uri: newNodeUrl + '/register-nodes-bulk',
+          method: 'POST',
+          body: {
+            allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl],
+          },
+          json: true,
+        };
 
-      return rp(bulkRegisterOptions);
-    })
-    .then((data) => {
-      res.json({ note: "New node registered with network successfully." });
-    });
+        return rp(bulkRegisterOptions);
+      })
+      .then((data) => {
+        res.json({note: 'New node registered with network successfully.'});
+      });
 });
 
 // network nodes register the new node
-app.post("/register-node", function (req, res) {
+app.post('/register-node', function(req, res) {
   const newNodeUrl = req.body.newNodeUrl;
   const nodeNotAlreadyPresent = chain.networkNodes.indexOf(newNodeUrl) == -1;
   const notCurrentNode = chain.currentNodeUrl !== newNodeUrl;
   if (nodeNotAlreadyPresent && notCurrentNode) {
     chain.networkNodes.push(newNodeUrl);
   }
-  res.json({ nodes:chain.networkNodes });
+  res.json({nodes: chain.networkNodes});
 });
 
 // new node registers all network nodes
-app.post("/register-nodes-bulk", function (req, res) {
+app.post('/register-nodes-bulk', function(req, res) {
   const allNetworkNodes = req.body.allNetworkNodes;
   allNetworkNodes.forEach((networkNodeUrl) => {
     const nodeNotAlreadyPresent =
@@ -477,10 +476,10 @@ app.post("/register-nodes-bulk", function (req, res) {
     }
   });
 
-  res.json({ note: "Bulk registeration successful." });
+  res.json({note: 'Bulk registeration successful.'});
 });
 
-app.get("/block/:blockHash", function (req, res) {
+app.get('/block/:blockHash', function(req, res) {
   const blockHash = req.params.blockHash;
   const correctBlock = chain.getBlock(blockHash);
   res.json({
@@ -488,7 +487,7 @@ app.get("/block/:blockHash", function (req, res) {
   });
 });
 
-app.get("/transaction/:transactionId", function (req, res) {
+app.get('/transaction/:transactionId', function(req, res) {
   const transactionId = req.params.transactionId;
   const transactionData = chain.getTransaction(transactionId);
   res.json({
@@ -497,7 +496,7 @@ app.get("/transaction/:transactionId", function (req, res) {
   });
 });
 
-app.get("/address/:address", function (req, res) {
+app.get('/address/:address', function(req, res) {
   const address = req.params.address;
   const addressData = chain.getAddressData(address);
   res.json({
@@ -505,8 +504,8 @@ app.get("/address/:address", function (req, res) {
   });
 });
 
-app.get("/block-explorer", function (req, res) {
-  res.sendFile("./block-explorer/index.html", { root: __dirname });
+app.get('/block-explorer', function(req, res) {
+  res.sendFile('./block-explorer/index.html', {root: __dirname});
 });
 
 app.get('/Creator', function(req, res) {
@@ -518,19 +517,19 @@ app.get('/Creator', function(req, res) {
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime =
-      "Last Sync: " +
+      'Last Sync: ' +
       currentdate.getDate() +
-      "/" +
+      '/' +
       (currentdate.getMonth() + 1) +
-      "/" +
+      '/' +
       currentdate.getFullYear() +
-      " @ " +
+      ' @ ' +
       currentdate.getHours() +
-      ":" +
+      ':' +
       currentdate.getMinutes() +
-      ":" +
+      ':' +
       currentdate.getSeconds() +
-      "." +
+      '.' +
       currentdate.getMilliseconds();
 
     blockToVote = creator.constructNewBlock(chain.txn_pool);
@@ -546,9 +545,9 @@ app.get('/Creator', function(req, res) {
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
-        uri: networkNodeUrl + "/Voter",
-        method: "POST",
-        body: { SeqNum: seq, CreatorUrl: chain.currentNodeUrl },
+        uri: networkNodeUrl + '/Voter',
+        method: 'POST',
+        body: {SeqNum: seq, CreatorUrl: chain.currentNodeUrl},
         json: true,
       };
       requestPromises.push(rp(requestOptions));
@@ -560,29 +559,29 @@ app.get('/Creator', function(req, res) {
   } else {
     creator = null;
 
-    res.json("Error: Not Creator");
+    res.json('Error: Not Creator');
   }
 });
 
-app.post("/Voter", function (req, res) {
-  console.log("********** Voter start  **********");
+app.post('/Voter', function(req, res) {
+  console.log('********** Voter start  **********');
   const seq = req.body.SeqNum;
 
   if (seqList.indexOf(seq) == -1) {
     voter = new Voter(port, wallet, chain);
     if (voter.isValid()) {
-      console.log("this is a voter");
+      console.log('this is a voter');
       voter.creatorUrl(req.body.CreatorUrl);
 
       const requestPromises = [];
 
       const requestOptions = {
-        uri: voter.CreatorUrl + "/Creator/Challenge",
-        method: "POST",
+        uri: voter.CreatorUrl + '/Creator/Challenge',
+        method: 'POST',
         body: {
           VoterUrl: chain.currentNodeUrl,
-          publicKey: wallet.publicKey.encode("hex"),
-          publicV: voter.publicV.encode("hex"),
+          publicKey: wallet.publicKey.encode('hex'),
+          publicV: voter.publicV.encode('hex'),
         },
         json: true,
       };
@@ -597,9 +596,9 @@ app.post("/Voter", function (req, res) {
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
-        uri: networkNodeUrl + "/Voter",
-        method: "POST",
-        body: { SeqNum: seq, CreatorUrl: req.body.CreatorUrl },
+        uri: networkNodeUrl + '/Voter',
+        method: 'POST',
+        body: {SeqNum: seq, CreatorUrl: req.body.CreatorUrl},
         json: true,
       };
       requestPromises.push(rp(requestOptions));
@@ -609,8 +608,8 @@ app.post("/Voter", function (req, res) {
   // res.json("Voter triggered");
 });
 
-app.post("/Creator/Challenge", function (req, res) {
-  console.log("********** Creator/Challenge start  **********");
+app.post('/Creator/Challenge', function(req, res) {
+  console.log('********** Creator/Challenge start  **********');
   const VoterUrl = req.body.VoterUrl;
   const VoterPubKeyHex = req.body.publicKey;
   const VoterPubVHex = req.body.publicV;
@@ -619,7 +618,7 @@ app.post("/Creator/Challenge", function (req, res) {
   const VoterPubV = wallet.PublicKeyFromHex(VoterPubVHex);
 
   creator.getVoter(VoterUrl, VoterPubKey, VoterPubV);
-  console.log("there are " + creator.voterUrl.length + " Voter now");
+  console.log('there are ' + creator.voterUrl.length + ' Voter now');
   if (creator.voterUrl.length == VOTER_NUM && !FirstRoundLock) {
     // if there is a Timeout before, clear it first, since every voter come
     if (FirstRountSetTimeout) {
@@ -633,8 +632,8 @@ app.post("/Creator/Challenge", function (req, res) {
     let index = 0;
     creator.voterUrl.forEach((networkNodeUrl) => {
       const requestOptions = {
-        uri: networkNodeUrl + "/Voter/Response",
-        method: "POST",
+        uri: networkNodeUrl + '/Voter/Response',
+        method: 'POST',
         body: {
           index: index,
           challenge: challenge,
@@ -663,8 +662,8 @@ app.post("/Creator/Challenge", function (req, res) {
         let index = 0;
         creator.voterUrl.forEach((networkNodeUrl) => {
           const requestOptions = {
-            uri: networkNodeUrl + "/Voter/Response",
-            method: "POST",
+            uri: networkNodeUrl + '/Voter/Response',
+            method: 'POST',
             body: {
               index: index,
               challenge: challenge,
@@ -679,7 +678,7 @@ app.post("/Creator/Challenge", function (req, res) {
     }, 5000);
   }
 
-  res.json("GetVoters success!");
+  res.json('GetVoters success!');
 });
 
 
@@ -698,8 +697,8 @@ app.post('/Voter/Response', function(req, res) {
     const requestPromises = [];
 
     const requestOptions = {
-      uri: voter.CreatorUrl + "/Creator/GetResponses",
-      method: "POST",
+      uri: voter.CreatorUrl + '/Creator/GetResponses',
+      method: 'POST',
       body: {
         response: response,
         index: index,
@@ -709,16 +708,16 @@ app.post('/Voter/Response', function(req, res) {
     };
     requestPromises.push(rp(requestOptions));
 
-    res.json("Response Generated");
+    res.json('Response Generated');
   } else {
-    console.log("Error: Block verification failed !");
+    console.log('Error: Block verification failed !');
   }
 });
 
-app.post("/Creator/GetResponses", function (req, res) {
-  console.log("********** Creator/GetResponses start  **********");
+app.post('/Creator/GetResponses', function(req, res) {
+  console.log('********** Creator/GetResponses start  **********');
   if (req.body.challenge == creator.getChallenge()) {
-    console.log("test");
+    console.log('test');
     const response = req.body.response;
     creator.getResponses(response);
     creator.setVoterIndex(req.body.index);
@@ -727,7 +726,7 @@ app.post("/Creator/GetResponses", function (req, res) {
       if (GetResponsesSetTimeout) {
         clearTimeout(GetResponsesSetTimeout);
       }
-      console.log("there are " + creator.voterResponse.length + " Voter now");
+      console.log('there are ' + creator.voterResponse.length + ' Voter now');
       // console.log("Creator owns tax:", creator.MPT.Search(creator.wallet.publicKey.encode("hex")));
       creator.aggregateResponse();
 
@@ -735,9 +734,9 @@ app.post("/Creator/GetResponses", function (req, res) {
 
       const requestPromises = [];
       const requestOptions = {
-        uri: "http://localhost:" + creator.port + "/Creator/GetBlock",
-        method: "POST",
-        body: { seqNum: seq },
+        uri: 'http://localhost:' + creator.port + '/Creator/GetBlock',
+        method: 'POST',
+        body: {seqNum: seq},
         json: true,
       };
       requestPromises.push(rp(requestOptions));
@@ -753,8 +752,8 @@ app.post("/Creator/GetResponses", function (req, res) {
         challenge = creator.generateChallengeWithIndex();
         creator.VoterIndex.forEach((index) => {
           const requestOptions = {
-            uri: creator.voterUrl[index] + "/Voter/Response",
-            method: "POST",
+            uri: creator.voterUrl[index] + '/Voter/Response',
+            method: 'POST',
             body: {
               index: index,
               challenge: challenge,
@@ -770,8 +769,8 @@ app.post("/Creator/GetResponses", function (req, res) {
   }
 });
 
-app.post("/Creator/GetBlock", function (req, res) {
-  console.log("********** Creator/GetBlock start  **********");
+app.post('/Creator/GetBlock', function(req, res) {
+  console.log('********** Creator/GetBlock start  **********');
   let seq = req.body.seqNum; // has fault
 
   if (seqList.indexOf(seq) == -1) {
@@ -794,16 +793,16 @@ app.post("/Creator/GetBlock", function (req, res) {
     FirstRoundVoterNum = 0;
     FirstRountSetTimeout = null;
     GetResponsesSetTimeout = null;
-    res.send("Create Block Succeed.");
+    res.send('Create Block Succeed.');
   } else {
     res.sendStatus(200);
   }
 });
 
-app.post('/update-blockchain', function (req, res) {
+app.post('/update-blockchain', function(req, res) {
   console.log('********** update-blockchain start  **********');
   const seq = req.body.SeqNum;
-  let updatedChain = req.body.Blockchain;
+  const updatedChain = req.body.Blockchain;
   if (seqList.indexOf(seq) == -1) {
     chain = updatedChain;
 
@@ -814,13 +813,12 @@ app.post('/update-blockchain', function (req, res) {
       const requestOptions = {
         uri: networkNodeUrl + '/update-blockchain',
         method: 'POST',
-        body: { SeqNum: seq, Blockchain: updatedChain },
+        body: {SeqNum: seq, Blockchain: updatedChain},
         json: true,
       };
       requestPromises.push(rp(requestOptions));
     });
-  }
-  else {
+  } else {
     res.sendStatus(200);
   }
 });

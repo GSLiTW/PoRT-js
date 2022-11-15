@@ -1,15 +1,15 @@
 const currentNodeUrl = process.argv[3];
 
 // local modules
-const Block = require("./block");
-const Transaction_MT = require("../Transaction/transaction.js");
-const Txn_Pool = require("../Transaction/pending_transaction_pool");
-const fs = require("fs"); //for reading Genesis.json
-const MPT =require("../MPT/MPT")
+const Block = require('./block');
+const Transaction_MT = require('../Transaction/transaction.js');
+const Txn_Pool = require('../Transaction/pending_transaction_pool');
+const fs = require('fs'); // for reading Genesis.json
+const MPT =require('../MPT/MPT');
 const TRANSACTION_TYPE = {
-  transaction: "TRANSACTION",
-  stake: "STAKE",
-  validator_fee: "VALIDATOR_FEE",
+  transaction: 'TRANSACTION',
+  stake: 'STAKE',
+  validator_fee: 'VALIDATOR_FEE',
 };
 
 /**
@@ -29,14 +29,14 @@ function Blockchain() {
   const secondBlockJSON = fs.readFileSync('./src/Block/secondBlock.json');
   const secondData = JSON.parse(secondBlockJSON);
 
-  for (let allocid in genesisData.alloc) {
+  for (const allocid in genesisData.alloc) {
     this.MPT.Insert(genesisData.alloc[allocid].pubKey, genesisData.alloc[allocid].balance, genesisData.alloc[allocid].tax, genesisData.alloc[allocid].dbit);
   }
 
-  let block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
-  let InitTxs = []
-  for(let i = 0; i<Object.keys(block1Txs.txs).length; i++){
-    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT))
+  const block1Txs = JSON.parse(fs.readFileSync('./src/Block/Block1txs.json', 'utf8'));
+  const InitTxs = [];
+  for (let i = 0; i<Object.keys(block1Txs.txs).length; i++) {
+    InitTxs.push(new Transaction_MT(block1Txs.txs[i].id, block1Txs.txs[i].sender, block1Txs.txs[i].receiver, block1Txs.txs[i].value, block1Txs.txs[i].sig, this.MPT));
   }
   this.txn_pool = new Txn_Pool(InitTxs);
   const genesisBlock = new Block(
@@ -57,19 +57,19 @@ function Blockchain() {
   this.chain.push(genesisBlock); // create Genesis Block
   this.txn_pool.clean();
 
-  //second Block
-  let block2Txs = JSON.parse(fs.readFileSync('./src/Block/Block2txs.json', 'utf8'));
-  let Init2Txs = []
-  for(let i = 0; i<Object.keys(block2Txs.txs).length; i++){
+  // second Block
+  const block2Txs = JSON.parse(fs.readFileSync('./src/Block/Block2txs.json', 'utf8'));
+  const Init2Txs = [];
+  for (let i = 0; i<Object.keys(block2Txs.txs).length; i++) {
     Init2Txs.push(new Transaction_MT(block2Txs.txs[i].id, block2Txs.txs[i].sender, block2Txs.txs[i].receiver, block2Txs.txs[i].value, block2Txs.txs[i].sig, this.MPT));
   }
   this.txn_pool = new Txn_Pool(Init2Txs);
 
   const secondBlock = new Block(
-    2, // height
-    this.txn_pool.transactions,
-    '501cdbedcea248f8f5c832998b02b0b0a09d10ee13c9f38fd1e2aab73719bf6a', // previous Hash
-    this.MPT,
+      2, // height
+      this.txn_pool.transactions,
+      '501cdbedcea248f8f5c832998b02b0b0a09d10ee13c9f38fd1e2aab73719bf6a', // previous Hash
+      this.MPT,
   );
   this.MPT = secondBlock.updateMPT();
   this.MPT.Cal_old_hash();
@@ -90,16 +90,12 @@ function Blockchain() {
  * @param  {MPT} MPT
  * @return {Block} New Block
  */
-Blockchain.prototype.createNewBlock = function (
-  pendingTransactions,
-  previousHash,
-  MPT
-) {
-  var newBlock = new Block(
-    this.getLastBlock().height + 1,
-    pendingTransactions,
-    previousHash,
-    MPT
+Blockchain.prototype.createNewBlock = function(pendingTransactions, previousHash, MPT) {
+  const newBlock = new Block(
+      this.getLastBlock().height + 1,
+      pendingTransactions,
+      previousHash,
+      MPT,
   );
   this.chain.push(newBlock);
 
@@ -108,7 +104,7 @@ Blockchain.prototype.createNewBlock = function (
 /**
  * @return {Block} Last Block
  */
-Blockchain.prototype.getLastBlock = function () {
+Blockchain.prototype.getLastBlock = function() {
   return this.chain[this.chain.length - 1];
 };
 
@@ -117,13 +113,13 @@ Blockchain.prototype.getLastBlock = function () {
  * @param  {Transaction_MT} transactionObj
  * @return {Block} Last Block
  */
-Blockchain.prototype.addTransactionToPendingTransaction = function (transactionObj) {
-  let isexist = false;
-  //console.log(transactionObj)
-  txs = this.txn_pool.get_transaction()
+Blockchain.prototype.addTransactionToPendingTransaction = function(transactionObj) {
+  const isexist = false;
+  // console.log(transactionObj)
+  txs = this.txn_pool.get_transaction();
   for (let i = 0; i < txs.length; i++) {
     if (txs[i].id == transactionObj.id) {
-      //isexist = true;
+      // isexist = true;
       return true;
     }
   }
@@ -138,7 +134,7 @@ Blockchain.prototype.addTransactionToPendingTransaction = function (transactionO
  * @param  {string} blockHash
  * @return {Block} The correct Block
  */
-Blockchain.prototype.getBlock = function (blockHash) {
+Blockchain.prototype.getBlock = function(blockHash) {
   let correctBlock = null;
   this.chain.forEach((block) => {
     if (block.hash === blockHash) correctBlock = block;
@@ -151,7 +147,7 @@ Blockchain.prototype.getBlock = function (blockHash) {
  * @param  {string} transactionId
  * @return {Transaction_MT,Block} transaction and the block where it is located
  */
-Blockchain.prototype.getTransaction = function (transactionId) {
+Blockchain.prototype.getTransaction = function(transactionId) {
   let correctTransaction = null;
   let correctBlock = null;
   this.chain.forEach((block) => {
@@ -173,12 +169,13 @@ Blockchain.prototype.getTransaction = function (transactionId) {
 /*
  *  TODO: This function (method) should be in wallet.js
  */
-Blockchain.prototype.getAddressData = function (address) {
+Blockchain.prototype.getAddressData = function(address) {
   const addressTransactions = [];
   this.chain.forEach((block) => {
     block.transactions.forEach((transaction) => {
-      if (transaction.sender === address || transaction.recipient === address)
+      if (transaction.sender === address || transaction.recipient === address) {
         addressTransactions.push(transaction);
+      }
     });
   });
 

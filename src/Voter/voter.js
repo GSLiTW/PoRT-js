@@ -1,14 +1,6 @@
-/* eslint-disable max-len */
-const randomBytes = require('random-bytes');
-const randomBuffer = (len) => Buffer.from(randomBytes.sync(len));
-const BigInteger = require('bigi');
-const schnorr = require('bip-schnorr');
-const convert = schnorr.convert;
-const muSig = schnorr.muSig;
 const elliptic = require('elliptic');
 const Cosig = require('../cosig.js');
 const ec = new elliptic.ec('secp256k1');
-const BN = require('bn.js');
 
 /**
  * Constructor of the Voter class
@@ -59,40 +51,37 @@ Voter.prototype.creatorUrl = function(url) {
  * @return {bool} True if merkleRoot is valid; False otherwise
  */
 
-Voter.prototype.VerifyBlock = function (block_to_vote) {
-  
+Voter.prototype.VerifyBlock = function(block_to_vote) {
   const txs = block_to_vote.transactions;
   let tx = null;
   let sender_value = null;
 
 
   for (let i = 0; i < txs.length; i++) {
-      tx = txs[i];
-      sender_value = this.MPT.Search(tx.sender).Balance();
+    tx = txs[i];
+    sender_value = this.MPT.Search(tx.sender).Balance();
 
-      if (tx.value > sender_value) {
-          return 0;
-      }
-      let hexToDecimal = (x) => ec.keyFromPrivate(x, "hex").getPrivate().toString(10);
-      let pubKeyRecovered = ec.recoverPubKey(
-          hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, "hex");
-      console.log("Recovered pubKey:", pubKeyRecovered.encodeCompressed("hex"));
+    if (tx.value > sender_value) {
+      return 0;
+    }
+    const hexToDecimal = (x) => ec.keyFromPrivate(x, 'hex').getPrivate().toString(10);
+    const pubKeyRecovered = ec.recoverPubKey(
+        hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, 'hex');
+    console.log('Recovered pubKey:', pubKeyRecovered.encodeCompressed('hex'));
 
-      let validSig = ec.verify(tx.id.substr(2), tx.sig, pubKeyRecovered);
-      if (validSig == false) {
-          return 0;
-      }
-
+    const validSig = ec.verify(tx.id.substr(2), tx.sig, pubKeyRecovered);
+    if (validSig == false) {
+      return 0;
+    }
   }
   return 1;
-}
+};
 Voter.prototype.GenerateResponse = function(cHex) {
   this.cosig = new Cosig();
   this.response = this.cosig.GenerateResponse(cHex, this.secretv, this.wallet.privateKey);
 
   return this.response;
 };
-
 
 
 module.exports = Voter;

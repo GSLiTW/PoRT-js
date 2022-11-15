@@ -12,6 +12,11 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-        "enable":false
+        "max-len": "off",
+        "valid-jsdoc": "off",
+        "new-cap": "off",
+        "guard-for-in": "off",
+        "require-jsdoc": "off",
+        "camelcase": "off"
     }
 }
