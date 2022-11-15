@@ -152,38 +152,6 @@ app.get("/MPT/Search/:key", function (req, res) {
   res.json({key: key, balance: chain.MPT.Search(key)});
 });
 
-app.post('/MPT/UpdateValues', function(req, res) {
-  const UpdateList = req.body.UpdateList;
-  for (let i = 0; i < UpdateList.length; i++) {
-    Tree.UpdateValue(
-      UpdateList[i].sender,
-      UpdateList[i].receiver,
-      UpdateList[i].value
-    );
-  }
-
-  const seq = seqList[seqList.length - 1] + 1;
-  seqList.push(seq);
-
-  const requestPromises = [];
-  chain.networkNodes.forEach((networkNodeUrl) => {
-    const requestOptions = {
-      uri: networkNodeUrl + "/MPT/ReceiveUpdateValues",
-      method: "POST",
-      body: { SeqNum: seq, UpdateList: UpdateList },
-      json: true,
-    };
-    requestPromises.push(rp(requestOptions));
-  });
-
-  res.json({
-    note: "Update Successfully.",
-  });
-});
-
-
-
-
 
 
 app.get('/transaction/third-block', function(req, res) {
