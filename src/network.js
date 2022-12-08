@@ -40,9 +40,11 @@ const w = fs.readFileSync('./data/private_public_key.csv')
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
+console.log('publickey: ', wallet.publicKey.encode('hex'));
 
 // functions
 function insertCSVData(quantity, data) {
+  console.log('start insertCSVData');
   txns = [];
   for (let i = 1; i <= quantity; i++) {
     if (data[i][2] === wallet.publicKey.encode('hex')) {
@@ -77,10 +79,11 @@ function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num); // get data of block1
   if (num >= 3 && num <= 5) {
-    console.log('add txn');
+    console.log('add txn', num);
     return insertCSVData(4, data_);
   } else console.log('wrong block number.');
 }
+
 
 if (port != 3000) {
   const newNodeUrl = 'http://localhost:' + port;
@@ -137,8 +140,31 @@ app.get('/MPT', function(req, res) {
   res.send(chain.MPT);
 });
 
-app.get('/transaction-pool', function(req, res) {
+app.get('/transaction-pool', function (req, res) {
   res.send(chain.txn_pool);
+});
+
+app.get('/inserttx', (req, res) => {
+  requestPromises = [];
+  chain.networkNodes.forEach((networkNodeUrl) => {
+    const requestOptions = {
+      uri: networkNodeUrl + '/searchtx',
+      method: 'POST',
+      body: {blocknum: tmp},
+      json: true,
+    };
+
+    requestPromises.push(rp(requestOptions));
+  });
+
+  Promise.all(requestPromises).then((data) => {
+    console.log('Transaction insert successfully.');
+  });
+  res.send(port);
+});
+
+app.post('/searchsender', (req, res) => {
+  createtxs(tmp);
 });
 
 app.get('/MPT/Search/:key', function(req, res) {
@@ -148,7 +174,6 @@ app.get('/MPT/Search/:key', function(req, res) {
 
 
 app.get('/transaction/third-block', function(req, res) {
-  init_data.createTxs(3);
   res.json({note: `push transactions of the third etherscan into pending txn pool.`});
 });
 
@@ -156,6 +181,7 @@ app.post('/transaction/launch', function(req, res) {
   const newTransaction = Transaction('1000', 'Amy', 'John');
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
   const requestPromises = [];
+  console.log('to tx broadcast in launch');
   chain.networkNodes.forEach((networkNodeUrl) => {
     const requestOptions = {
       uri: networkNodeUrl + '/transaction/broadcast',
@@ -180,6 +206,7 @@ app.post('/transaction/AddTx', function(req, res) {
 
   if (!isexist) {
     const requestPromises = [];
+    console.log('to tx broadcast in AddTx');
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
         uri: networkNodeUrl + '/transaction/broadcast',
@@ -196,6 +223,8 @@ app.post('/transaction/AddTx', function(req, res) {
     });
   }
 });
+
+
 
 app.post('/transaction/port2portTx', function(req, res) {
   const receiverPort = req.body.receiverPort;
@@ -210,6 +239,7 @@ app.post('/transaction/port2portTx', function(req, res) {
 
   if (!isexist) {
     const requestPromises = [];
+    console.log('to tx broadcast in port2portTx');
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
         uri: networkNodeUrl + '/transaction/broadcast',
@@ -227,10 +257,9 @@ app.post('/transaction/port2portTx', function(req, res) {
   }
 });
 
-app.post('/transaction/broadcast', function(req, res) {
-  console.log('before add');
+app.post('/transaction/broadcast', function (req, res) {
+  console.log(req.body);
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
-  console.log('after add');
 
   if (!isexist) {
     const requestPromises = [];
@@ -507,7 +536,7 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, chain);
 
   if (creator.isValid() && !CreatorStartThisRound) {
-    createtxs(tmp);
+    // createtxs(tmp);
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime =
@@ -787,6 +816,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     FirstRoundVoterNum = 0;
     FirstRountSetTimeout = null;
     GetResponsesSetTimeout = null;
+    tmp = tmp + 1;
     res.send('Create Block Succeed.');
   } else {
     res.sendStatus(200);
@@ -820,3 +850,5 @@ app.post('/update-blockchain', function(req, res) {
 app.listen(port, function() {
   console.log(`Listening on port ${port} ...`);
 });
+
+// createtxs(3);
