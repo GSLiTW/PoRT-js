@@ -44,8 +44,8 @@ Wallet.prototype.PublicKeyFromHex = function(hex) {
  * @return {string}  public key hash
  */
 Wallet.prototype.PublicKeyHash = function() {
-  const hash = sha256(Buffer.from(publicKey, 'hex'));
-
+  const hash = sha256(Buffer.from(this.publicKey.encode('hex'), 'hex'));
+  console.log(this.publicKey.encode('hex'));
   const publicKeyHash = new ripemd160().update(Buffer.from(hash, 'hex')).digest();
 
   return publicKeyHash.toString('hex');
