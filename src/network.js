@@ -5,9 +5,7 @@ const bodyParser = require('body-parser');
 const port = process.argv[2];
 const rp = require('promise-request-retry');
 const web3 = require('web3');
-
-// const fs = require('fs');
-// const elliptic = require('elliptic');
+const fs = require('fs');
 
 // macros
 const VOTER_NUM = 3;
@@ -16,16 +14,11 @@ const VOTER_NUM = 3;
 const Blockchain = require('./Block/blockchain.js');
 const Transaction = require('./Transaction/transaction');
 const backup = require('./Utility/backup');
-
-const Preprocess = require('./Block/Preprocess');
-
+const CSV_data = require('./Transaction/CSV_data');
 const Backup = new backup();
 const Creator = require('./Creator/creator');
 const Voter = require('./Voter/voter');
-
-const Block = require('./Block/block.js');
-
-const Cosig = require('./cosig.js');
+const Wallet = require('./Utility/wallet');
 
 // constants
 const BASE = 1000000000000;
@@ -37,17 +30,57 @@ let FirstRountSetTimeout = null; // record setTimeout in ("/Creator/Challenge"),
 let FirstRoundVoterNum = 0; // record when First Round Lock, how many Voters attend this round
 let GetResponsesSetTimeout = null;
 
-
 // preprocess
+let chain = new Blockchain();
+let tmp = 3;
+// init Wallet
+const w = fs.readFileSync('./data/private_public_key.csv')
+    .toString() // convert Buffer to string
+    .split('\n') // split string to lines
+    .map((e) => e.trim()) // remove white spaces for each line
+    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
 
-console.log('Preprocess init ');
-const init_data = new Preprocess();
-init_data.initialize(port);
-const chain = init_data.chain;
-const Tree = init_data.tree;
-const pending_txn_pool=init_data.pending_txn_pool;
-const wallet=init_data.wallet;
+// functions
+function insertCSVData(quantity, data) {
+  txns = [];
+  for (let i = 1; i <= quantity; i++) {
+    if (data[i][2] === wallet.publicKey.encode('hex')) {
+      const sig = wallet.Sign(data[i][0]);
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT);
+      // storeData(newTx, `./${port}.json`)
+      const requestPromises = [];
+      // console.log(chain.networkNodes);
+      console.log('to tx broadcast');
+      chain.networkNodes.forEach((networkNodeUrl) => {
+        const requestOptions = {
+          uri: networkNodeUrl + '/transaction/broadcast',
+          method: 'POST',
+          body: {NewTxs: newTx},
+          json: true,
+          retry: 2,
+          delay: 10000,
+        };
 
+        requestPromises.push(rp(requestOptions));
+      });
+
+      Promise.all(requestPromises).then((data) => {
+        console.log('Transaction created and broadcast successfully.');
+      });
+    }
+  }
+  return null;
+};
+
+function createtxs(num) {
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num); // get data of block1
+  if (num >= 3 && num <= 5) {
+    console.log('add txn');
+    return insertCSVData(4, data_);
+  } else console.log('wrong block number.');
+}
 
 if (port != 3000) {
   const newNodeUrl = 'http://localhost:' + port;
@@ -84,7 +117,7 @@ if (port != 3000) {
   });
 }
 
-const tmp = 2;
+// createtxs(3);
 
 seqList = [0];
 
@@ -474,7 +507,7 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, chain);
 
   if (creator.isValid() && !CreatorStartThisRound) {
-    // init_data.createTxs(tmp);
+    createtxs(tmp);
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime =
