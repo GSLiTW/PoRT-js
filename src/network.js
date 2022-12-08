@@ -84,45 +84,6 @@ if (port != 3000) {
   });
 }
 
-// if (port >= 3002) {
-//   for (let p = port - 2; p < port; p++) {
-//     const newNodeUrl = "http://localhost:" + p;
-//     if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
-//       chain.networkNodes.push(newNodeUrl);
-//     }
-
-//     const regNodesPromises = [];
-//     chain.networkNodes.forEach((networkNodeUrl) => {
-//       const requestOptions = {
-//         uri: networkNodeUrl + "/register-node",
-//         method: "POST",
-//         body: { newNodeUrl: newNodeUrl },
-//         json: true,
-//         retry: 10,
-//         delay: 10000,
-//       };
-
-//       regNodesPromises.push(rp(requestOptions));
-//     });
-
-//     Promise.all(regNodesPromises).then((data) => {
-//       // use the data
-//       const bulkRegisterOptions = {
-//         uri: newNodeUrl + "/register-nodes-bulk",
-//         method: "POST",
-//         body: {
-//           allNetworkNodes: [...chain.networkNodes, chain.currentNodeUrl],
-//         },
-//         json: true,
-//         retry: 10,
-//         delay: 1000,
-//       };
-
-//       return rp(bulkRegisterOptions);
-//     });
-//   }
-// }
-
 const tmp = 2;
 
 seqList = [0];
