@@ -28,18 +28,23 @@ Pending_Transaction_Pool.prototype.isRepeat = function(tx) {
 };
 
 Pending_Transaction_Pool.prototype.validate = function(tx) {
-  if (tx.value < 0) {
+  if (tx.value < 0 && Number.isInteger(tx.value)) {
     return false;
   }
 
   const hexToDecimal = (x) => ecdsa.keyFromPrivate(x, 'hex').getPrivate().toString(10);
-  const pubkey = ecdsa.recoverPubKey(
-      hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, 'hex');
-
-  if (!pubkey) {
+  try{
+    const pubkey = ecdsa.recoverPubKey(
+        hexToDecimal(tx.id.substr(2)), tx.sig, tx.sig.recoveryParam, 'hex');
+  }
+  catch(e){
     console.log('verifyfail');
     return false;
   }
+  // if (!pubkey) {
+  //   console.log('verifyfail');
+  //   return false;
+  // }
   return true;
 };
 
