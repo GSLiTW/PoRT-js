@@ -81,7 +81,7 @@ for (let i = 0; i < 157; i++) {
   
   
   const chain = new Blockchain(Tree);
-  let voter = new Voter(3004, wallet, Tree, chain);
+  let voter = new Voter(3004, wallet, chain);
 /////////modify
   const txspool = new Pending_Txn_Pool();
   txspool.addTxs(createtxs(2));
