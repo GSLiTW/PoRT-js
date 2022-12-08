@@ -11,12 +11,12 @@ const sha256 = require('sha256');
  */
 function Block(height, pendingTransactions, previousHash, MPT) {
   // fixed area
+  this.MPT = MPT,
   this.previousBlockHash = previousHash,
   this.merkleRoot = this.MPT.Cal_hash(),
   this.timestamp = Date.now(),
   this.height = height,
   this.transactions = pendingTransactions.slice(0), // copy whole tx array
-  this.MPT = MPT,
 
   // variable area
   this.receiptTree = null,
