@@ -148,7 +148,7 @@ app.get('/inserttx', (req, res) => {
   requestPromises = [];
   chain.networkNodes.forEach((networkNodeUrl) => {
     const requestOptions = {
-      uri: networkNodeUrl + '/searchtx',
+      uri: networkNodeUrl + '/searchsender',
       method: 'POST',
       body: {blocknum: tmp},
       json: true,
@@ -157,14 +157,24 @@ app.get('/inserttx', (req, res) => {
     requestPromises.push(rp(requestOptions));
   });
 
-  Promise.all(requestPromises).then((data) => {
-    console.log('Transaction insert successfully.');
-  });
   res.send(port);
 });
 
 app.post('/searchsender', (req, res) => {
-  createtxs(tmp);
+  const blocknum = req.body.blocknum;
+  createtxs(blocknum);
+
+  // requestPromises = [];
+  // chain.networkNodes.forEach((networkNodeUrl) => {
+  //   const requestOptions = {
+  //     uri: networkNodeUrl + '/searchsender',
+  //     method: 'POST',
+  //     body: {blocknum: blocknum},
+  //     json: true,
+  //   };
+
+  //   requestPromises.push(rp(requestOptions));
+  // });
 });
 
 app.get('/MPT/Search/:key', function(req, res) {
@@ -485,6 +495,31 @@ app.post('/register-node', function(req, res) {
     chain.networkNodes.push(newNodeUrl);
   }
   res.json({nodes: chain.networkNodes});
+
+  if (port == 3000) {
+    // const newNodeUrl = 'http://localhost:' + port;
+    // const headNodeUrl = 'http://localhost:' + '3000';
+    // if (chain.networkNodes.indexOf(headNodeUrl) == -1) {
+    //   chain.networkNodes.push(headNodeUrl);
+    // }
+    chain.networkNodes.forEach((node) => {
+      const regNodesPromises = [];
+      chain.networkNodes.forEach((networkNodeUrl) => {
+        const requestOptions = {
+          uri: node + '/register-nodes-bulk',
+          method: 'POST',
+          body: {allNetworkNodes: [newNodeUrl]},
+          json: true,
+          retry: 10,
+          delay: 10000,
+        };
+    
+        regNodesPromises.push(rp(requestOptions));
+      });
+    });
+    
+  
+  }
 });
 
 // new node registers all network nodes
@@ -802,6 +837,7 @@ app.post('/Creator/GetBlock', function(req, res) {
     seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
 
+    const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
         uri: networkNodeUrl + '/update-blockchain',
@@ -809,7 +845,7 @@ app.post('/Creator/GetBlock', function(req, res) {
         body: {SeqNum: seq, Blockchain: creator.blockchain},
         json: true,
       };
-      rp(requestOptions);
+      requestPromises.push(rp(requestOptions));
     });
     CreatorStartThisRound = false;
     FirstRoundLock = false;
