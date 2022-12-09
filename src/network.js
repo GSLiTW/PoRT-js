@@ -497,11 +497,6 @@ app.post('/register-node', function(req, res) {
   res.json({nodes: chain.networkNodes});
 
   if (port == 3000) {
-    // const newNodeUrl = 'http://localhost:' + port;
-    // const headNodeUrl = 'http://localhost:' + '3000';
-    // if (chain.networkNodes.indexOf(headNodeUrl) == -1) {
-    //   chain.networkNodes.push(headNodeUrl);
-    // }
     chain.networkNodes.forEach((node) => {
       const regNodesPromises = [];
       chain.networkNodes.forEach((networkNodeUrl) => {
@@ -513,12 +508,9 @@ app.post('/register-node', function(req, res) {
           retry: 10,
           delay: 10000,
         };
-    
         regNodesPromises.push(rp(requestOptions));
       });
     });
-    
-  
   }
 });
 
