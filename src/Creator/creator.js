@@ -134,11 +134,11 @@ Creator.prototype.completeBlock = function() {
   this.blockchain.txn_pool.clean();
   const nextCreator = this.blockchain.getLastBlock().nextCreator;
   this.block.hash = this.block.hashBlock(this.blockchain.getLastBlock().hash, this.block);
-  this.blockchain.chain.push(this.block);
   this.blockchain.MPT.UpdateDbit(this.wallet.publicKey, [0, 0]);
   for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
     this.blockchain.MPT.UpdateDbit(this.blockchain.getLastBlock().nextVoters[i], [0, 0]);
   }
+  this.blockchain.chain.push(this.block);
   if (this.block.height % 2 === 1) {
     this.blockchain.MPT.UpdateDbit(nextCreator, [2, 1]);
     for (let i = 0; i < this.block.nextVoters.length; i++) {
