@@ -45,23 +45,23 @@ describe('genesis blocks and creator and voter check', () => {
       .toString() // convert Buffer to string
       .split('\n') // split string to lines
       .map((e) => e.trim()) // remove white spaces for each line
-    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
-  
-  let w = fs.readFileSync('./data/private_public_key.csv')
-    .toString() // convert Buffer to string
-    .split('\n') // split string to lines
-    .map((e) => e.trim()) // remove white spaces for each line
-    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
-  
-  const keytable = new Map();
-  w.forEach(w => {
-    keytable.set(w[2], w[1])
-  })
+      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 
-  let chain = new Blockchain();
+  const w = fs.readFileSync('./data/private_public_key.csv')
+      .toString() // convert Buffer to string
+      .split('\n') // split string to lines
+      .map((e) => e.trim()) // remove white spaces for each line
+      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+
+  const keytable = new Map();
+  w.forEach((w) => {
+    keytable.set(w[2], w[1]);
+  });
+
+  const chain = new Blockchain();
   const genesisblock = chain.chain[0];
   const secondblock = chain.getLastBlock();
-  
+
   test('#test1: genesisBlock', () => {
     expect(genesisblock.previousBlockHash).toEqual('0');
     expect(genesisblock.timestamp).toEqual(0);
@@ -84,14 +84,14 @@ describe('genesis blocks and creator and voter check', () => {
     expect(secondblock.hash).toEqual('0d997854563a027a887615c732016ea306241bbc23b6c2dc9236b2ec9cf5a128');
   });
 
-  
+
   createtxs(3);
   const txspool = chain.txn_pool;
 
   const creatorWallet = new Wallet(keytable.get(data[2][2]), data[2][2]);
   const creator = new Creator(3002, creatorWallet, chain);
-  const voter1Wallet = new Wallet(keytable.get(data[3][2]),data[3][2]);
-  const voter2Wallet = new Wallet(keytable.get(data[5][2]),data[5][2]);
+  const voter1Wallet = new Wallet(keytable.get(data[3][2]), data[3][2]);
+  const voter2Wallet = new Wallet(keytable.get(data[5][2]), data[5][2]);
   const voter3Wallet = new Wallet(keytable.get(data[7][2]), data[7][2]);
   const voter1 = new Voter(3003, voter1Wallet, chain);
   const voter2 = new Voter(3005, voter2Wallet, chain);
@@ -158,28 +158,28 @@ describe('Cosig', () => {
       .toString() // convert Buffer to string
       .split('\n') // split string to lines
       .map((e) => e.trim()) // remove white spaces for each line
-    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
-  
-  let w = fs.readFileSync('./data/private_public_key.csv')
-    .toString() // convert Buffer to string
-    .split('\n') // split string to lines
-    .map((e) => e.trim()) // remove white spaces for each line
-    .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
-  
-  const keytable = new Map();
-  w.forEach(w => {
-    keytable.set(w[2], w[1])
-  })
+      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
 
-  let chain = new Blockchain();
-  
+  const w = fs.readFileSync('./data/private_public_key.csv')
+      .toString() // convert Buffer to string
+      .split('\n') // split string to lines
+      .map((e) => e.trim()) // remove white spaces for each line
+      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+
+  const keytable = new Map();
+  w.forEach((w) => {
+    keytable.set(w[2], w[1]);
+  });
+
+  const chain = new Blockchain();
+
   createtxs(3);
   const txspool = chain.txn_pool;
 
   const creatorWallet = new Wallet(keytable.get(data[2][2]), data[2][2]);
   const creator = new Creator(3002, creatorWallet, chain);
-  const voter1Wallet = new Wallet(keytable.get(data[3][2]),data[3][2]);
-  const voter2Wallet = new Wallet(keytable.get(data[5][2]),data[5][2]);
+  const voter1Wallet = new Wallet(keytable.get(data[3][2]), data[3][2]);
+  const voter2Wallet = new Wallet(keytable.get(data[5][2]), data[5][2]);
   const voter3Wallet = new Wallet(keytable.get(data[7][2]), data[7][2]);
   const voter1 = new Voter(3003, voter1Wallet, chain);
   const voter2 = new Voter(3005, voter2Wallet, chain);
@@ -216,12 +216,12 @@ describe('Cosig', () => {
   creator.aggregateResponse();
 });
 
-  // const newchain = creator.blockchain;
-  // txspool.clean();
-  // txspool.addTxs(createtxs(3));
-  // creator.constructNewBlock(txspool);
-  // console.log(creator.block);
-  // test('#test7: check PoRT', () => {
-  //   expect(creator.block.nextCreator).toEqual();
-  // });
-  // T = creator.MPT;
+// const newchain = creator.blockchain;
+// txspool.clean();
+// txspool.addTxs(createtxs(3));
+// creator.constructNewBlock(txspool);
+// console.log(creator.block);
+// test('#test7: check PoRT', () => {
+//   expect(creator.block.nextCreator).toEqual();
+// });
+// T = creator.MPT;
