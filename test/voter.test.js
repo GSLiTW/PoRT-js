@@ -129,7 +129,7 @@ console.log("tx_0's sender:",tempBlock.transactions[0].sender);
 */
   test('test VerifyBlock for dirty block 2', () => {
     console.log('tx_0\'s id:', tempBlock.transactions[0].id);
-    const temp = tempBlock.transactions[0].id.substr(4)+'b2';
+    const temp = tempBlock.transactions[0].id.substr(4)+'b5';
     tempBlock.transactions[0].id='0x'+temp;
     console.log('tx_0\'s id:', tempBlock.transactions[0].id);
     expect(voter.VerifyBlock(tempBlock)).toBeTruthy();
