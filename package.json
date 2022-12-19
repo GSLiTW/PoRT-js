@@ -7,6 +7,13 @@
     "moduleDirectories": [
       "node_modules",
       "<rootDir>"
+    ],
+    "coveragePathIgnorePatterns": [
+      "src/Block/Block1txs.json",
+      "src/Block/Block2txs.json",
+      "src/Block/genesisBlock.json",
+      "src/Block/secondBlock.json",
+      "src/Block/tempBlock.json"
     ]
   },
   "scripts": {
