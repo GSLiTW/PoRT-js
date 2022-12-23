@@ -17,7 +17,7 @@
   {
     "pubKey": "04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8",
     "balance": 100000000000000,
-    "tax": 10000000000,
+    "tax": 1010000000000,
     "dbit": [2, 1]
   },
   {

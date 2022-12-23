@@ -265,6 +265,7 @@ app.post('/transaction/port2portTx', function(req, res) {
   const sig = wallet.Sign(txid);
   const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, chain.MPT);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
+  res.send('done')
 
   if (!isexist) {
     const requestPromises = [];
@@ -301,9 +302,10 @@ app.post('/transaction/broadcast', function(req, res) {
 
       requestPromises.push(rp(requestOptions));
     });
-
+    
     Promise.all(requestPromises).then((data) => {
       res.json({note: 'Transaction created and broadcast successfully.'});
+      res.json('sent')
     });
   }
 });
