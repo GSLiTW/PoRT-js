@@ -33,9 +33,9 @@ describe('genesis blocks and creator and voter check', () => {
   function createtxs(num) {
     const csv = new CSVdata();
     const data_ = csv.getData(num); // get data of block1
-    if (num == 1 || num == 2) {
+    if (num == 3 || num == 4) {
       return insertCSVData(4, data_);
-    } else if (num == 3) {
+    } else if (num == 5) {
       return insertCSVData(4, data_);
     } else console.error('wrong block number.');
   };
@@ -146,9 +146,9 @@ describe('Cosig', () => {
   function createtxs(num) {
     const csv = new CSVdata();
     const data_ = csv.getData(num); // get data of block1
-    if (num == 1 || num == 2) {
+    if (num == 3 || num == 4) {
       return insertCSVData(4, data_);
-    } else if (num == 3) {
+    } else if (num == 5) {
       return insertCSVData(4, data_);
     } else console.error('wrong block number.');
   };

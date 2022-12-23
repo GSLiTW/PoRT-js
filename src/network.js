@@ -77,9 +77,8 @@ function insertCSVData(quantity, data) {
 
 function createtxs(num) {
   const csvdata = new CSV_data();
-  const data_ = csvdata.getData(num); // get data of block1
+  const data_ = csvdata.getData(num);
   if (num >= 3 && num <= 5) {
-    console.log('add txn', num);
     return insertCSVData(4, data_);
   } else console.log('wrong block number.');
 }
@@ -145,10 +144,11 @@ app.get('/transaction-pool', function (req, res) {
 });
 
 app.get('/inserttx', (req, res) => {
+  createtxs(tmp);
   requestPromises = [];
   chain.networkNodes.forEach((networkNodeUrl) => {
     const requestOptions = {
-      uri: networkNodeUrl + '/searchtx',
+      uri: networkNodeUrl + '/searchsender',
       method: 'POST',
       body: {blocknum: tmp},
       json: true,
@@ -157,14 +157,24 @@ app.get('/inserttx', (req, res) => {
     requestPromises.push(rp(requestOptions));
   });
 
-  Promise.all(requestPromises).then((data) => {
-    console.log('Transaction insert successfully.');
-  });
   res.send(port);
 });
 
 app.post('/searchsender', (req, res) => {
-  createtxs(tmp);
+  const blocknum = req.body.blocknum;
+  createtxs(blocknum);
+
+  // requestPromises = [];
+  // chain.networkNodes.forEach((networkNodeUrl) => {
+  //   const requestOptions = {
+  //     uri: networkNodeUrl + '/searchsender',
+  //     method: 'POST',
+  //     body: {blocknum: blocknum},
+  //     json: true,
+  //   };
+
+  //   requestPromises.push(rp(requestOptions));
+  // });
 });
 
 app.get('/MPT/Search/:key', function(req, res) {
@@ -258,7 +268,6 @@ app.post('/transaction/port2portTx', function(req, res) {
 });
 
 app.post('/transaction/broadcast', function (req, res) {
-  console.log(req.body);
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
 
   if (!isexist) {
@@ -819,21 +828,22 @@ app.post('/Creator/GetBlock', function(req, res) {
     seq = seqList[seqList.length - 1] + 1;
     seqList.push(seq);
 
+    const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
         uri: networkNodeUrl + '/update-blockchain',
         method: 'POST',
-        body: {SeqNum: seq, Blockchain: creator.blockchain},
+        body: {SeqNum: seq, Blockchain: creator.blockchain, blocknum: tmp+1},
         json: true,
       };
-      rp(requestOptions);
+      requestPromises.push(rp(requestOptions));
     });
+    chain = creator.blockchain;
     CreatorStartThisRound = false;
     FirstRoundLock = false;
     FirstRoundVoterNum = 0;
     FirstRountSetTimeout = null;
     GetResponsesSetTimeout = null;
-    tmp = tmp + 1;
     res.send('Create Block Succeed.');
   } else {
     res.sendStatus(200);
@@ -844,9 +854,13 @@ app.post('/update-blockchain', function(req, res) {
   console.log('********** update-blockchain start  **********');
   const seq = req.body.SeqNum;
   const updatedChain = req.body.Blockchain;
+  const newBlocknum = req.body.blocknum;
   if (seqList.indexOf(seq) == -1) {
-    chain = updatedChain;
-
+    chain.chain = updatedChain.chain;
+    chain.MPT = updatedChain.MPT;
+    chain.txn_pool = updatedChain.txn_pool;
+    tmp = newBlocknum;
+    console.log(chain);
     seqList.push(seq);
 
     const requestPromises = [];
@@ -854,7 +868,7 @@ app.post('/update-blockchain', function(req, res) {
       const requestOptions = {
         uri: networkNodeUrl + '/update-blockchain',
         method: 'POST',
-        body: {SeqNum: seq, Blockchain: updatedChain},
+        body: {SeqNum: seq, Blockchain: updatedChain, blocknum: tmp},
         json: true,
       };
       requestPromises.push(rp(requestOptions));

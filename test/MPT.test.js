@@ -4,7 +4,7 @@ const EXTENSION = 'extension';
 const LEAF = 'leaf';
 const TAX_RATIO = 0.0001;
 const PRECISION = 6;
-const BASE = 1000000000000
+const BASE = 1000000000000;
 
 test('constructor with default parameters', () => {
   const testingMPT = new MPT();
@@ -902,7 +902,7 @@ test('MPT.UpdateValue()', () => {
 
   // Verify value
   expect(testingMPT.Search('12345').Value()).toEqual([
-    (5 - 5 * TAX_RATIO) * BASE, (2 * BASE + 5 * TAX_RATIO * BASE) , [0, 0],
+    (5 - 5 * TAX_RATIO) * BASE, (2 * BASE + 5 * TAX_RATIO * BASE), [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
     14 * BASE - 2 * TAX_RATIO * BASE, 1 * BASE + 2 * TAX_RATIO * BASE, [0, 0],
@@ -914,7 +914,7 @@ test('MPT.UpdateValue()', () => {
     */
 
 
-  //resTemp = testingMPT.Search('14567').Value();
+  // resTemp = testingMPT.Search('14567').Value();
   expect(testingMPT.Search('14567').Value()).toEqual([
     13 * BASE - 4 * TAX_RATIO * BASE, 3 * BASE + 4 * TAX_RATIO * BASE, [0, 0],
   ]);
@@ -933,7 +933,7 @@ test('MPT.UpdateValue()', () => {
 
   // Verify value, should not change after failed update
   expect(testingMPT.Search('12345').Value()).toEqual([
-    (5 - 5 * TAX_RATIO) * BASE, (2 * BASE + 5 * TAX_RATIO * BASE) , [0, 0],
+    (5 - 5 * TAX_RATIO) * BASE, (2 * BASE + 5 * TAX_RATIO * BASE), [0, 0],
   ]);
   expect(testingMPT.Search('12378').Value()).toEqual([
     14 * BASE - 2 * TAX_RATIO * BASE, 1 * BASE + 2 * TAX_RATIO * BASE, [0, 0],
