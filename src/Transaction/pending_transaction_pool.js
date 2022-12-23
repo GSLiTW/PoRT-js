@@ -29,6 +29,7 @@ Pending_Transaction_Pool.prototype.isRepeat = function(tx) {
 
 Pending_Transaction_Pool.prototype.validate = function(tx) {
   if (tx.value < 0 || !Number.isInteger(tx.value)) {
+    console.log('value fail')
     return false;
   }
 

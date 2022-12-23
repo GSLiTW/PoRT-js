@@ -52,7 +52,7 @@ function insertCSVData(quantity, data) {
   for (let i = 1; i <= quantity; i++) {
     if (data[i][2] === wallet.publicKey.encode('hex')) {
       const sig = wallet.Sign(data[i][0]);
-      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT);
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], Number(data[i][4]), sig, chain.MPT);
       // storeData(newTx, `./${port}.json`)
       const requestPromises = [];
       // console.log(chain.networkNodes);
@@ -123,14 +123,14 @@ if (port != 3000) {
 }
 
 // createtxs(3);
-function instatiateNode(value) {
+function instantiateNode(value) {
   Object.setPrototypeOf(value, nodeVal.prototype)
 }
 
 function instantiateMPT(Tree) {
   Object.setPrototypeOf(Tree, MPT.prototype)
   if(Tree.mode == 'leaf'){
-    return instatiateNode(Tree.value);;
+    return instantiateNode(Tree.value);;
   } else if (Tree.next !== null){
     return instantiateMPT(Tree.next);
   } else {
@@ -149,7 +149,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/blockchain', function(req, res) {
   res.send(chain);
-  console.log('asd');
 });
 
 app.get('/wallet', function(req, res) {
@@ -290,7 +289,7 @@ app.post('/transaction/port2portTx', function(req, res) {
 
 app.post('/transaction/broadcast', function (req, res) {
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
-
+  console.log(req.body.NewTxs)
   if (!isexist && chain.txn_pool.validate(req.body.NewTxs)) {
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
