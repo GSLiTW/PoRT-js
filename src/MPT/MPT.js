@@ -683,41 +683,43 @@ MPT.prototype.Cal_old_hash = function() {
  * @param  {integer={0,1}} flag - indicate what taxcnt means: 0 for tax count; 1 for key
  * @param  {Number} taxcnt - Ti (from PoRT) if flag==0; Selected Creator's address(key) if flag==1
  */
-MPT.prototype.Select = function(h, flag, taxcnt) {
+MPT.prototype.Select = function(h, flag, MPT, taxcnt) {
   if (this.mode == 'leaf') {
     if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0)) {
-      return [1, this.key];
+      return [1, this.key, (taxcnt + this.value.tax)];
     } else {
-      return [0, (taxcnt + this.value.tax)];
+      return [0, this.key, (taxcnt + this.value.tax)];
     }
   } else if (this.mode == 'extension') {
-    [flag, taxcnt] = this.next.Select(h, flag, taxcnt);
+    [flag, address, taxcnt] = this.next.Select(h, flag, this.next, taxcnt);
     if (flag == 1) {
-      return [flag, this.key + taxcnt];
+      return [flag, this.key + address, taxcnt];
     } else {
-      return [flag, taxcnt];
+      return [flag, this.key + address, taxcnt];
     }
   } else if (this.mode == 'branch') {
     if (this.value != null ) {
       if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0) ) {
-        return [1, ''];
+        return [1, '', (taxcnt + this.value.tax)];
       } else {
         taxcnt += this.value.tax;
       }
     }
     for (const i in this.branch) {
       if (this.branch[i] != null) {
-        [flag, t] = this.branch[i].Select(h, flag, taxcnt);
+        [flag, addr, t] = this.branch[i].Select(h, flag, this.branch[i], taxcnt);
         if (flag == 1) {
-          taxcnt = parseInt(i).toString(16) + t;
-          break;
+          address = parseInt(i).toString(16) + addr;
+          taxcnt = t;
+          return [flag, address, taxcnt];
         } else {
+          address = parseInt(i).toString(16) + addr;
           taxcnt = t;
         }
       }
     }
 
-    return [flag, taxcnt];
+    return [flag, address, taxcnt];
   }
 };
 

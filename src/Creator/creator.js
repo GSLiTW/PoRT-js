@@ -132,21 +132,26 @@ Creator.prototype.verifyCoSig = function() {
 Creator.prototype.completeBlock = function() {
   this.blockchain.MPT.ResetSaved();
   this.blockchain.txn_pool.clean();
-  const nextCreator = this.blockchain.getLastBlock().nextCreator;
   this.block.hash = this.block.hashBlock(this.blockchain.getLastBlock().hash, this.block);
   const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousBlockHash);
-  this.blockchain.MPT.UpdateDbit(tmpBlock.nextCreator, [0, 0]);
+  for (let i = 0; i < this.blockchain.getLastBlock().nextCreator.length; i++) {
+    this.blockchain.MPT.UpdateDbit(tmpBlock.nextCreator[i], [0, 0]);
+  }
   for (let i = 0; i < this.blockchain.getLastBlock().nextVoters.length; i++) {
     this.blockchain.MPT.UpdateDbit(tmpBlock.nextVoters[i], [0, 0]);
   }
   this.blockchain.chain.push(this.block);
   if (this.block.height % 2 === 1) {
-    this.blockchain.MPT.UpdateDbit(this.block.nextCreator, [1, 1]);
+    for (let i = 0; i < this.block.nextCreator.length; i++) {
+      this.blockchain.MPT.UpdateDbit(this.block.nextCreator[i], [1, 1]);
+    }
     for (let i = 0; i < this.block.nextVoters.length; i++) {
       this.blockchain.MPT.UpdateDbit(this.block.nextVoters[i], [1, 2]);
     }
   } else {
-    this.blockchain.MPT.UpdateDbit(this.block.nextCreator, [2, 1]);
+    for (let i = 0; i < this.block.nextCreator.length; i++) {
+      this.blockchain.MPT.UpdateDbit(this.block.nextCreator[i], [2, 1]);
+    }
     for (let i = 0; i < this.block.nextVoters.length; i++) {
       this.blockchain.MPT.UpdateDbit(this.block.nextVoters[i], [2, 2]);
     }
@@ -175,13 +180,10 @@ Creator.prototype.selectMaintainer = function() {
     this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i].toString('hex')).Tax());
   }
 
-  const creatorPoRT = new PoRT(this.wallet.publicKey, this.MPT);
-  this.block.nextCreator = creatorPoRT.nextMaintainer;
-
-  for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
-    const voterPoRT = new PoRT(tmpBlock.nextVoters[i], this.MPT);
-    this.block.nextVoters.push(voterPoRT.nextMaintainer);
-  }
+  const creatorPoRT = new PoRT(tmpBlock.nextCreator, this.MPT);
+  this.block.nextCreator.push(creatorPoRT.nextMaintainer);
+  const voterPoRT = new PoRT(tmpBlock.nextVoters, this.MPT);
+  this.block.nextVoters.push(voterPoRT.nextMaintainer);
 };
 
 
