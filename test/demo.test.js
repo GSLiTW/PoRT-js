@@ -101,13 +101,13 @@ describe('genesis blocks and creator and voter check', () => {
     expect(creator.isValid()).toBeTruthy();
   });
   const newBlock = creator.constructNewBlock(chain.txn_pool);
-  test('#test3: creator construct new block', () => {
+  test('#test4: creator construct new block', () => {
     expect(newBlock).toEqual(creator.block);
     expect(newBlock.transactions).toEqual(txspool.get_transaction());
     console.log(creator.MPT.Search('0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd'));
   });
 
-  test('#test4: voter is valid', () => {
+  test('#test5: voter is valid', () => {
     expect(voter1.isValid()).toBeTruthy();
     expect(voter2.isValid()).toBeTruthy();
     expect(voter3.isValid()).toBeTruthy();
@@ -190,7 +190,7 @@ describe('Cosig', () => {
   creator.getVoter(voter1.port, voter1.wallet.publicKey, voter1.publicV);
   creator.getVoter(voter2.port, voter2.wallet.publicKey, voter2.publicV);
   creator.getVoter(voter3.port, voter3.wallet.publicKey, voter3.publicV);
-  test('#test5: getVoter finish', () => {
+  test('#test6: getVoter finish', () => {
     expect(creator.voterPubKey[0]).toEqual(voter1Wallet.publicKey);
     expect(creator.voterPubKey[1]).toEqual(voter2Wallet.publicKey);
     expect(creator.voterPubKey[2]).toEqual(voter3Wallet.publicKey);
