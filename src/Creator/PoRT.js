@@ -18,7 +18,6 @@ function PoRT(address, MPT) {
     let getMaintainer = null;
     let taxcnt = 0;
     while (!flag) {
-      console.log('taxcnt: '+taxcnt);
       getMaintainer = this.Tree.Select(h, 0, taxcnt);
       flag = getMaintainer[0];
       if (flag) {
