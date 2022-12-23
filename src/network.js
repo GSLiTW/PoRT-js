@@ -35,7 +35,6 @@ let GetResponsesSetTimeout = null;
 
 // preprocess
 let chain = new Blockchain();
-let tmp = 3;
 // init Wallet
 const w = fs.readFileSync('./data/private_public_key.csv')
     .toString() // convert Buffer to string
@@ -583,7 +582,6 @@ app.get('/Creator', function(req, res) {
   creator = new Creator(port, wallet, chain);
 
   if (creator.isValid() && !CreatorStartThisRound) {
-    // createtxs(tmp);
     CreatorStartThisRound = true;
     const currentdate = new Date();
     const datetime =
@@ -854,7 +852,7 @@ app.post('/Creator/GetBlock', function(req, res) {
       const requestOptions = {
         uri: networkNodeUrl + '/update-blockchain',
         method: 'POST',
-        body: {SeqNum: seq, Blockchain: creator.blockchain, blocknum: tmp+1},
+        body: {SeqNum: seq, Blockchain: creator.blockchain},
         json: true,
       };
       requestPromises.push(rp(requestOptions));
@@ -875,14 +873,12 @@ app.post('/update-blockchain', function(req, res) {
   console.log('********** update-blockchain start  **********');
   const seq = req.body.SeqNum;
   const updatedChain = req.body.Blockchain;
-  const newBlocknum = req.body.blocknum;
   if (seqList.indexOf(seq) == -1) {
     chain.chain = updatedChain.chain;
     // chain.MPT = Object.setPrototypeOf(updatedChain.MPT, MPT.prototype)
     instantiateMPT(updatedChain.MPT);
     chain.MPT = updatedChain.MPT;
     chain.txn_pool = Object.setPrototypeOf(updatedChain.txn_pool, tx_pool.prototype);
-    tmp = newBlocknum;
     console.log(chain);
     seqList.push(seq);
 
@@ -891,7 +887,7 @@ app.post('/update-blockchain', function(req, res) {
       const requestOptions = {
         uri: networkNodeUrl + '/update-blockchain',
         method: 'POST',
-        body: {SeqNum: seq, Blockchain: updatedChain, blocknum: tmp},
+        body: {SeqNum: seq, Blockchain: updatedChain},
         json: true,
       };
       requestPromises.push(rp(requestOptions));
