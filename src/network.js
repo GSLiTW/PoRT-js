@@ -123,14 +123,14 @@ if (port != 3000) {
 
 // createtxs(3);
 function instantiateNode(value) {
-  Object.setPrototypeOf(value, nodeVal.prototype)
+  Object.setPrototypeOf(value, nodeVal.prototype);
 }
 
 function instantiateMPT(Tree) {
-  Object.setPrototypeOf(Tree, MPT.prototype)
-  if(Tree.mode == 'leaf'){
-    return instantiateNode(Tree.value);;
-  } else if (Tree.next !== null){
+  Object.setPrototypeOf(Tree, MPT.prototype);
+  if (Tree.mode == 'leaf') {
+    return instantiateNode(Tree.value); ;
+  } else if (Tree.next !== null) {
     return instantiateMPT(Tree.next);
   } else {
     return Tree.branch.forEach((brch) => {
@@ -288,7 +288,7 @@ app.post('/transaction/port2portTx', function(req, res) {
 
 app.post('/transaction/broadcast', function(req, res) {
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
-  console.log(req.body.NewTxs)
+  console.log(req.body.NewTxs);
   if (!isexist && chain.txn_pool.validate(req.body.NewTxs)) {
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {

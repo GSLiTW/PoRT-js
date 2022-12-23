@@ -12,7 +12,7 @@ function CSV_data() {
  * @return {string[][]} data derived from csv files
  */
 CSV_data.prototype.getData = function(num) {
-  if (num == 1 || num == 2 || num == 3) {
+  if (num == 3 || num == 4 || num == 5) {
     return this.readCSV(num);
   } else console.log('block DNE');
 };
