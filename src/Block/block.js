@@ -21,7 +21,7 @@ function Block(height, pendingTransactions, previousHash, MPT) {
   // variable area
   this.receiptTree = null,
   this.cosig = null,
-  this.nextCreator = null,
+  this.nextCreator = [],
   this.nextVoters = [],
   this.hash = null;
 };

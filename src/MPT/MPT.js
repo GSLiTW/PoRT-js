@@ -685,7 +685,7 @@ MPT.prototype.Cal_old_hash = function() {
  */
 MPT.prototype.Select = function(h, flag, taxcnt) {
   if (this.mode == 'leaf') {
-    if ((h - taxcnt) < this.value.tax) {
+    if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0)) {
       return [1, this.key];
     } else {
       return [0, (taxcnt + this.value.tax)];
@@ -698,8 +698,8 @@ MPT.prototype.Select = function(h, flag, taxcnt) {
       return [flag, taxcnt];
     }
   } else if (this.mode == 'branch') {
-    if (this.value != null) {
-      if ((h - taxcnt) < this.value.tax) {
+    if (this.value != null ) {
+      if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0) ) {
         return [1, ''];
       } else {
         taxcnt += this.value.tax;
