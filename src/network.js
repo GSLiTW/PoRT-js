@@ -290,7 +290,7 @@ app.post('/transaction/port2portTx', function(req, res) {
 app.post('/transaction/broadcast', function(req, res) {
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
 
-  if (!isexist) {
+  if (!isexist && chain.txn_pool.validate(req.body.NewTxs)) {
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
       const requestOptions = {
