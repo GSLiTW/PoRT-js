@@ -4,6 +4,7 @@ const BN = require('bn.js');
 const elliptic = require('elliptic');
 const ecdsa = new elliptic.ec('secp256k1');
 const Cosig = require('../cosig.js');
+const cloneDeep = require('lodash.clonedeep');
 
 
 /**
@@ -14,10 +15,10 @@ const Cosig = require('../cosig.js');
  * @param {Blockchain} blockchain - Local  blockchain
  */
 function Creator(port, wallet, blockchain) {
-  this.MPT = blockchain.MPT;
-  this.port = port;
-  this.wallet = wallet;
-  this.blockchain = blockchain;
+  this.MPT = cloneDeep(blockchain.MPT);
+  this.port = cloneDeep(port);
+  this.wallet = cloneDeep(wallet);
+  this.blockchain = cloneDeep(blockchain);
 }
 
 /**
@@ -110,13 +111,17 @@ Creator.prototype.clearResponses = function() {
 
 
 Creator.prototype.aggregateResponse = function() {
+  console.log('a');
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
-
+  console.log('b');
   if (this.verifyCoSig()) {
-    this.block.cosig = this.cosig;
+    console.log('c');
+    this.block.cosig = cloneDeep(this.cosig);
     this.selectMaintainer();
-    this.blockchain.MPT = this.MPT;
+    console.log('d');
+    this.blockchain.MPT = cloneDeep(this.MPT);
     this.completeBlock();
+    console.log('e');
   }
 };
 
@@ -173,17 +178,37 @@ Creator.prototype.constructNewBlock = function(txspool) {
 };
 
 Creator.prototype.selectMaintainer = function() {
-  this.MPT.RefundTax(this.wallet.publicKey.encode('hex'), this.MPT.Search(this.wallet.publicKey.encode('hex')).Tax());
-  // const tmpBlock = this.blockchain.getLastBlock();
+  console.log('c-1');
   const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousBlockHash);
+  for (let i = 0; i < tmpBlock.nextCreator.length; i++) {
+    console.log('c-2');
+    this.MPT.RefundTax(tmpBlock.nextCreator[i], this.MPT.Search(tmpBlock.nextCreator[i]).Tax());
+    console.log('c-3');
+  }
+  // const tmpBlock = this.blockchain.getLastBlock();
   for (let i = 0; i < tmpBlock.nextVoters.length; i++) {
-    this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i].toString('hex')).Tax());
+    console.log('c-4');
+    this.MPT.RefundTax(tmpBlock.nextVoters[i], this.MPT.Search(tmpBlock.nextVoters[i]).Tax());
+    console.log('c-5');
   }
 
-  const creatorPoRT = new PoRT(tmpBlock.nextCreator, this.MPT);
-  this.block.nextCreator = creatorPoRT.nextMaintainer;
-  const voterPoRT = new PoRT(tmpBlock.nextVoters, this.MPT);
-  this.block.nextVoters = voterPoRT.nextMaintainer;
+  maintainerlist = tmpBlock.nextCreator.concat(tmpBlock.nextVoters);
+  console.log(maintainerlist);
+  console.log('c-6');
+  console.log('old: '+this.MPT.Search('0401d8c7ca7cb14196be6e39f9b14845b5e6144373d5721c05b1b269955d3861a7ecaa31ebff836770574c82497f00811f9d903f89e231bf61ca1bd961541db527').Tax());
+  const maintainerPoRT = new PoRT(maintainerlist, this.MPT);
+  console.log('new: '+this.MPT.Search('0401d8c7ca7cb14196be6e39f9b14845b5e6144373d5721c05b1b269955d3861a7ecaa31ebff836770574c82497f00811f9d903f89e231bf61ca1bd961541db527').Tax());
+  console.log('c-7');
+  for (let i = 0; i < tmpBlock.nextCreator.length; i++) {
+    console.log('c-8');
+    this.block.nextCreator.push(maintainerPoRT.nextMaintainer[i]);
+    console.log('c-9');
+  }
+  for (let i = tmpBlock.nextCreator.length; i < maintainerPoRT.nextMaintainer.length; i++) {
+    console.log('c-10');
+    this.block.nextVoters.push(maintainerPoRT.nextMaintainer[i]);
+    console.log('c-11');
+  }
 };
 
 

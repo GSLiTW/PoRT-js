@@ -372,7 +372,7 @@ MPT.prototype.ModifyValue = function(key, Update_flag = null, Update_value = nul
       if (this.key == key) {
         if (Update_flag == '-') {
           if (this.value.balance >= Update_value) {
-            tx_tax = parseInt((Update_value * 0.0001).toFixed(0))
+            tx_tax = parseInt((Update_value * 0.0001).toFixed(0));
             this.value.balance = this.value.balance - Update_value - tx_tax;
             this.value.tax += tx_tax;
             return this.value.balance;
