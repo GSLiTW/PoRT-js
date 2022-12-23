@@ -21,7 +21,7 @@ const Voter = require('./Voter/voter');
 const Wallet = require('./Utility/wallet');
 const MPT = require('./MPT/MPT.js');
 const tx_pool = require('./Transaction/pending_transaction_pool');
-const nodeVal = require('./NodeVal')
+const nodeVal = require('./NodeVal');
 
 // constants
 const BASE = 1000000000000;
@@ -124,21 +124,21 @@ if (port != 3000) {
 
 // createtxs(3);
 function instatiateNode(value) {
-  Object.setPrototypeOf(value, nodeVal.prototype)
+  Object.setPrototypeOf(value, nodeVal.prototype);
 }
 
 function instantiateMPT(Tree) {
-  Object.setPrototypeOf(Tree, MPT.prototype)
-  if(Tree.mode == 'leaf'){
-    return instatiateNode(Tree.value);;
-  } else if (Tree.next !== null){
+  Object.setPrototypeOf(Tree, MPT.prototype);
+  if (Tree.mode == 'leaf') {
+    return instatiateNode(Tree.value); ;
+  } else if (Tree.next !== null) {
     return instantiateMPT(Tree.next);
   } else {
     return Tree.branch.forEach((brch) => {
-      if(brch !== null){
+      if (brch !== null) {
         instantiateMPT(brch);
       }
-    })
+    });
   }
 }
 
@@ -160,7 +160,7 @@ app.get('/MPT', function(req, res) {
   res.send(chain.MPT);
 });
 
-app.get('/transaction-pool', function (req, res) {
+app.get('/transaction-pool', function(req, res) {
   res.send(chain.txn_pool);
 });
 
@@ -256,7 +256,6 @@ app.post('/transaction/AddTx', function(req, res) {
 });
 
 
-
 app.post('/transaction/port2portTx', function(req, res) {
   const receiverPort = req.body.receiverPort;
   const sendValue = req.body.sendValue;
@@ -288,7 +287,7 @@ app.post('/transaction/port2portTx', function(req, res) {
   }
 });
 
-app.post('/transaction/broadcast', function (req, res) {
+app.post('/transaction/broadcast', function(req, res) {
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
 
   if (!isexist) {
@@ -878,10 +877,10 @@ app.post('/update-blockchain', function(req, res) {
   const newBlocknum = req.body.blocknum;
   if (seqList.indexOf(seq) == -1) {
     chain.chain = updatedChain.chain;
-    //chain.MPT = Object.setPrototypeOf(updatedChain.MPT, MPT.prototype)
-    instantiateMPT(updatedChain.MPT)
-    chain.MPT = updatedChain.MPT
-    chain.txn_pool = Object.setPrototypeOf(updatedChain.txn_pool, tx_pool.prototype)
+    // chain.MPT = Object.setPrototypeOf(updatedChain.MPT, MPT.prototype)
+    instantiateMPT(updatedChain.MPT);
+    chain.MPT = updatedChain.MPT;
+    chain.txn_pool = Object.setPrototypeOf(updatedChain.txn_pool, tx_pool.prototype);
     tmp = newBlocknum;
     console.log(chain);
     seqList.push(seq);
