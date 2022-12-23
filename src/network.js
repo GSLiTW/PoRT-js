@@ -200,7 +200,7 @@ app.post('/transaction/launch', function(req, res) {
 app.post('/transaction/AddTx', function(req, res) {
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
-  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig, Tree);
+  const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig, chain.MPT);
   console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
@@ -234,7 +234,7 @@ app.post('/transaction/port2portTx', function(req, res) {
   const txid = web3.utils.keccak256(senderPUbKey+receiverPUbKey+sendValue);
   console.log(txid);
   const sig = wallet.Sign(txid);
-  const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, Tree);
+  const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, chain.MPT);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
   if (!isexist) {

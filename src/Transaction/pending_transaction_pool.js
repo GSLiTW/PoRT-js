@@ -28,7 +28,7 @@ Pending_Transaction_Pool.prototype.isRepeat = function(tx) {
 };
 
 Pending_Transaction_Pool.prototype.validate = function(tx) {
-  if (tx.value < 0 && Number.isInteger(tx.value)) {
+  if (tx.value < 0 || !Number.isInteger(tx.value)) {
     return false;
   }
 

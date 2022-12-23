@@ -9,7 +9,8 @@ function Transaction_MT(id, sender, receiver, value, sig, MPT) {
   this.id = id;
   this.sender = sender;
   this.receiver = receiver;
-  this.value = Math.round(value * 1000000000000);// since 10^18 will overflow (limit: 10^16), use 10^12 temporarily instead.
+  //this.value = Math.round(value * 1000000000000);// since 10^18 will overflow (limit: 10^16), use 10^12 temporarily instead.
+  this.value = value;
   this.sig = sig;
   this.accountCheck(sender, MPT);
   this.accountCheck(receiver, MPT);
