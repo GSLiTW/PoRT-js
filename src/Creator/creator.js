@@ -181,9 +181,9 @@ Creator.prototype.selectMaintainer = function() {
   }
 
   const creatorPoRT = new PoRT(tmpBlock.nextCreator, this.MPT);
-  this.block.nextCreator.push(creatorPoRT.nextMaintainer);
+  this.block.nextCreator = creatorPoRT.nextMaintainer;
   const voterPoRT = new PoRT(tmpBlock.nextVoters, this.MPT);
-  this.block.nextVoters.push(voterPoRT.nextMaintainer);
+  this.block.nextVoters = voterPoRT.nextMaintainer;
 };
 
 
