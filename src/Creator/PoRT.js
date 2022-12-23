@@ -19,13 +19,9 @@ function PoRT(address, MPT) {
     let taxcnt = 0;
     while (!flag) {
       console.log('taxcnt: '+taxcnt);
-      getMaintainer = this.Tree.Select(h, 0, this.Tree, taxcnt);
+      getMaintainer = this.Tree.Select(h, 0, taxcnt);
       flag = getMaintainer[0];
-      taxcnt = getMaintainer[2];
       if (flag) {
-        console.log('h: '+h);
-        console.log(getMaintainer);
-        taxcnt = (-1)*taxcnt;
         for (let j = 0; j < this.nextMaintainer.length; j++) {
           if (this.nextMaintainer[j] === getMaintainer[1]) {
             flag = 0;
@@ -35,9 +31,7 @@ function PoRT(address, MPT) {
       }
     }
     this.nextMaintainer.push(getMaintainer[1]);
-    console.log(this.Tree.Search(getMaintainer[1].toString('hex')).Dbit());
     this.Tree.UpdateDbit(getMaintainer[1], [1, 1]);
-    console.log(this.Tree.Search(getMaintainer[1].toString('hex')).Dbit());
     console.log('select: '+i);
   }
 }

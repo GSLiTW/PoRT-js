@@ -683,43 +683,41 @@ MPT.prototype.Cal_old_hash = function() {
  * @param  {integer={0,1}} flag - indicate what taxcnt means: 0 for tax count; 1 for key
  * @param  {Number} taxcnt - Ti (from PoRT) if flag==0; Selected Creator's address(key) if flag==1
  */
-MPT.prototype.Select = function(h, flag, MPT, taxcnt) {
+MPT.prototype.Select = function(h, flag, taxcnt) {
   if (this.mode == 'leaf') {
     if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0)) {
-      return [1, this.key, (taxcnt + this.value.tax + 1)];
+      return [1, this.key];
     } else {
-      return [0, this.key, (taxcnt + this.value.tax + 1)];
+      return [0, (taxcnt + this.value.tax)];
     }
   } else if (this.mode == 'extension') {
-    [flag, address, taxcnt] = this.next.Select(h, flag, this.next, taxcnt);
+    [flag, taxcnt] = this.next.Select(h, flag, taxcnt);
     if (flag == 1) {
-      return [flag, this.key + address, taxcnt];
+      return [flag, this.key + taxcnt];
     } else {
-      return [flag, this.key + address, taxcnt];
+      return [flag, taxcnt];
     }
   } else if (this.mode == 'branch') {
     if (this.value != null ) {
       if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0) ) {
-        return [1, '', (taxcnt + this.value.tax + 1)];
+        return [1, ''];
       } else {
         taxcnt += this.value.tax;
       }
     }
     for (const i in this.branch) {
       if (this.branch[i] != null) {
-        [flag, addr, t] = this.branch[i].Select(h, flag, this.branch[i], taxcnt);
+        [flag, t] = this.branch[i].Select(h, flag, taxcnt);
         if (flag == 1) {
-          address = parseInt(i).toString(16) + addr;
-          taxcnt = t;
-          return [flag, address, taxcnt];
+          taxcnt = parseInt(i).toString(16) + t;
+          return [flag, taxcnt];
         } else {
-          address = parseInt(i).toString(16) + addr;
           taxcnt = t;
         }
       }
     }
 
-    return [flag, address, taxcnt];
+    return [flag, taxcnt];
   }
 };
 
