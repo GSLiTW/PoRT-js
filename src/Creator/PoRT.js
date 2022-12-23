@@ -11,17 +11,21 @@ function PoRT(address, MPT) {
   this.nextMaintainer = [];
 
   for (let i = 0; i < address.length; i++) {
-    const T = this.Tree.TotalTax().toString();
-    const tmp = sha256(T + this.address[i]);
-    const h = parseInt(tmp, 16) % T;
+    let T = this.Tree.TotalTax().toString();
+    let tmp = sha256(T + this.address[i]);
+    let h = parseInt(tmp, 16) % T;
     let flag = 0;
     let getMaintainer = null;
     let taxcnt = 0;
     while (!flag) {
+      console.log('taxcnt: '+taxcnt);
       getMaintainer = this.Tree.Select(h, 0, this.Tree, taxcnt);
       flag = getMaintainer[0];
-      taxcnt = getMaintainer[2] % h;
+      taxcnt = getMaintainer[2];
       if (flag) {
+        console.log('h: '+h);
+        console.log(getMaintainer);
+        taxcnt = (-1)*taxcnt;
         for (let j = 0; j < this.nextMaintainer.length; j++) {
           if (this.nextMaintainer[j] === getMaintainer[1]) {
             flag = 0;
@@ -31,7 +35,10 @@ function PoRT(address, MPT) {
       }
     }
     this.nextMaintainer.push(getMaintainer[1]);
-    this.Tree.RefundTax(getMaintainer[1], this.Tree.Search(getMaintainer[1].toString('hex')).Tax());
+    console.log(this.Tree.Search(getMaintainer[1].toString('hex')).Dbit());
+    this.Tree.UpdateDbit(getMaintainer[1], [1, 1]);
+    console.log(this.Tree.Search(getMaintainer[1].toString('hex')).Dbit());
+    console.log('select: '+i);
   }
 }
 module.exports = PoRT;
