@@ -164,14 +164,15 @@ app.get('/transaction-pool', function(req, res) {
   res.send(chain.txn_pool);
 });
 
-app.get('/inserttx', (req, res) => {
-  createtxs(tmp);
+app.get('/inserttx/:blocknum', (req, res) => {
+  const blocknum = req.params.blocknum;
+  createtxs(blocknum);
   requestPromises = [];
   chain.networkNodes.forEach((networkNodeUrl) => {
     const requestOptions = {
       uri: networkNodeUrl + '/searchsender',
       method: 'POST',
-      body: {blocknum: tmp},
+      body: {blocknum: blocknum},
       json: true,
     };
 
