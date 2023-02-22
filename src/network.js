@@ -231,7 +231,7 @@ app.post('/transaction/AddTx', function(req, res) {
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
   const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig, chain.MPT);
-  console.log(newTransaction);
+  // console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
   if (!isexist) {
@@ -261,10 +261,11 @@ app.post('/transaction/port2portTx', function(req, res) {
   const senderPUbKey = wallet.getPubKey(Number(port));
   const receiverPUbKey = wallet.getPubKey(Number(receiverPort));
   const txid = web3.utils.keccak256(senderPUbKey+receiverPUbKey+sendValue);
-  console.log(txid);
+  // console.log(txid);
   const sig = wallet.Sign(txid);
   const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, chain.MPT);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
+  res.send('done')
 
   if (!isexist) {
     const requestPromises = [];
@@ -288,7 +289,7 @@ app.post('/transaction/port2portTx', function(req, res) {
 
 app.post('/transaction/broadcast', function(req, res) {
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
-  console.log(req.body.NewTxs);
+  // console.log(req.body.NewTxs);
   if (!isexist && chain.txn_pool.validate(req.body.NewTxs)) {
     const requestPromises = [];
     chain.networkNodes.forEach((networkNodeUrl) => {
@@ -301,9 +302,10 @@ app.post('/transaction/broadcast', function(req, res) {
 
       requestPromises.push(rp(requestOptions));
     });
-
+    
     Promise.all(requestPromises).then((data) => {
       res.json({note: 'Transaction created and broadcast successfully.'});
+      res.json('sent')
     });
   }
 });
@@ -873,12 +875,12 @@ app.post('/update-blockchain', function(req, res) {
   const seq = req.body.SeqNum;
   const updatedChain = req.body.Blockchain;
   if (seqList.indexOf(seq) == -1) {
-    chain.chain = updatedChain.chain;
-    // chain.MPT = Object.setPrototypeOf(updatedChain.MPT, MPT.prototype)
+    // chain.chain = updatedChain.chain;
+    chain.chain = Object.setPrototypeOf(updatedChain.chain, Array.prototype);
     instantiateMPT(updatedChain.MPT);
     chain.MPT = updatedChain.MPT;
     chain.txn_pool = Object.setPrototypeOf(updatedChain.txn_pool, tx_pool.prototype);
-    console.log(chain);
+    // console.log(chain);
     seqList.push(seq);
 
     const requestPromises = [];

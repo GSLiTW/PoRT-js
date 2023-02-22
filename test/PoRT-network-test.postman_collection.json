@@ -17,20 +17,24 @@
 							"pm.collectionVariables.set(\"block1height\", res[\"chain\"][0][\"height\"]);",
 							"",
 							"pm.test(\"number of block\", function () {",
-							"    pm.expect(res[\"chain\"].length).to.equal(1);",
+							"    pm.expect(res[\"chain\"].length).to.equal(2);",
 							"});",
 							"",
 							"pm.test(\"number of txs\", function () {",
-							"    pm.expect(res[\"chain\"][0][\"transactions\"].length).to.be.above(0);",
+							"    pm.expect(res[\"chain\"][0][\"transactions\"].length).to.be.equal(4);",
+							"    pm.expect(res[\"chain\"][1][\"transactions\"].length).to.be.equal(4);",
 							"});",
 							"",
 							"pm.test(\"number of creators\", function () {",
 							"    pm.expect(res[\"chain\"][0][\"nextCreator\"]).is.string;",
 							"    pm.expect(res[\"chain\"][0][\"nextCreator\"].length).to.be.equal(130);",
+							"    pm.expect(res[\"chain\"][1][\"nextCreator\"]).is.string;",
+							"    pm.expect(res[\"chain\"][1][\"nextCreator\"].length).to.be.equal(130);",
 							"});",
 							"",
 							"pm.test(\"number of voters\", function () {",
 							"    pm.expect(res[\"chain\"][0][\"nextVoters\"].length).to.be.equal(3);",
+							"    pm.expect(res[\"chain\"][1][\"nextVoters\"].length).to.be.equal(3);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -49,6 +53,122 @@
 					"port": "3000",
 					"path": [
 						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock3-1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3008\",\n    \"sendValue\": 1432000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3010/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3010",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock3-2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3011\",\n    \"sendValue\": 89432400000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3007/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3007",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock3-3",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3005\",\n    \"sendValue\": 3420000000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3003/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock3-4",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3001\",\n    \"sendValue\": 15300000000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3010/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3010",
+					"path": [
+						"transaction",
+						"port2portTx"
 					]
 				}
 			},
@@ -105,29 +225,30 @@
 							"let block1height = pm.collectionVariables.get(\"block1height\");",
 							"",
 							"pm.test(\"number of block\", function () {",
-							"    pm.expect(res[\"chain\"].length).to.equal(2);",
+							"    pm.expect(res[\"chain\"].length).to.equal(3);",
 							"});",
 							"",
 							"pm.test(\"number of txs\", function () {",
-							"    pm.expect(res[\"chain\"][1][\"transactions\"].length).to.be.above(0);",
+							"    pm.expect(res[\"chain\"][2][\"transactions\"].length).to.be.equal(4);",
 							"});",
 							"",
 							"pm.test(\"number of creators\", function () {",
-							"    pm.expect(res[\"chain\"][1][\"nextCreator\"]).is.string;",
-							"    pm.expect(res[\"chain\"][1][\"nextCreator\"].length).to.be.equal(130);",
+							"    pm.expect(res[\"chain\"][2][\"nextCreator\"]).is.string;",
+							"    pm.expect(res[\"chain\"][2][\"nextCreator\"].length).to.be.equal(130);",
 							"});",
 							"",
 							"pm.test(\"number of voters\", function () {",
-							"    pm.expect(res[\"chain\"][1][\"nextVoters\"].length).to.be.equal(3);",
+							"    pm.expect(res[\"chain\"][2][\"nextVoters\"].length).to.be.equal(3);",
 							"});",
 							"",
 							"pm.test(\"block height\", function () {",
 							"    //let lowestHeight = res[\"chain\"][0][\"height\"];",
-							"    pm.expect(res[\"chain\"][1][\"height\"]).to.equal(block1height+1);",
+							"    pm.expect(res[\"chain\"][2][\"height\"]).to.equal(block1height+2);",
 							"});",
 							"",
 							"pm.test(\"hash = next prevhash\", function () {",
 							"    pm.expect(res[\"chain\"][1][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][0][\"hash\"]);",
+							"    pm.expect(res[\"chain\"][2][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][1][\"hash\"]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -146,6 +267,122 @@
 					"port": "3000",
 					"path": [
 						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock4-1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3008\",\n    \"sendValue\": 1432000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3010/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3010",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock4-2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3011\",\n    \"sendValue\": 8943240000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3007/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3007",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock4-3",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3005\",\n    \"sendValue\": 3420000000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3003/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock4-4",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3001\",\n    \"sendValue\": 15300000000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3010/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3010",
+					"path": [
+						"transaction",
+						"port2portTx"
 					]
 				}
 			},
@@ -201,31 +438,262 @@
 							"let block1height = pm.collectionVariables.get(\"block1height\");",
 							"",
 							"pm.test(\"number of block\", function () {",
-							"    pm.expect(res[\"chain\"].length).to.equal(3);",
+							"    pm.expect(res[\"chain\"].length).to.equal(4);",
 							"});",
 							"",
 							"pm.test(\"number of txs\", function () {",
-							"    pm.expect(res[\"chain\"][2][\"transactions\"].length).to.be.above(0);",
+							"    pm.expect(res[\"chain\"][3][\"transactions\"].length).to.be.equal(4);",
 							"});",
 							"",
 							"pm.test(\"number of creators\", function () {",
-							"    pm.expect(res[\"chain\"][2][\"nextCreator\"]).is.string;",
-							"    pm.expect(res[\"chain\"][2][\"nextCreator\"].length).to.be.equal(130);",
+							"    pm.expect(res[\"chain\"][3][\"nextCreator\"]).is.string;",
+							"    pm.expect(res[\"chain\"][3][\"nextCreator\"].length).to.be.equal(130);",
 							"});",
 							"",
 							"pm.test(\"number of voters\", function () {",
-							"    pm.expect(res[\"chain\"][2][\"nextVoters\"].length).to.be.equal(3);",
+							"    pm.expect(res[\"chain\"][3][\"nextVoters\"].length).to.be.equal(3);",
 							"});",
 							"",
 							"pm.test(\"block height\", function () {",
 							"    //let lowestHeight = res[\"chain\"][0][\"height\"];",
 							"    pm.expect(res[\"chain\"][1][\"height\"]).to.equal(block1height+1);",
 							"    pm.expect(res[\"chain\"][2][\"height\"]).to.equal(block1height+2);",
+							"    pm.expect(res[\"chain\"][3][\"height\"]).to.equal(block1height+3);",
 							"});",
 							"",
 							"pm.test(\"hash = next prevhash\", function () {",
 							"    pm.expect(res[\"chain\"][1][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][0][\"hash\"]);",
 							"    pm.expect(res[\"chain\"][2][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][1][\"hash\"]);",
+							"    pm.expect(res[\"chain\"][3][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][2][\"hash\"]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/blockchain",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock5-1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3007\",\n    \"sendValue\": 3000000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3012/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3012",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock5-2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3000\",\n    \"sendValue\": 18493104\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3010/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3010",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock5-3",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3010\",\n    \"sendValue\": 18391284912\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3003/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addSingletxblock5-4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiverPort\": \"3003\",\n    \"sendValue\": 24323423432\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3005/transaction/port2portTx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3005",
+					"path": [
+						"transaction",
+						"port2portTx"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3013:creator",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json()",
+							"",
+							"pm.test(\"seqNum\", function () {",
+							"    pm.expect(res[\"SeqNum\"]).to.equal(4);",
+							"});",
+							"",
+							"pm.test(\"creator\", function () {",
+							"    pm.expect(res[\"CreatorUrl\"]).is.string;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3013/Creator",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3013",
+					"path": [
+						"Creator"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3000:blockchain4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json()",
+							"",
+							"let block1height = pm.collectionVariables.get(\"block1height\");",
+							"",
+							"pm.test(\"number of block\", function () {",
+							"    pm.expect(res[\"chain\"].length).to.equal(5);",
+							"});",
+							"",
+							"pm.test(\"number of txs\", function () {",
+							"    pm.expect(res[\"chain\"][4][\"transactions\"].length).to.be.equal(4);",
+							"});",
+							"",
+							"pm.test(\"number of creators\", function () {",
+							"    pm.expect(res[\"chain\"][4][\"nextCreator\"]).is.string;",
+							"    pm.expect(res[\"chain\"][4][\"nextCreator\"].length).to.be.equal(130);",
+							"});",
+							"",
+							"pm.test(\"number of voters\", function () {",
+							"    pm.expect(res[\"chain\"][4][\"nextVoters\"].length).to.be.equal(3);",
+							"});",
+							"",
+							"pm.test(\"block height\", function () {",
+							"    //let lowestHeight = res[\"chain\"][0][\"height\"];",
+							"    pm.expect(res[\"chain\"][1][\"height\"]).to.equal(block1height+1);",
+							"    pm.expect(res[\"chain\"][2][\"height\"]).to.equal(block1height+2);",
+							"    pm.expect(res[\"chain\"][3][\"height\"]).to.equal(block1height+3);",
+							"    pm.expect(res[\"chain\"][4][\"height\"]).to.equal(block1height+4);",
+							"});",
+							"",
+							"pm.test(\"hash = next prevhash\", function () {",
+							"    pm.expect(res[\"chain\"][1][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][0][\"hash\"]);",
+							"    pm.expect(res[\"chain\"][2][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][1][\"hash\"]);",
+							"    pm.expect(res[\"chain\"][3][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][2][\"hash\"]);",
+							"    pm.expect(res[\"chain\"][4][\"previousBlockHash\"]).to.be.equal(res[\"chain\"][3][\"hash\"]);",
 							"});"
 						],
 						"type": "text/javascript"

@@ -1,5 +1,5 @@
 const sha256 = require('sha256');
-
+const cloneDeep = require('lodash.clonedeep');
 /**
  * Generate & Initialize Block Class
  * @class  Block of the Blockchain containing basics of Bitcoin/Ethereum blocks and information about creators and voters
@@ -11,17 +11,17 @@ const sha256 = require('sha256');
  */
 function Block(height, pendingTransactions, previousHash, MPT) {
   // fixed area
-  this.MPT = MPT,
-  this.previousBlockHash = previousHash,
+  this.MPT = cloneDeep(MPT),
+  this.previousBlockHash = cloneDeep(previousHash),
   this.merkleRoot = this.MPT.Cal_hash(),
   this.timestamp = Date.now(),
-  this.height = height,
-  this.transactions = pendingTransactions.slice(0), // copy whole tx array
+  this.height = cloneDeep(height),
+  this.transactions = cloneDeep(pendingTransactions).slice(0), // copy whole tx array
 
   // variable area
   this.receiptTree = null,
   this.cosig = null,
-  this.nextCreator = null,
+  this.nextCreator = [],
   this.nextVoters = [],
   this.hash = null;
 };
@@ -44,6 +44,8 @@ Block.prototype.updateMPT = function() {
     const receiver = this.transactions[i].receiver;
     const value = this.transactions[i].value;
     this.MPT.UpdateValue(sender, receiver, value);
+    this.MPT.UpdateTax(sender, value * 0.5);
+    this.MPT.UpdateTax(receiver, value * 0.5);
   }
   this.merkleRoot = this.MPT.Cal_hash();
   return this.MPT;

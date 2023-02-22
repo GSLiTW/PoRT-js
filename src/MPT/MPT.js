@@ -372,7 +372,7 @@ MPT.prototype.ModifyValue = function(key, Update_flag = null, Update_value = nul
       if (this.key == key) {
         if (Update_flag == '-') {
           if (this.value.balance >= Update_value) {
-            tx_tax = parseInt((Update_value * 0.0001).toFixed(0))
+            tx_tax = parseInt((Update_value * 0.0001).toFixed(0));
             this.value.balance = this.value.balance - Update_value - tx_tax;
             this.value.tax += tx_tax;
             return this.value.balance;
@@ -685,7 +685,7 @@ MPT.prototype.Cal_old_hash = function() {
  */
 MPT.prototype.Select = function(h, flag, taxcnt) {
   if (this.mode == 'leaf') {
-    if ((h - taxcnt) < this.value.tax) {
+    if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0)) {
       return [1, this.key];
     } else {
       return [0, (taxcnt + this.value.tax)];
@@ -698,8 +698,8 @@ MPT.prototype.Select = function(h, flag, taxcnt) {
       return [flag, taxcnt];
     }
   } else if (this.mode == 'branch') {
-    if (this.value != null) {
-      if ((h - taxcnt) < this.value.tax) {
+    if (this.value != null ) {
+      if (((h - taxcnt) < this.value.tax) && (this.value.DirtyBit[0] == 0) && (this.value.DirtyBit[1] == 0) ) {
         return [1, ''];
       } else {
         taxcnt += this.value.tax;
@@ -710,7 +710,7 @@ MPT.prototype.Select = function(h, flag, taxcnt) {
         [flag, t] = this.branch[i].Select(h, flag, taxcnt);
         if (flag == 1) {
           taxcnt = parseInt(i).toString(16) + t;
-          break;
+          return [flag, taxcnt];
         } else {
           taxcnt = t;
         }

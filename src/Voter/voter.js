@@ -1,7 +1,7 @@
 const elliptic = require('elliptic');
 const Cosig = require('../cosig.js');
 const ec = new elliptic.ec('secp256k1');
-
+const cloneDeep = require('lodash.clonedeep');
 /**
  * Constructor of the Voter class
  * @class Voter is used to generate cosignature for block creation
@@ -11,13 +11,13 @@ const ec = new elliptic.ec('secp256k1');
  * @param  {MPT} MPT - Local Merkle Patricia Trie copy of the voter
  */
 function Voter(port, wallet, blockchain) {
-  this.MPT = blockchain.MPT;
+  this.MPT = cloneDeep(blockchain.MPT);
   this.port = port;
   this.wallet = wallet;
   const kp = wallet.NewKeyPair();
   this.secretv = kp[0];
   this.publicV = kp[1];
-  this.blockchain = blockchain;
+  this.blockchain = cloneDeep(blockchain);
 }
 /**
  * Check if the caller is selected as voter to perform actions for the current round of block construction
