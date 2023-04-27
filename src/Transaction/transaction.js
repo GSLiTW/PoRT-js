@@ -1,3 +1,5 @@
+const MPT = require("../MPT/MPT");
+
 /**
  * @class Data Structure for a single transaction
  * @param  {string} id - Transaction Hash
@@ -16,24 +18,45 @@ function Transaction_MT(id, sender, receiver, value, sig, MPT) {
   this.accountCheck(receiver, MPT);
 }
 
+/**
+ * Check if the given key has the account registered in MPT, if no register one
+ * @param  {string} key
+ * @param  {MPT} MPT
+ */
 Transaction_MT.prototype.accountCheck = function(key, MPT) {
   if (MPT.Search(key) === undefined || MPT.Search(key) === null) {
     MPT.Insert(key, 0);
   }
 };
 
+/**
+ * Get Id of the transaction
+ * @return {string} Id of the transaction
+ */
 Transaction_MT.prototype.get_id = function() {
   return this.id;
 };
 
+/**
+ * Get Sender of the transaction
+ * @return {string} Sender of the transaction
+ */
 Transaction_MT.prototype.get_sender = function() {
   return this.sender;
 };
 
+/**
+ * Get Receiver of the transaction
+ * @return {string} Receiver of the transaction
+ */
 Transaction_MT.prototype.get_receiver = function() {
   return this.receiver;
 };
 
+/**
+ * Get Value of the transaction
+ * @return {float} Value of the transaction
+ */
 Transaction_MT.prototype.get_value = function() {
   return this.value;
 };
