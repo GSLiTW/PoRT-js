@@ -12,7 +12,7 @@ const cloneDeep = require('lodash.clonedeep');
  * @class
  * @param  {string} port - Network port number of the creator
  * @param  {string} wallet - Wallet public key of the creator
- * @param {Blockchain} blockchain - Local  blockchain
+ * @param {Blockchain} blockchain - Copy network latest blockchain to become local  blockchain
  */
 function Creator(port, wallet, blockchain) {
   this.MPT = cloneDeep(blockchain.MPT);
@@ -51,6 +51,9 @@ Creator.prototype.isValid = function() {
 //   return this.block;
 // };
 
+/**
+ * Create a Cosig to use Cosig Library
+ */
 Creator.prototype.startCosig = function() {
   this.cosig = new Cosig();
 };
@@ -74,6 +77,10 @@ Creator.prototype.getVoter = function(voterUrl, voterPubKey, voterPubV) {
   }
 };
 
+/**
+ * Set index to record who have attend and send response to creator
+ * @param  {int} index - a number to each voter one by one
+ */
 Creator.prototype.setVoterIndex = function(index) {
   if (this.voterIndex == null) {
     this.voterIndex = [index];
@@ -82,20 +89,37 @@ Creator.prototype.setVoterIndex = function(index) {
   }
 };
 
+
+/**
+ * Gnenerate challenge in normal state
+ * @return {string} - challenge in hex
+ */
 Creator.prototype.generateChallenge = function() {
   this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block);
   return this.challenge.toString('hex');
 };
 
+/**
+ * Generate challenge in the state of any voter has disconnected
+ * @returns {string} - challenge in hex
+ */
 Creator.prototype.generateChallengeWithIndex = function() {
   this.challenge = this.cosig.generateChallenge(this.voterPubV, this.block, this.voterIndex);
   return this.challenge.toString('hex');
 };
 
+/**
+ * Get challenge in hex
+ * @return {string} - challenge in hex
+ */
 Creator.prototype.getChallenge = function() {
   return this.challenge.toString('hex');
 };
 
+/**
+ * Get response from voter and add to the list
+ * @param {string} VoterResponseHex - response in hex
+ */
 Creator.prototype.getResponses = function(VoterResponseHex) {
   const VoterResponse = new BN(VoterResponseHex, 'hex');
   if (this.voterResponse == null) {
@@ -104,12 +128,16 @@ Creator.prototype.getResponses = function(VoterResponseHex) {
     this.voterResponse.push(VoterResponse);
   }
 };
-
+/**
+ * Clear all responses after aggreate response
+ */
 Creator.prototype.clearResponses = function() {
   this.voterResponse = null;
 };
 
-
+/**
+ * Agregate response and verigy the cosignature to complete this round block construction
+ */
 Creator.prototype.aggregateResponse = function() {
   this.r0Aggr = this.cosig.aggregateResponse(this.voterResponse);
   if (this.verifyCoSig()) {
@@ -120,6 +148,10 @@ Creator.prototype.aggregateResponse = function() {
   }
 };
 
+/**
+ * Compute the cosignature by keypairs and compare with the generated one to verify it 
+ * @returns {boolean} - True if the cosignature is valid; False otherwise
+ */
 Creator.prototype.verifyCoSig = function() {
   const responseKeypair = ecdsa.keyFromPrivate(this.r0Aggr.toString(16));
   const gr0 = responseKeypair.getPublic();
