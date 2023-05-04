@@ -6,6 +6,7 @@ const port = process.argv[2];
 const rp = require('promise-request-retry');
 const web3 = require('web3');
 const fs = require('fs');
+const swaggerUi = require('swagger-ui-express');
 
 // macros
 const VOTER_NUM = 3;
@@ -142,6 +143,9 @@ function instantiateMPT(Tree) {
 }
 
 seqList = [0];
+
+const swaggerDocument = require('../swagger-output.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
