@@ -16,7 +16,7 @@
         "valid-jsdoc": "off",
         "new-cap": "off",
         "guard-for-in": "off",
-        "require-jsdoc": "off",
+        // "require-jsdoc": "off",
         "camelcase": "off"
     }
 }
