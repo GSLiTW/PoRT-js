@@ -149,7 +149,7 @@ Creator.prototype.aggregateResponse = function() {
 };
 
 /**
- * Compute the cosignature by keypairs and compare with the generated one to verify it 
+ * Compute the cosignature by keypairs and compare with the generated one to verify it
  * @returns {boolean} - True if the cosignature is valid; False otherwise
  */
 Creator.prototype.verifyCoSig = function() {
@@ -161,6 +161,9 @@ Creator.prototype.verifyCoSig = function() {
   return checkResult;
 };
 
+/**
+ * clean the transaction pool and update the MPT dbit, then complete  the block
+ */
 Creator.prototype.completeBlock = function() {
   this.blockchain.MPT.ResetSaved();
   this.blockchain.txn_pool.clean();
@@ -191,9 +194,9 @@ Creator.prototype.completeBlock = function() {
 };
 
 /**
- * Complete the generation of current new block
+ * Construct a new block and update account values in MPT
  * @param  {string} txspool - block transaction in  pool
- * @return {Block} the completed new block
+ * @return {Block} the constructed new block
  */
 Creator.prototype.constructNewBlock = function(txspool) {
   if (!this.MPT.saved) {
@@ -204,6 +207,9 @@ Creator.prototype.constructNewBlock = function(txspool) {
   }
 };
 
+/**
+ * Select new maintainers and refund tax to old ones
+ */
 Creator.prototype.selectMaintainer = function() {
   const tmpBlock = this.blockchain.getBlock(this.blockchain.getLastBlock().previousBlockHash);
   for (let i = 0; i < tmpBlock.nextCreator.length; i++) {
