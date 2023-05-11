@@ -151,22 +151,40 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/blockchain', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'return whole current blockchain.'
+  // #swagger.parameters['id'] = { description: 'ID do usuário.' }
+
+  /* #swagger.parameters['filtro'] = {
+    in: 'query',
+          description: 'Um filtro qualquer.',
+          type: 'string'
+  } */
   res.send(chain);
 });
 
 app.get('/wallet', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'return user wallet and wallet backup info.'
   res.send({wallet: wallet, backupinfo: Backup});
 });
 
 app.get('/MPT', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'return current MPT of current blockchain.'
   res.send(chain.MPT);
 });
 
 app.get('/transaction-pool', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'return current transaction pool.'
   res.send(chain.txn_pool);
 });
 
 app.get('/inserttx/:blocknum', (req, res) => {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'return whole current blockchain.'
+  // #swagger.parameters['blocknum'] = { description: 'The number of block to insert into transaction pool.' }
   const blocknum = req.params.blocknum;
   createtxs(blocknum);
   requestPromises = [];
