@@ -1,9 +1,8 @@
 const sha256 = require('sha256');
 const cloneDeep = require('lodash.clonedeep');
-/** PoRT constructor.
-* @param  {list} address - root address
+/** PoRT constructor. It will select the next maintainer for the next next block.
+* @param  {list} address - all maintainer address in this round
 * @param {MPT} MPT
-* @param {string} dbit - root dbit
 */
 function PoRT(address, MPT) {
   this.address = cloneDeep(address),
@@ -11,12 +10,12 @@ function PoRT(address, MPT) {
   this.nextMaintainer = [];
 
   for (let i = 0; i < address.length; i++) {
-    let T = this.Tree.TotalTax().toString();
-    let tmp = sha256(T + this.address[i]);
-    let h = parseInt(tmp, 16) % T;
+    const T = this.Tree.TotalTax().toString();
+    const tmp = sha256(T + this.address[i]);
+    const h = parseInt(tmp, 16) % T;
     let flag = 0;
     let getMaintainer = null;
-    let taxcnt = 0;
+    const taxcnt = 0;
     while (!flag) {
       getMaintainer = this.Tree.Select(h, 0, taxcnt);
       flag = getMaintainer[0];
