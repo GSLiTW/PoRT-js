@@ -10,6 +10,7 @@ const cloneDeep = require('lodash.clonedeep');
 /**
  * Creater is responsible for creating blocks and communicate with voter to generate cosignature
  * @class
+ * @constructor
  * @param  {string} port - Network port number of the creator
  * @param  {string} wallet - Wallet public key of the creator
  * @param {Blockchain} blockchain - Copy network latest blockchain to become local  blockchain
