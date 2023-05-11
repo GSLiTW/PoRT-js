@@ -11,6 +11,10 @@
     {
       "name": "Blockchain",
       "description": "Endpoints"
+    },
+    {
+      "name": "Deprecated",
+      "description": "Deprecated Endpoints"
     }
   ],
   "schemes": [
@@ -95,13 +99,17 @@
     },
     "/inserttx/{blocknum}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "return whole current blockchain.",
         "parameters": [
           {
             "name": "blocknum",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The number of block to insert into transaction pool."
           }
         ],
         "responses": {
@@ -133,13 +141,17 @@
     },
     "/MPT/Search/{key}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Search MPT for specific key.",
         "parameters": [
           {
             "name": "key",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "MPT key to be searched."
           }
         ],
         "responses": {
@@ -151,7 +163,10 @@
     },
     "/transaction/third-block": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Add third block transactions to transaction pool.",
         "parameters": [],
         "responses": {
           "200": {
@@ -162,7 +177,10 @@
     },
     "/transaction/launch": {
       "post": {
-        "description": "",
+        "tags": [
+          "Deprecated"
+        ],
+        "description": "Launch a mock transaction.",
         "parameters": [],
         "responses": {
           "200": {
@@ -173,10 +191,13 @@
     },
     "/transaction/AddTx": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Add new transaction to transaction pool with tansaciton object.",
         "parameters": [
           {
-            "name": "body",
+            "name": "NewTx",
             "in": "body",
             "schema": {
               "type": "object",
@@ -185,7 +206,8 @@
                   "example": "any"
                 }
               }
-            }
+            },
+            "description": "A transaction object"
           }
         ],
         "responses": {
@@ -197,10 +219,13 @@
     },
     "/transaction/port2portTx": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Add new transaction to transaction pool with specified receiver port and value.",
         "parameters": [
           {
-            "name": "body",
+            "name": "receiverPort",
             "in": "body",
             "schema": {
               "type": "object",
@@ -212,7 +237,8 @@
                   "example": "any"
                 }
               }
-            }
+            },
+            "description": "transaction value"
           }
         ],
         "responses": {
@@ -224,10 +250,13 @@
     },
     "/transaction/broadcast": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Broadcast transaction to exsisting peer.",
         "parameters": [
           {
-            "name": "body",
+            "name": "NewTx",
             "in": "body",
             "schema": {
               "type": "object",
@@ -236,7 +265,8 @@
                   "example": "any"
                 }
               }
-            }
+            },
+            "description": "A transaction object"
           }
         ],
         "responses": {
@@ -248,7 +278,10 @@
     },
     "/PKA": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "return backup PKA.",
         "parameters": [],
         "responses": {
           "200": {

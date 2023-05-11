@@ -220,16 +220,23 @@ app.post('/searchsender', (req, res) => {
 });
 
 app.get('/MPT/Search/:key', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Search MPT for specific key.'
+  // #swagger.parameters['key'] = { description: 'MPT key to be searched.' }
   const key = req.params.key;
   res.json({key: key, balance: chain.MPT.Search(key)});
 });
 
 
 app.get('/transaction/third-block', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Add third block transactions to transaction pool.'
   res.json({note: `push transactions of the third etherscan into pending txn pool.`});
 });
 
 app.post('/transaction/launch', function(req, res) {
+  // #swagger.tags = ['Deprecated']
+  // #swagger.description = 'Launch a mock transaction.'
   const newTransaction = Transaction('1000', 'Amy', 'John');
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
   const requestPromises = [];
@@ -250,6 +257,13 @@ app.post('/transaction/launch', function(req, res) {
 });
 
 app.post('/transaction/AddTx', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Add new transaction to transaction pool with tansaciton object.'
+  /* #swagger.parameters['NewTx'] = {
+    in: 'body',
+    description: 'A transaction object',
+    type: 'Transaction'
+  } */
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
   const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig, chain.MPT);
@@ -278,7 +292,19 @@ app.post('/transaction/AddTx', function(req, res) {
 
 
 app.post('/transaction/port2portTx', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Add new transaction to transaction pool with specified receiver port and value.'
+  /* #swagger.parameters['receiverPort'] = {
+    in: 'body',
+    description: 'transaction target',
+    type: 'string'
+  } */
   const receiverPort = req.body.receiverPort;
+  /* #swagger.parameters['receiverPort'] = {
+    in: 'body',
+    description: 'transaction value',
+    type: 'Number'
+  } */
   const sendValue = req.body.sendValue;
   const senderPUbKey = wallet.getPubKey(Number(port));
   const receiverPUbKey = wallet.getPubKey(Number(receiverPort));
@@ -310,6 +336,13 @@ app.post('/transaction/port2portTx', function(req, res) {
 });
 
 app.post('/transaction/broadcast', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Broadcast transaction to exsisting peer.'
+  /* #swagger.parameters['NewTx'] = {
+    in: 'body',
+    description: 'A transaction object',
+    type: 'Transaction'
+  } */
   const isexist = chain.addTransactionToPendingTransaction(req.body.NewTxs);
   // console.log(req.body.NewTxs);
   if (!isexist && chain.txn_pool.validate(req.body.NewTxs)) {
@@ -333,6 +366,8 @@ app.post('/transaction/broadcast', function(req, res) {
 });
 
 app.get('/PKA', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'return backup PKA.'
   res.send(Backup.pka);
 });
 

@@ -16,6 +16,10 @@ const doc = {
         {
             "name": "Blockchain",
             "description": "Endpoints"
+        },
+        {
+            "name": "Deprecated",
+            "description": "Deprecated Endpoints"
         }
     ],
     // securityDefinitions: {
