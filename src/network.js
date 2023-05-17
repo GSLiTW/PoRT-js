@@ -25,7 +25,7 @@ const tx_pool = require('./Transaction/pending_transaction_pool');
 const nodeVal = require('./NodeVal');
 
 // constants
-const BASE = 1000000000000;
+// const BASE = 1000000000000;
 
 // will be set to false in ("/Creator/GetBlock")
 let CreatorStartThisRound = false; // if true, means Creator already call ("Creator"), don't let him call again
@@ -46,6 +46,11 @@ const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
 console.log('publickey: ', wallet.publicKey.encode('hex'));
 
 // functions
+/**
+ * The function to read tx data from csv file and broadcast to insert it into tx pool
+ * @param {Integer} quantity - the number of txs to be read from csv file
+ * @param {Array} data - the data read from csv file
+ */
 function insertCSVData(quantity, data) {
   console.log('start insertCSVData');
   txns = [];
@@ -78,6 +83,10 @@ function insertCSVData(quantity, data) {
   return null;
 };
 
+/**
+ * The function to call function to read csv data to create txs
+ * @param {Interger} num - the index of csv file
+ */
 function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num);
@@ -123,10 +132,19 @@ if (port != 3000) {
 }
 
 // createtxs(3);
+/**
+ * The function to copy MPT in leaf node value
+ * @param {*} value - the value of leaf node
+ */
 function instantiateNode(value) {
   Object.setPrototypeOf(value, nodeVal.prototype);
 }
 
+/**
+ * The function to copy MPT to send to other nodes
+ * @param {MPT} Tree - The MPT to be copied
+ * @returns - recursive call and return the updated extension or branch node value
+ */
 function instantiateMPT(Tree) {
   Object.setPrototypeOf(Tree, MPT.prototype);
   if (Tree.mode == 'leaf') {
@@ -313,7 +331,7 @@ app.post('/transaction/port2portTx', function(req, res) {
   const sig = wallet.Sign(txid);
   const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, chain.MPT);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
-  res.send('done')
+  res.send('done');
 
   if (!isexist) {
     const requestPromises = [];
@@ -357,10 +375,10 @@ app.post('/transaction/broadcast', function(req, res) {
 
       requestPromises.push(rp(requestOptions));
     });
-    
+
     Promise.all(requestPromises).then((data) => {
       res.json({note: 'Transaction created and broadcast successfully.'});
-      res.json('sent')
+      res.json('sent');
     });
   }
 });
@@ -636,6 +654,8 @@ app.get('/block-explorer', function(req, res) {
 });
 
 app.get('/Creator', function(req, res) {
+  // #swagger.tag = ['Blockchain'];
+  // #swagger.description = '1. Construct a Creator. 2. Check Creator validity. 3. Construct a new block. 4. Start cosigning. 5. Broadcast the new block to find Voters.'
   console.log('********** Creator start  **********');
   creator = new Creator(port, wallet, chain);
 
