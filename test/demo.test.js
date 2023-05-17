@@ -5,18 +5,18 @@
 describe('genesis blocks and creator and voter check', () => {
   const Creator = require('../src/Creator/creator.js');
   const Voter = require('../src/Voter/voter.js');
-  const MPT = require('../src/MPT/MPT.js');
+  // const MPT = require('../src/MPT/MPT.js');
   const Wallet = require('../src/Utility/wallet.js');
-  const Block = require('../src/Block/block');
+  // const Block = require('../src/Block/block');
   const Blockchain = require('../src/Block/blockchain');
   const Transaction = require('../src/Transaction/transaction');
-  const TxnPool = require('../src/Transaction/pending_transaction_pool.js');
+  // const TxnPool = require('../src/Transaction/pending_transaction_pool.js');
   const CSVdata = require('../src/Transaction/CSV_data.js');
 
   const fs = require('fs');
   const elliptic = require('elliptic');
   // eslint-disable-next-line new-cap
-  const ecdsa = new elliptic.ec('secp256k1');
+  // const ecdsa = new elliptic.ec('secp256k1');
 
 
   // Function used
@@ -66,7 +66,7 @@ describe('genesis blocks and creator and voter check', () => {
     expect(genesisblock.previousBlockHash).toEqual('0');
     expect(genesisblock.timestamp).toEqual(0);
     expect(genesisblock.height).toEqual(1);
-    expect(genesisblock.nextCreator).toEqual('04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b');
+    expect(genesisblock.nextCreator).toEqual(['04bfde01a8a6973c4ece805f9a46f83d076a00e310e37351b50ee9a619838ce19e6dca73814b3557845140d0e97850487277b5a7ba87f26bd0cf9d943ce7623b9b']);
     expect(genesisblock.nextVoters[0]).toEqual('046fbf49bb8134c53d50595895283d4ce3b09473561219c6869ee2300af5481553e43d84d49837bd5a73fe6a3ab9337ef68532e1bf14ef83fb2d42eaa55c237680');
     expect(genesisblock.nextVoters[1]).toEqual('0482c4b01761ab85fcabebbb1021e032ac58c62d184a80a588e7ba6d01928cb0402bb174b6e7e9ce7528630bc9963bf7643320365ab88ee6500ad3eb2f91e0efcd');
     expect(genesisblock.nextVoters[2]).toEqual('0446a08e02df8950c6c5d1a1199747efab9fb5aadcdd79a95139f35bfbcf31f9ef8b116bad1012984521b6e7f07d1d8c67894d7d52880f894c93ff9c0aff439eb4');
@@ -77,7 +77,7 @@ describe('genesis blocks and creator and voter check', () => {
     expect(secondblock.previousBlockHash).toEqual('501cdbedcea248f8f5c832998b02b0b0a09d10ee13c9f38fd1e2aab73719bf6a');
     expect(secondblock.timestamp).toEqual(1);
     expect(secondblock.height).toEqual(2);
-    expect(secondblock.nextCreator).toEqual('04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8');
+    expect(secondblock.nextCreator).toEqual(['04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8']);
     expect(secondblock.nextVoters[0]).toEqual('040fb119adeaefa120c2cda25713da2523e36ebd0e0d5859bef2d96139583362d9f8420667557134c148405b5776102c633dfc3401a720eb5cdba05191fa371b7b');
     expect(secondblock.nextVoters[1]).toEqual('04471e6c2ec29e66b89e816217d6f172959b60a2f13071cfeb698fdaed2e23e23b7693ed687088a736b8912f5cc81f3af46e6c486f64165e6818da2da713407f92');
     expect(secondblock.nextVoters[2]).toEqual('04665d86db1e1be975cca04ca255d11da51928b1d5c4e18d5f3163dbc62d6a5536fa4939ced9ae9faf9e1624db5c9f4d9d64da3a9af93b9896d3ea0c52b41c296d');
@@ -118,18 +118,18 @@ describe('genesis blocks and creator and voter check', () => {
 describe('Cosig', () => {
   const Creator = require('../src/Creator/creator.js');
   const Voter = require('../src/Voter/voter.js');
-  const MPT = require('../src/MPT/MPT.js');
+  // const MPT = require('../src/MPT/MPT.js');
   const Wallet = require('../src/Utility/wallet.js');
-  const Block = require('../src/Block/block');
+  // const Block = require('../src/Block/block');
   const Blockchain = require('../src/Block/blockchain');
   const Transaction = require('../src/Transaction/transaction');
-  const TxnPool = require('../src/Transaction/pending_transaction_pool.js');
+  // const TxnPool = require('../src/Transaction/pending_transaction_pool.js');
   const CSVdata = require('../src/Transaction/CSV_data.js');
 
   const fs = require('fs');
   const elliptic = require('elliptic');
   // eslint-disable-next-line new-cap
-  const ecdsa = new elliptic.ec('secp256k1');
+  // const ecdsa = new elliptic.ec('secp256k1');
 
 
   // Function used
