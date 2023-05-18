@@ -89,14 +89,14 @@
         "tags": [
           "Blockchain"
         ],
-        "description": "return whole current blockchain.",
+        "description": "insert transaction into transaction pool.",
         "parameters": [
           {
             "name": "blocknum",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The number of block to insert into transaction pool."
+            "description": "The number of block(csv file) to insert into transaction pool."
           }
         ],
         "responses": {
@@ -471,6 +471,9 @@
     },
     "/register-and-broadcast-node": {
       "get": {
+        "tags": [
+          "Blockchain"
+        ],
         "description": "",
         "parameters": [],
         "responses": {
@@ -482,10 +485,13 @@
     },
     "/register-node": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "register incoming node to node list and return known nodes to incoming node",
         "parameters": [
           {
-            "name": "body",
+            "name": "newNodeUrl",
             "in": "body",
             "schema": {
               "type": "object",
@@ -494,7 +500,8 @@
                   "example": "any"
                 }
               }
-            }
+            },
+            "description": "Node Url"
           }
         ],
         "responses": {
@@ -506,10 +513,13 @@
     },
     "/register-nodes-bulk": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "register all nodes in request to node list",
         "parameters": [
           {
-            "name": "body",
+            "name": "allNetworkNodes",
             "in": "body",
             "schema": {
               "type": "object",
@@ -518,7 +528,8 @@
                   "example": "any"
                 }
               }
-            }
+            },
+            "description": "Node Url list"
           }
         ],
         "responses": {
@@ -530,13 +541,17 @@
     },
     "/block/{blockHash}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Get block with blockhash.",
         "parameters": [
           {
             "name": "blockHash",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "blockhash to search block."
           }
         ],
         "responses": {
@@ -548,12 +563,21 @@
     },
     "/transaction/{transactionId}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Get block with blockhash.",
         "parameters": [
           {
             "name": "transactionId",
             "in": "path",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "blockHash",
+            "description": "blockhash of a block.",
+            "in": "query",
             "type": "string"
           }
         ],
@@ -566,13 +590,17 @@
     },
     "/address/{address}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Get node data with address.",
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "address of a node."
           }
         ],
         "responses": {
@@ -595,7 +623,10 @@
     },
     "/Creator": {
       "get": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "1. Construct a Creator. 2. Check Creator validity. 3. Construct a new block. 4. Start cosigning. 5. Broadcast the new block to find Voters.",
         "parameters": [],
         "responses": {
           "200": {
@@ -606,7 +637,10 @@
     },
     "/Voter": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Construct a Voter and valid it identity. If it is a voter, save the creator url and send info to creator.",
         "parameters": [
           {
             "name": "body",
@@ -633,7 +667,10 @@
     },
     "/Creator/Challenge": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "get Voter info, save in Creator, and generate a challenge.",
         "parameters": [
           {
             "name": "body",
@@ -663,7 +700,10 @@
     },
     "/Voter/Response": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Verify the block, if valid then generate response and send to creator.",
         "parameters": [
           {
             "name": "body",
@@ -693,7 +733,10 @@
     },
     "/Creator/GetResponses": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Get response, give voters index and aggregate response. If some voters disconnect, regenerate challenge.",
         "parameters": [
           {
             "name": "body",
@@ -723,7 +766,10 @@
     },
     "/Creator/GetBlock": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "Endpoint of a round, reset parameters",
         "parameters": [
           {
             "name": "body",
@@ -747,7 +793,10 @@
     },
     "/update-blockchain": {
       "post": {
-        "description": "",
+        "tags": [
+          "Blockchain"
+        ],
+        "description": "update the blockchain and broadcast it to all nodes",
         "parameters": [
           {
             "name": "body",

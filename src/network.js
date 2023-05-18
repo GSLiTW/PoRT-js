@@ -524,6 +524,8 @@ app.get('/combine', function(req, res) {
 
 // register a new node and broadcast it to network nodes
 app.get('/register-and-broadcast-node', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = ''
   const newNodeUrl = 'http://localhost:' + port;
   if (chain.networkNodes.indexOf(newNodeUrl) == -1) {
     chain.networkNodes.push(newNodeUrl);
@@ -562,6 +564,13 @@ app.get('/register-and-broadcast-node', function(req, res) {
 
 // network nodes register the new node
 app.post('/register-node', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'register incoming node to node list and return known nodes to incoming node'
+  /* #swagger.parameters['newNodeUrl'] = {
+    in: 'body',
+    description: 'Node Url',
+    type: 'string'
+  } */
   const newNodeUrl = req.body.newNodeUrl;
   const nodeNotAlreadyPresent = chain.networkNodes.indexOf(newNodeUrl) == -1;
   const notCurrentNode = chain.currentNodeUrl !== newNodeUrl;
@@ -590,6 +599,13 @@ app.post('/register-node', function(req, res) {
 
 // new node registers all network nodes
 app.post('/register-nodes-bulk', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'register all nodes in request to node list'
+  /* #swagger.parameters['allNetworkNodes'] = {
+    in: 'body',
+    description: 'Node Url list',
+    type: 'list'
+  } */
   const allNetworkNodes = req.body.allNetworkNodes;
   allNetworkNodes.forEach((networkNodeUrl) => {
     const nodeNotAlreadyPresent =
@@ -604,6 +620,9 @@ app.post('/register-nodes-bulk', function(req, res) {
 });
 
 app.get('/block/:blockHash', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Get block with blockhash.'
+  // #swagger.parameters['blockHash'] = { description: 'blockhash to search block.' }
   const blockHash = req.params.blockHash;
   const correctBlock = chain.getBlock(blockHash);
   res.json({
@@ -612,6 +631,9 @@ app.get('/block/:blockHash', function(req, res) {
 });
 
 app.get('/transaction/:transactionId', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Get block with blockhash.'
+  // #swagger.parameters['blockHash'] = { description: 'blockhash  of a block.' }
   const transactionId = req.params.transactionId;
   const transactionData = chain.getTransaction(transactionId);
   res.json({
@@ -621,6 +643,9 @@ app.get('/transaction/:transactionId', function(req, res) {
 });
 
 app.get('/address/:address', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Get node data with address.'
+  // #swagger.parameters['address'] = { description: 'address of a node.' }
   const address = req.params.address;
   const addressData = chain.getAddressData(address);
   res.json({
@@ -633,7 +658,7 @@ app.get('/block-explorer', function(req, res) {
 });
 
 app.get('/Creator', function(req, res) {
-  // #swagger.tag = ['Blockchain'];
+  // #swagger.tags = ['Blockchain'];
   // #swagger.description = '1. Construct a Creator. 2. Check Creator validity. 3. Construct a new block. 4. Start cosigning. 5. Broadcast the new block to find Voters.'
   console.log('********** Creator start  **********');
   creator = new Creator(port, wallet, chain);
@@ -689,7 +714,7 @@ app.get('/Creator', function(req, res) {
 });
 
 app.post('/Voter', function(req, res) {
-  // #swagger.tag = ['Blockchain'];
+  // #swagger.tags = ['Blockchain'];
   // #swagger.description = 'Construct a Voter and valid it identity. If it is a voter, save the creator url and send info to creator.'
   console.log('********** Voter start  **********');
   const seq = req.body.SeqNum;
@@ -736,7 +761,7 @@ app.post('/Voter', function(req, res) {
 });
 
 app.post('/Creator/Challenge', function(req, res) {
-  // #swagger.tag = ['Blockchain'];
+  // #swagger.tags = ['Blockchain'];
   // #swagger.description = 'get Voter info, save in Creator, and generate a challenge.'
   console.log('********** Creator/Challenge start  **********');
   const VoterUrl = req.body.VoterUrl;
