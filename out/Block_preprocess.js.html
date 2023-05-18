@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Block/preprocess.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Block/preprocess.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const fs = require('fs');
+const MPT = require('../MPT/MPT');
+const Pending_Txn_Pool = require('../Transaction/pending_transaction_pool');
+const Blockchain = require('./blockchain');
+const CSV_data = require('../Transaction/CSV_data');
+const Wallet = require('../Utility/wallet');
+/**
+ * @class Function used to set up things required for our prototype demo
+ * The main data structure is following
+ * @port is size of the ports : 3001-3xxx ports
+ * @chian is the blockchain
+ * @tree is init MPT structure
+ * @block is genesisBlock
+ * ? @data is txs
+ */
+
+
+function Preprocess() {
+  this.port=14,
+  this.chain,
+  this.tree,
+  this.pending_txn_pool,
+  this.wallet,
+  this.data; // split each line to array
+}
+
+function insertCSVData(quantity, data) {
+  txns = [];
+  for (let i = 1; i &lt;= quantity; i++) {
+    if (data[i][2] === wallet.publicKey.encode('hex')) {
+      const sig = wallet.Sign(data[i][0]);
+      const newTx = new Transaction(data[i][0], data[i][2], data[i][3], data[i][4], sig, chain.MPT);
+      // storeData(newTx, `./${port}.json`)
+      const requestPromises = [];
+      // console.log(chain.networkNodes);
+      console.log('to tx broadcast');
+      this.chain.networkNodes.forEach((networkNodeUrl) => {
+        const requestOptions = {
+          uri: networkNodeUrl + '/transaction/broadcast',
+          method: 'POST',
+          body: {NewTxs: newTx},
+          json: true,
+          retry: 2,
+          delay: 10000,
+        };
+
+        requestPromises.push(rp(requestOptions));
+      });
+
+      Promise.all(requestPromises).then((data) => {
+        console.log('Transaction created and broadcast successfully.');
+      });
+    }
+  }
+  return null;
+};
+
+/**
+ * Set up all of following
+ * wallet data,
+ * designate initial value of creator/voter,
+ * create initial block
+ * transaction pool data
+ */
+
+Preprocess.prototype.initialize = function(port_address) {
+  // insert data from csv
+  this.data = fs
+      .readFileSync('./data/node_address_mapping_table.csv')
+      .toString() // convert Buffer to string
+      .split('\n') // split string to lines
+      .map((e) => e.trim()) // remove white spaces for each line
+      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+  console.log('data update succ');
+
+  // init MPT
+  this.tree = new MPT(true);
+  for (let i = 0; i &lt; this.port; i++) {
+    if (i == 4) this.tree.Insert(this.data[i][1], 10, 10 * 0.0001, [1, 1]);
+    // dbit == 1 means creator
+    else if (i == 15) {
+      this.tree.Insert(this.data[i][1], 10, 10 * 0.0001, [1, 2]);
+    } // dbit == 2 means voter
+    else if (i == 23) {
+      this.tree.Insert(this.data[i][1], 10, 10 * 0.0001, [1, 2]);
+    } // dbit == 2 means voter
+    else if (i == 36) {
+      this.tree.Insert(this.data[i][1], 10, 10 * 0.0001, [1, 2]);
+    } // dbit == 2 means voter
+    else this.tree.Insert(this.data[i][1], 10, 10 * 0.0001, [0, 0]);
+  }
+  // init Blockchain
+  this.chain = new Blockchain(this.tree);
+
+  for (let i = 0, UpdateList = this.chain.chain[0].transactions; i &lt; UpdateList.length; i++) {
+    this.tree.UpdateValue(UpdateList[i].sender, UpdateList[i].receiver, parseFloat(UpdateList[i].value));
+  }
+
+  // ? 這啥。。。
+  this.tree.Cal_old_hash();
+  this.tree.ResetSaved();
+
+  // init Wallet
+  const w = fs.readFileSync('./data/private_public_key.csv')
+      .toString() // convert Buffer to string
+      .split('\n') // split string to lines
+      .map((e) => e.trim()) // remove white spaces for each line
+      .map((e) => e.split(',').map((e) => e.trim())); // split each line to array
+  this.wallet = new Wallet(w[port_address - 3000][1], w[port_address - 3000][2], 10);
+
+
+  // init txs pool
+  this.pending_txn_pool = new Pending_Txn_Pool();
+
+
+  return;
+};
+
+
+/**
+ * Generate node_address_mapping_table from csv file
+ * @param  {int} num
+ * @return {} data
+ */
+Preprocess.prototype.createTxs = function(num) {
+  const csvdata = new CSV_data();
+  const data_ = csvdata.getData(num);
+  // get data of block_num
+  if (num == 1 || num == 2) {
+    console.log('add txn');
+    return insertCSVData(4, data_);
+  } else if (num == 3) {
+    console.log('add txn2');
+    return insertCSVData(4, data_);
+  } else console.log('wrong block number.');
+  return;
+};
+
+module.exports = Preprocess;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Block.html">Block</a></li><li><a href="Blockchain.html">Blockchain</a></li><li><a href="CSV_data.html">CSV_data</a></li><li><a href="Cosig.html">Cosig</a></li><li><a href="Creator.html">Creator</a></li><li><a href="MPT.html">MPT</a></li><li><a href="NodeVal.html">NodeVal</a></li><li><a href="Pending_Transaction_Pool.html">Pending_Transaction_Pool</a></li><li><a href="Preprocess.html">Preprocess</a></li><li><a href="Transaction_MT.html">Transaction_MT</a></li><li><a href="Voter.html">Voter</a></li><li><a href="Wallet.html">Wallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#PoRT">PoRT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu May 11 2023 15:19:38 GMT+0800 (Taipei Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
