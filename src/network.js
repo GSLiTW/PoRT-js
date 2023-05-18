@@ -25,9 +25,9 @@ const tx_pool = require('./Transaction/pending_transaction_pool');
 const nodeVal = require('./NodeVal');
 
 // constants
-const BASE = 1000000000000;
+// const BASE = 1000000000000;
 
-// will be set to false in ("/Creator/GetBlock")
+// will be reset in ("/Creator/GetBlock")
 let CreatorStartThisRound = false; // if true, means Creator already call ("Creator"), don't let him call again
 let FirstRoundLock = false; // if is true, means ("/Creator/Challenge") overtime, Creator will not wait for rest of voters
 let FirstRountSetTimeout = null; // record setTimeout in ("/Creator/Challenge"), confirm that only one timeout a time
@@ -46,6 +46,11 @@ const wallet = new Wallet(w[port - 3000][1], w[port - 3000][2], 10);
 console.log('publickey: ', wallet.publicKey.encode('hex'));
 
 // functions
+/**
+ * The function to read tx data from csv file and broadcast to insert it into tx pool
+ * @param {Integer} quantity - the number of txs to be read from csv file
+ * @param {Array} data - the data read from csv file
+ */
 function insertCSVData(quantity, data) {
   console.log('start insertCSVData');
   txns = [];
@@ -78,6 +83,10 @@ function insertCSVData(quantity, data) {
   return null;
 };
 
+/**
+ * The function to call function to read csv data to create txs
+ * @param {Interger} num - the index of csv file
+ */
 function createtxs(num) {
   const csvdata = new CSV_data();
   const data_ = csvdata.getData(num);
@@ -122,11 +131,19 @@ if (port != 3000) {
   });
 }
 
-// createtxs(3);
+/**
+ * The function to copy MPT in leaf node value
+ * @param {*} value - the value of leaf node
+ */
 function instantiateNode(value) {
   Object.setPrototypeOf(value, nodeVal.prototype);
 }
 
+/**
+ * The function to copy MPT to send to other nodes
+ * @param {MPT} Tree - The MPT to be copied
+ * @returns - recursive call and return the updated extension or branch node value
+ */
 function instantiateMPT(Tree) {
   Object.setPrototypeOf(Tree, MPT.prototype);
   if (Tree.mode == 'leaf') {
@@ -177,8 +194,8 @@ app.get('/transaction-pool', function(req, res) {
 
 app.get('/inserttx/:blocknum', (req, res) => {
   // #swagger.tags = ['Blockchain']
-  // #swagger.description = 'return whole current blockchain.'
-  // #swagger.parameters['blocknum'] = { description: 'The number of block to insert into transaction pool.' }
+  // #swagger.description = 'insert transaction into transaction pool.'
+  // #swagger.parameters['blocknum'] = { description: 'The number of block(csv file) to insert into transaction pool.' }
   const blocknum = req.params.blocknum;
   createtxs(blocknum);
   requestPromises = [];
@@ -199,18 +216,6 @@ app.get('/inserttx/:blocknum', (req, res) => {
 app.post('/searchsender', (req, res) => {
   const blocknum = req.body.blocknum;
   createtxs(blocknum);
-
-  // requestPromises = [];
-  // chain.networkNodes.forEach((networkNodeUrl) => {
-  //   const requestOptions = {
-  //     uri: networkNodeUrl + '/searchsender',
-  //     method: 'POST',
-  //     body: {blocknum: blocknum},
-  //     json: true,
-  //   };
-
-  //   requestPromises.push(rp(requestOptions));
-  // });
 });
 
 app.get('/MPT/Search/:key', function(req, res) {
@@ -261,7 +266,6 @@ app.post('/transaction/AddTx', function(req, res) {
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
   const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig, chain.MPT);
-  // console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
   if (!isexist) {
@@ -307,7 +311,7 @@ app.post('/transaction/port2portTx', function(req, res) {
   const sig = wallet.Sign(txid);
   const newTransaction = new Transaction(txid, senderPUbKey, receiverPUbKey, sendValue, sig, chain.MPT);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
-  res.send('done')
+  res.send('done');
 
   if (!isexist) {
     const requestPromises = [];
@@ -351,10 +355,10 @@ app.post('/transaction/broadcast', function(req, res) {
 
       requestPromises.push(rp(requestOptions));
     });
-    
+
     Promise.all(requestPromises).then((data) => {
       res.json({note: 'Transaction created and broadcast successfully.'});
-      res.json('sent')
+      res.json('sent');
     });
   }
 });
@@ -507,7 +511,6 @@ app.post('/decrypt', async function(req, res) {
 
 app.post('/getResponse', function(req, res) {
   const share = req.body.share;
-  // console.log(share);
   Backup.recoveryshare.push(share);
   res.json({shares: Backup.recoveryshare});
 });
@@ -630,6 +633,8 @@ app.get('/block-explorer', function(req, res) {
 });
 
 app.get('/Creator', function(req, res) {
+  // #swagger.tag = ['Blockchain'];
+  // #swagger.description = '1. Construct a Creator. 2. Check Creator validity. 3. Construct a new block. 4. Start cosigning. 5. Broadcast the new block to find Voters.'
   console.log('********** Creator start  **********');
   creator = new Creator(port, wallet, chain);
 
@@ -684,6 +689,8 @@ app.get('/Creator', function(req, res) {
 });
 
 app.post('/Voter', function(req, res) {
+  // #swagger.tag = ['Blockchain'];
+  // #swagger.description = 'Construct a Voter and valid it identity. If it is a voter, save the creator url and send info to creator.'
   console.log('********** Voter start  **********');
   const seq = req.body.SeqNum;
 
@@ -729,6 +736,8 @@ app.post('/Voter', function(req, res) {
 });
 
 app.post('/Creator/Challenge', function(req, res) {
+  // #swagger.tag = ['Blockchain'];
+  // #swagger.description = 'get Voter info, save in Creator, and generate a challenge.'
   console.log('********** Creator/Challenge start  **********');
   const VoterUrl = req.body.VoterUrl;
   const VoterPubKeyHex = req.body.publicKey;
@@ -803,16 +812,16 @@ app.post('/Creator/Challenge', function(req, res) {
 
 
 app.post('/Voter/Response', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Verify the block, if valid then generate response and send to creator.'
   console.log('********** Voter/Response start  **********');
   const isBlockValid = voter.VerifyBlock(req.body.message);
   console.log('block is valid: ' + isBlockValid);
   if (isBlockValid) {
     const challenge = req.body.challenge;
     const index = req.body.index;
-    // console.log(challenge);
 
     const response = voter.GenerateResponse(challenge);
-    // console.log(response);
 
     const requestPromises = [];
 
@@ -835,9 +844,10 @@ app.post('/Voter/Response', function(req, res) {
 });
 
 app.post('/Creator/GetResponses', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Get response, give voters index and aggregate response. If some voters disconnect, regenerate challenge.'
   console.log('********** Creator/GetResponses start  **********');
   if (req.body.challenge == creator.getChallenge()) {
-    console.log('test');
     const response = req.body.response;
     creator.getResponses(response);
     creator.setVoterIndex(req.body.index);
@@ -847,7 +857,6 @@ app.post('/Creator/GetResponses', function(req, res) {
         clearTimeout(GetResponsesSetTimeout);
       }
       console.log('there are ' + creator.voterResponse.length + ' Voter now');
-      // console.log("Creator owns tax:", creator.MPT.Search(creator.wallet.publicKey.encode("hex")));
       creator.aggregateResponse();
 
       const seq = seqList[seqList.length - 1] + 1;
@@ -890,6 +899,8 @@ app.post('/Creator/GetResponses', function(req, res) {
 });
 
 app.post('/Creator/GetBlock', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Endpoint of a round, reset parameters'
   console.log('********** Creator/GetBlock start  **********');
   let seq = req.body.seqNum; // has fault
 
@@ -922,16 +933,16 @@ app.post('/Creator/GetBlock', function(req, res) {
 });
 
 app.post('/update-blockchain', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'update the blockchain and broadcast it to all nodes'
   console.log('********** update-blockchain start  **********');
   const seq = req.body.SeqNum;
   const updatedChain = req.body.Blockchain;
   if (seqList.indexOf(seq) == -1) {
-    // chain.chain = updatedChain.chain;
     chain.chain = Object.setPrototypeOf(updatedChain.chain, Array.prototype);
     instantiateMPT(updatedChain.MPT);
     chain.MPT = updatedChain.MPT;
     chain.txn_pool = Object.setPrototypeOf(updatedChain.txn_pool, tx_pool.prototype);
-    // console.log(chain);
     seqList.push(seq);
 
     const requestPromises = [];
@@ -952,5 +963,3 @@ app.post('/update-blockchain', function(req, res) {
 app.listen(port, function() {
   console.log(`Listening on port ${port} ...`);
 });
-
-// createtxs(3);
