@@ -201,8 +201,8 @@ app.get('/transaction-pool', function(req, res) {
 
 app.get('/inserttx/:blocknum', (req, res) => {
   // #swagger.tags = ['Blockchain']
-  // #swagger.description = 'return whole current blockchain.'
-  // #swagger.parameters['blocknum'] = { description: 'The number of block to insert into transaction pool.' }
+  // #swagger.description = 'insert transaction into transaction pool.'
+  // #swagger.parameters['blocknum'] = { description: 'The number of block(csv file) to insert into transaction pool.' }
   const blocknum = req.params.blocknum;
   createtxs(blocknum);
   requestPromises = [];
@@ -710,6 +710,8 @@ app.get('/Creator', function(req, res) {
 });
 
 app.post('/Voter', function(req, res) {
+  // #swagger.tag = ['Blockchain'];
+  // #swagger.description = 'Construct a Voter and valid it identity. If it is a voter, save the creator url and send info to creator.'
   console.log('********** Voter start  **********');
   const seq = req.body.SeqNum;
 
@@ -755,6 +757,8 @@ app.post('/Voter', function(req, res) {
 });
 
 app.post('/Creator/Challenge', function(req, res) {
+  // #swagger.tag = ['Blockchain'];
+  // #swagger.description = 'get Voter info, save in Creator, and generate a challenge.'
   console.log('********** Creator/Challenge start  **********');
   const VoterUrl = req.body.VoterUrl;
   const VoterPubKeyHex = req.body.publicKey;
@@ -829,6 +833,8 @@ app.post('/Creator/Challenge', function(req, res) {
 
 
 app.post('/Voter/Response', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Verify the block, if valid then generate response and send to creator.'
   console.log('********** Voter/Response start  **********');
   const isBlockValid = voter.VerifyBlock(req.body.message);
   console.log('block is valid: ' + isBlockValid);
@@ -861,9 +867,10 @@ app.post('/Voter/Response', function(req, res) {
 });
 
 app.post('/Creator/GetResponses', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Get response, give voters index and aggregate response. If some voters disconnect, regenerate challenge.'
   console.log('********** Creator/GetResponses start  **********');
   if (req.body.challenge == creator.getChallenge()) {
-    console.log('test');
     const response = req.body.response;
     creator.getResponses(response);
     creator.setVoterIndex(req.body.index);
@@ -873,7 +880,6 @@ app.post('/Creator/GetResponses', function(req, res) {
         clearTimeout(GetResponsesSetTimeout);
       }
       console.log('there are ' + creator.voterResponse.length + ' Voter now');
-      // console.log("Creator owns tax:", creator.MPT.Search(creator.wallet.publicKey.encode("hex")));
       creator.aggregateResponse();
 
       const seq = seqList[seqList.length - 1] + 1;
@@ -916,6 +922,8 @@ app.post('/Creator/GetResponses', function(req, res) {
 });
 
 app.post('/Creator/GetBlock', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'Endpoint of a round, reset parameters'
   console.log('********** Creator/GetBlock start  **********');
   let seq = req.body.seqNum; // has fault
 
@@ -948,6 +956,8 @@ app.post('/Creator/GetBlock', function(req, res) {
 });
 
 app.post('/update-blockchain', function(req, res) {
+  // #swagger.tags = ['Blockchain']
+  // #swagger.description = 'update the blockchain and broadcast it to all nodes'
   console.log('********** update-blockchain start  **********');
   const seq = req.body.SeqNum;
   const updatedChain = req.body.Blockchain;
@@ -957,7 +967,6 @@ app.post('/update-blockchain', function(req, res) {
     instantiateMPT(updatedChain.MPT);
     chain.MPT = updatedChain.MPT;
     chain.txn_pool = Object.setPrototypeOf(updatedChain.txn_pool, tx_pool.prototype);
-    // console.log(chain);
     seqList.push(seq);
 
     const requestPromises = [];
@@ -978,5 +987,3 @@ app.post('/update-blockchain', function(req, res) {
 app.listen(port, function() {
   console.log(`Listening on port ${port} ...`);
 });
-
-// createtxs(3);
