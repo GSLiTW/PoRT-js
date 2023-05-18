@@ -27,7 +27,7 @@ const nodeVal = require('./NodeVal');
 // constants
 // const BASE = 1000000000000;
 
-// will be set to false in ("/Creator/GetBlock")
+// will be reset in ("/Creator/GetBlock")
 let CreatorStartThisRound = false; // if true, means Creator already call ("Creator"), don't let him call again
 let FirstRoundLock = false; // if is true, means ("/Creator/Challenge") overtime, Creator will not wait for rest of voters
 let FirstRountSetTimeout = null; // record setTimeout in ("/Creator/Challenge"), confirm that only one timeout a time
@@ -131,7 +131,6 @@ if (port != 3000) {
   });
 }
 
-// createtxs(3);
 /**
  * The function to copy MPT in leaf node value
  * @param {*} value - the value of leaf node
@@ -223,18 +222,6 @@ app.get('/inserttx/:blocknum', (req, res) => {
 app.post('/searchsender', (req, res) => {
   const blocknum = req.body.blocknum;
   createtxs(blocknum);
-
-  // requestPromises = [];
-  // chain.networkNodes.forEach((networkNodeUrl) => {
-  //   const requestOptions = {
-  //     uri: networkNodeUrl + '/searchsender',
-  //     method: 'POST',
-  //     body: {blocknum: blocknum},
-  //     json: true,
-  //   };
-
-  //   requestPromises.push(rp(requestOptions));
-  // });
 });
 
 app.get('/MPT/Search/:key', function(req, res) {
@@ -285,7 +272,6 @@ app.post('/transaction/AddTx', function(req, res) {
   const rawtx = req.body.NewTx;
   const sig = wallet.Sign(rawtx.id);
   const newTransaction = new Transaction(rawtx.id, rawtx.sender, rawtx.receiver, rawtx.value, sig, chain.MPT);
-  // console.log(newTransaction);
   const isexist = chain.addTransactionToPendingTransaction(newTransaction);
 
   if (!isexist) {
@@ -531,7 +517,6 @@ app.post('/decrypt', async function(req, res) {
 
 app.post('/getResponse', function(req, res) {
   const share = req.body.share;
-  // console.log(share);
   Backup.recoveryshare.push(share);
   res.json({shares: Backup.recoveryshare});
 });
@@ -841,10 +826,8 @@ app.post('/Voter/Response', function(req, res) {
   if (isBlockValid) {
     const challenge = req.body.challenge;
     const index = req.body.index;
-    // console.log(challenge);
 
     const response = voter.GenerateResponse(challenge);
-    // console.log(response);
 
     const requestPromises = [];
 
@@ -962,7 +945,6 @@ app.post('/update-blockchain', function(req, res) {
   const seq = req.body.SeqNum;
   const updatedChain = req.body.Blockchain;
   if (seqList.indexOf(seq) == -1) {
-    // chain.chain = updatedChain.chain;
     chain.chain = Object.setPrototypeOf(updatedChain.chain, Array.prototype);
     instantiateMPT(updatedChain.MPT);
     chain.MPT = updatedChain.MPT;
