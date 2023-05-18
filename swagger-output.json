@@ -34,20 +34,7 @@
           "Blockchain"
         ],
         "description": "return whole current blockchain.",
-        "parameters": [
-          {
-            "name": "id",
-            "description": "ID do usuário.",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "filtro",
-            "in": "query",
-            "description": "Um filtro qualquer.",
-            "type": "string"
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "OK"

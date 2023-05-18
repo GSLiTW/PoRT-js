@@ -153,13 +153,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.get('/blockchain', function(req, res) {
   // #swagger.tags = ['Blockchain']
   // #swagger.description = 'return whole current blockchain.'
-  // #swagger.parameters['id'] = { description: 'ID do usuário.' }
-
-  /* #swagger.parameters['filtro'] = {
-    in: 'query',
-          description: 'Um filtro qualquer.',
-          type: 'string'
-  } */
+  
   res.send(chain);
 });
 
