@@ -39,32 +39,11 @@ const doc = {
   //     }
   // },
   definitions: {
-    Parents: {
-      father: 'Simon Doe',
-      mother: 'Marie Doe',
-    },
-    User: {
-      name: 'Jhon Doe',
-      age: 29,
-      parents: {
-        $ref: '#/definitions/Parents',
-      },
-      diplomas: [
-        {
-          school: 'XYZ University',
-          year: 2020,
-          completed: true,
-          internship: {
-            hours: 290,
-            location: 'XYZ Company',
-          },
-        },
-      ],
-    },
-    AddUser: {
-      $name: 'Jhon Doe',
-      $age: 29,
-      about: '',
+    Transaction: {
+        id: '0x43a1a360188faaa2b227c1133d66e155c240816b33d6cba682e9ab27dbc77012',
+        sender: '04f586957689dd425776cb9dabf6c8fa5b311a175ede33e1e85b54c931b6d8fb14f8085a1b095e6886a25bbe346da08eb05e605f100e67272da7dac4d4c43d60bc',
+        receiver: '04ddb66f61a02eb345d2c8da36fa269d8753c3a01863d28565f1c2cf4d4af8636fdd223365fd54c0040cb6401cfef4b1f2e3554ae9cc5de7a0fb9785a38aa724e8',
+        value: '0.00297594'
     },
   },
 };
