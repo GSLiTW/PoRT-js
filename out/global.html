@@ -104,7 +104,7 @@
     
 
     
-    <h4 class="name" id="PoRT"><span class="type-signature"></span>PoRT<span class="signature">(address, MPT, dbit)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="PoRT"><span class="type-signature"></span>PoRT<span class="signature">(address, MPT)</span><span class="type-signature"></span></h4>
     
 
     
@@ -112,7 +112,7 @@
 
 
 <div class="description">
-    PoRT constructor.
+    PoRT constructor. It will select the next maintainer for the next next block.
 </div>
 
 
@@ -164,7 +164,7 @@
 
             
 
-            <td class="description last">root address</td>
+            <td class="description last">all maintainer address in this round</td>
         </tr>
 
     
@@ -188,29 +188,6 @@
             
 
             <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>dbit</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">root dbit</td>
         </tr>
 
     
@@ -251,7 +228,588 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Creator_PoRT.js.html">Creator/PoRT.js</a>, <a href="Creator_PoRT.js.html#line8">line 8</a>
+        <a href="Creator_PoRT.js.html">Creator/PoRT.js</a>, <a href="Creator_PoRT.js.html#line7">line 7</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="createtxs"><span class="type-signature"></span>createtxs<span class="signature">(num)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    The function to call function to read csv data to create txs
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>num</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Interger</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the index of csv file</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="network.js.html">network.js</a>, <a href="network.js.html#line90">line 90</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="insertCSVData"><span class="type-signature"></span>insertCSVData<span class="signature">(quantity, data)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    The function to read tx data from csv file and broadcast to insert it into tx pool
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>quantity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the number of txs to be read from csv file</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the data read from csv file</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="network.js.html">network.js</a>, <a href="network.js.html#line54">line 54</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="instantiateMPT"><span class="type-signature"></span>instantiateMPT<span class="signature">(Tree)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    The function to copy MPT to send to other nodes
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>Tree</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MPT.html">MPT</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The MPT to be copied</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="network.js.html">network.js</a>, <a href="network.js.html#line147">line 147</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - recursive call and return the updated extension or branch node value
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="instantiateNode"><span class="type-signature"></span>instantiateNode<span class="signature">(value)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    The function to copy MPT in leaf node value
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the value of leaf node</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="network.js.html">network.js</a>, <a href="network.js.html#line138">line 138</a>
     </li></ul></dd>
     
 
@@ -297,13 +855,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Block.html">Block</a></li><li><a href="Blockchain.html">Blockchain</a></li><li><a href="CSV_data.html">CSV_data</a></li><li><a href="Cosig.html">Cosig</a></li><li><a href="Creator.html">Creator</a></li><li><a href="MPT.html">MPT</a></li><li><a href="NodeVal.html">NodeVal</a></li><li><a href="Pending_Transaction_Pool.html">Pending_Transaction_Pool</a></li><li><a href="Preprocess.html">Preprocess</a></li><li><a href="Transaction_MT.html">Transaction_MT</a></li><li><a href="Voter.html">Voter</a></li><li><a href="Wallet.html">Wallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#PoRT">PoRT</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Block.html">Block</a></li><li><a href="Blockchain.html">Blockchain</a></li><li><a href="CSV_data.html">CSV_data</a></li><li><a href="Cosig.html">Cosig</a></li><li><a href="Creator.html">Creator</a></li><li><a href="MPT.html">MPT</a></li><li><a href="NodeVal.html">NodeVal</a></li><li><a href="Pending_Transaction_Pool.html">Pending_Transaction_Pool</a></li><li><a href="Preprocess.html">Preprocess</a></li><li><a href="Transaction_MT.html">Transaction_MT</a></li><li><a href="Voter.html">Voter</a></li><li><a href="Wallet.html">Wallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#PoRT">PoRT</a></li><li><a href="global.html#createtxs">createtxs</a></li><li><a href="global.html#insertCSVData">insertCSVData</a></li><li><a href="global.html#instantiateMPT">instantiateMPT</a></li><li><a href="global.html#instantiateNode">instantiateNode</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu May 11 2023 15:19:38 GMT+0800 (Taipei Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu May 18 2023 15:39:44 GMT+0800 (Taipei Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

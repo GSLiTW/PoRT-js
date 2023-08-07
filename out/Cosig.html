@@ -49,7 +49,7 @@
 
 
 <div class="description">
-    Cosig class is responsible for do cosig algorithm calculation
+    Cosig class is a library which is responsible for doing cosig algorithm calculation
 </div>
 
 
@@ -221,12 +221,558 @@
     
 
     
+    <h4 class="name" id="GenerateResponse"><span class="type-signature"></span>GenerateResponse<span class="signature">(cHex, secretv, privateKey)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Voter generate response
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>cHex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hex string of challenge</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>secretv</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">voter secretv</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">voter private key</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cosig.js.html">cosig.js</a>, <a href="cosig.js.html#line106">line 106</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - hex string of response
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="aggregateResponse"><span class="type-signature"></span>aggregateResponse<span class="signature">(voterResponse)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Creator generate response
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>voterResponse</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">response from voters</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cosig.js.html">cosig.js</a>, <a href="cosig.js.html#line61">line 61</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - response
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="computePubkeyMulWithChallenge"><span class="type-signature"></span>computePubkeyMulWithChallenge<span class="signature">(voterPubKey, challenge)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Compute x0 with voter's public keys and challenge
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>voterPubKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hex string of all voter's public keys</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>challenge</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hex string of challenge</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cosig.js.html">cosig.js</a>, <a href="cosig.js.html#line91">line 91</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="generateChallenge"><span class="type-signature"></span>generateChallenge<span class="signature">(voterPubV, block)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
 
 
+
+<div class="description">
+    Creator generate challenge in normal state
+</div>
 
 
 
@@ -267,7 +813,7 @@
             <td class="type">
             
                 
-<span class="param-type">*</span>
+<span class="param-type">Array</span>
 
 
             
@@ -370,7 +916,7 @@
 
         
 <div class="param-desc">
-    - challenge(hex type)
+    - hex string of challenge
 </div>
 
 
@@ -382,6 +928,435 @@
     <dd>
         
 <span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="generateChallengeWithIndex"><span class="type-signature"></span>generateChallengeWithIndex<span class="signature">(voterPubV, block, voterIndex)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Creator generate challenge in the state of any voter has disconnected
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>voterPubV</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">string of all voter PublicV</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>block</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Block.html">Block</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">whole new Block</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>voterIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">index of voter who has attended</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cosig.js.html">cosig.js</a>, <a href="cosig.js.html#line44">line 44</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - hex string of challenge
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="verifyCosig"><span class="type-signature"></span>verifyCosig<span class="signature">(gr0, x0c, challenge, block)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Verify cosig by comparing challenges computed in two different methods
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gr0</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">publick key generated with ECDSA by utilizing r0Aggr as private key</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x0c</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">compute with voter's public keys and challenge</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>challenge</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hex string of challenge</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>block</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Block.html">Block</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">whole new Block</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cosig.js.html">cosig.js</a>, <a href="cosig.js.html#line78">line 78</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
 
 
     </dd>
@@ -409,13 +1384,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Block.html">Block</a></li><li><a href="Blockchain.html">Blockchain</a></li><li><a href="CSV_data.html">CSV_data</a></li><li><a href="Cosig.html">Cosig</a></li><li><a href="Creator.html">Creator</a></li><li><a href="MPT.html">MPT</a></li><li><a href="NodeVal.html">NodeVal</a></li><li><a href="Pending_Transaction_Pool.html">Pending_Transaction_Pool</a></li><li><a href="Preprocess.html">Preprocess</a></li><li><a href="Transaction_MT.html">Transaction_MT</a></li><li><a href="Voter.html">Voter</a></li><li><a href="Wallet.html">Wallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#PoRT">PoRT</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Block.html">Block</a></li><li><a href="Blockchain.html">Blockchain</a></li><li><a href="CSV_data.html">CSV_data</a></li><li><a href="Cosig.html">Cosig</a></li><li><a href="Creator.html">Creator</a></li><li><a href="MPT.html">MPT</a></li><li><a href="NodeVal.html">NodeVal</a></li><li><a href="Pending_Transaction_Pool.html">Pending_Transaction_Pool</a></li><li><a href="Preprocess.html">Preprocess</a></li><li><a href="Transaction_MT.html">Transaction_MT</a></li><li><a href="Voter.html">Voter</a></li><li><a href="Wallet.html">Wallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#PoRT">PoRT</a></li><li><a href="global.html#createtxs">createtxs</a></li><li><a href="global.html#insertCSVData">insertCSVData</a></li><li><a href="global.html#instantiateMPT">instantiateMPT</a></li><li><a href="global.html#instantiateNode">instantiateNode</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu May 11 2023 15:19:38 GMT+0800 (Taipei Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu May 18 2023 15:39:44 GMT+0800 (Taipei Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
