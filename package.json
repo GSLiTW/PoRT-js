@@ -169,7 +169,8 @@
     "3156": "nodemon --watch dev -e js src/network.js 3156 http://localhost:3156 &",
     "3157": "nodemon --watch dev -e js src/network.js 3157 http://localhost:3157 &",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "codehawk": "codehawk src"
   },
   "author": "",
   "license": "ISC",
@@ -187,6 +188,7 @@
     "json2csv": "^5.0.3",
     "keccak256": "^1.0.1",
     "lodash": ">=4.17.21",
+    "mock-argv": "^2.0.8",
     "nodemon": "^2.0.2",
     "promise-request-retry": "^1.0.2",
     "random-bytes": "^1.0.0",
@@ -200,6 +202,7 @@
     "types": "^0.1.1",
     "underscore": ">=1.12.1",
     "uuid": "^3.4.0",
+    "web3": "^1.8.1",
     "ws": ">=7.4.6"
   },
   "devDependencies": {
@@ -208,6 +211,7 @@
     "babel-cli": "^6.26.0",
     "babel-jest": "^28.1.0",
     "babel-preset-env": "^1.7.0",
+    "codehawk-cli": "^9.0.0",
     "eslint": "^8.17.0",
     "eslint-config-google": "^0.14.0",
     "jest": "^28.1.0",
